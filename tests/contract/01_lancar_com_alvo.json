@@ -1,5 +1,5 @@
 {
-  "descricao": "Lança gelo num alvo de fogo",
+  "descricao": "Lança gelo num alvo de fogo: 3 da peça + 0,1 da instrução",
   "requisicao": {
     "versao": 1,
     "id": 1,
@@ -33,9 +33,10 @@
     "saidas": [],
     "mago": {
       "vida": 10,
-      "mana": 5,
+      "mana": 1.9,
       "mana_max": 20
     },
+    "custo_mana": 3.1,
     "erro": null
   }
 }

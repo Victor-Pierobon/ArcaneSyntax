@@ -9,6 +9,8 @@ var actions: Array[Dictionary] = []
 var outputs: Array[Dictionary] = []
 ## Estado do mago no fim da execução; vazio quando a requisição foi recusada.
 var mago: Dictionary = {}
+## Mana gasta em instruções e peças (spec EXE-custo).
+var cost: float = 0.0
 ## null quando ok.
 var error: SpellError = null
 
@@ -23,6 +25,7 @@ static func from_dict(data: Dictionary) -> SpellResult:
 		result.outputs.append(_with_int_line(output))
 	if data.get("mago") is Dictionary:
 		result.mago = data["mago"]
+	result.cost = float(data.get("custo_mana", 0.0))
 	if data.get("erro") is Dictionary:
 		result.error = SpellError.from_dict(data["erro"])
 	return result
@@ -50,5 +53,6 @@ func to_dict() -> Dictionary:
 		"acoes": actions,
 		"saidas": outputs,
 		"mago": null if mago.is_empty() else mago,
+		"custo_mana": cost,
 		"erro": null if error == null else error.to_dict(),
 	}

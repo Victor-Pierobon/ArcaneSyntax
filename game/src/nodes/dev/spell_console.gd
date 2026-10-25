@@ -93,5 +93,6 @@ func _show(result: SpellResult) -> void:
 	text += "\n[b]Ações[/b]\n"
 	for action in result.actions:
 		text += "  linha %d: %s\n" % [action["linha"], JSON.stringify(action)]
+	text += "\n[b]Custo[/b]\n  %s de mana\n" % result.cost
 	text += "\n[b]Mago no fim[/b]\n  %s\n" % JSON.stringify(result.mago)
 	_output.text = text

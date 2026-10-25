@@ -93,7 +93,7 @@ def test_EXE_019_loop_sobre_a_mana():
         mago={"vida": 10, "mana": 0, "mana_max": 5},
         regras={"ganho_absorver": 1},
     )
-    assert len(acoes(r, "absorver_mana")) == 5
+    assert len(acoes(r, "absorver_mana")) == 6  # cada volta paga 0,1 (EXE-045)
     assert all(a["linha"] == 2 for a in r["acoes"])
     assert r["mago"]["mana"] == 5
 
@@ -121,14 +121,14 @@ def test_EXE_023_sentidos_nao_podem_ser_trapaceados():
         mago={"vida": 10, "mana": 2, "mana_max": 10},
         regras={"ganho_absorver": 1},
     )
-    assert r["saidas"][0]["texto"] == "3"
-    assert r["mago"]["mana"] == 3
+    assert r["saidas"][0]["texto"] == "2.8"
+    assert r["mago"]["mana"] == 2.7
 
 
 def test_EXE_023_sentidos_atualizam_dentro_de_funcao():
     codigo = "def carregar():\n    while mana < mana_max:\n        absorver_mana()\ncarregar()\nprint(mana)"
     r = run(codigo, mago={"vida": 10, "mana": 7, "mana_max": 9}, regras={"ganho_absorver": 1})
-    assert r["saidas"][0]["texto"] == "9"
+    assert r["saidas"][0]["texto"] == "8.9"  # chegou a 9 dentro da função; a chamada custou 0,1
 
 
 FEITICO_ADAPTAVEL = """def feitico_adaptavel(alvo):

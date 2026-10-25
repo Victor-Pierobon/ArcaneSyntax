@@ -1,5 +1,5 @@
 {
-  "descricao": "O que rodou antes do erro continua na resposta",
+  "descricao": "O que rodou antes do erro continua na resposta; a instrução com erro não paga",
   "requisicao": {
     "versao": 1,
     "id": 5,
@@ -7,7 +7,7 @@
     "mundo": {
       "mago": {
         "vida": 10,
-        "mana": 0,
+        "mana": 1,
         "mana_max": 20
       },
       "alvo": null
@@ -31,9 +31,10 @@
     ],
     "mago": {
       "vida": 10,
-      "mana": 5,
+      "mana": 5.8,
       "mana_max": 20
     },
+    "custo_mana": 0.2,
     "erro": {
       "tipo": "NameError",
       "mensagem": "name 'y' is not defined",

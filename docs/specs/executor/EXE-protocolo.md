@@ -10,7 +10,7 @@ O jogo envia o código do feitiço e uma foto do mundo; o executor devolve o que
 
 ## Fora do escopo
 
-Custo de mana, limites de mana e tempo, sandbox (Sprint 2: EXE-custo, EXE-limites, EXE-sandbox).
+As regras de custo, limites e sandbox estão em EXE-custo, EXE-limites e EXE-sandbox (Sprint 2); aqui só o formato.
 
 ## Regras
 
@@ -28,7 +28,16 @@ Custo de mana, limites de mana e tempo, sandbox (Sprint 2: EXE-custo, EXE-limite
      "regras": {"ganho_meditar": 5, "ganho_absorver": 1}
    }
    ```
-   `mundo.alvo` pode ser `null`. `regras` é opcional; valores ausentes usam o padrão (`ganho_meditar` 5, `ganho_absorver` 1).
+   `mundo.alvo` pode ser `null`. `regras` é opcional; cada valor ausente usa o padrão:
+
+   | Regra | Padrão | Spec |
+   | --- | --- | --- |
+   | `ganho_meditar` | 5 | EXE-pecas |
+   | `ganho_absorver` | 1 | EXE-pecas |
+   | `custo_instrucao` | 0.1 | EXE-custo |
+   | `custo_lancar` / `custo_mover` / `custo_levitar` | 3 / 1 / 2 | EXE-custo |
+   | `custo_meditar` / `custo_absorver` | 0 / 0 | EXE-custo |
+   | `limite_tempo_ms` | 1000 | EXE-limites |
 3. Resposta:
    ```json
    {
@@ -37,11 +46,13 @@ Custo de mana, limites de mana e tempo, sandbox (Sprint 2: EXE-custo, EXE-limite
      "ok": true,
      "acoes": [{"tipo": "lancar", "linha": 1, "elemento": "fogo", "forma": "projetil", "alvo": "elemental_1"}],
      "saidas": [],
-     "mago": {"vida": 10, "mana": 5, "mana_max": 20},
+     "mago": {"vida": 10, "mana": 1.9, "mana_max": 20},
+     "custo_mana": 3.1,
      "erro": null
    }
    ```
-   `mago` é o estado do mago simulado no fim da execução (ADR-001).
+   `mago` é o estado do mago simulado no fim da execução (ADR-001). `custo_mana` é o total gasto (EXE-custo); 0 numa requisição inválida.
+   Tipos de erro além das exceções do Python: `RequisicaoInvalida`, `ManaEsgotada`, `TempoEsgotado`, `LimiteExcedido`, `FeiticoProibido`. Do lado do Godot: `ExecutorIndisponivel`, `RespostaInvalida` e `TempoEsgotado` (watchdog).
 4. Toda ação e toda saída carregam a `linha` do código do jogador que a gerou.
 5. Quando dá erro, `ok` é `false` e `erro` segue EXE-erros. As ações e saídas produzidas **antes** do erro continuam na resposta.
 6. Uma requisição inválida nunca derruba o worker: ele responde com erro e segue lendo.

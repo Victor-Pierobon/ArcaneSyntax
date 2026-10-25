@@ -46,6 +46,11 @@ func test_resultado_converte_linhas_para_int() -> void:
 	assert_str(result.error.type).is_equal("NameError")
 
 
+func test_resultado_le_o_custo_de_mana() -> void:
+	var result := SpellResult.from_dict(fixtures["01_lancar_com_alvo"]["resposta"])
+	assert_float(result.cost).is_equal_approx(3.1, 0.0001)
+
+
 func test_resultado_de_erro_de_requisicao_tem_mago_vazio() -> void:
 	var result := SpellResult.from_dict(fixtures["06_requisicao_invalida"]["resposta"])
 	assert_bool(result.ok).is_false()

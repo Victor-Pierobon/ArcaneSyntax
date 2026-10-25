@@ -16,3 +16,8 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 
 - Documentação consolidada: `docs/arquitetura.md`, um arquivo por sprint em `docs/sprints/` (relatórios da 0 e da 1, planos da 2 à 15), roadmap virou índice com status, `handoff.md` + `CLAUDE.md` para novas conversas.
 - Próximo: decidir a regra de custo de mana e começar a Sprint 2.
+
+## 2026-10-25 (Sprint 2)
+
+- Executor completo: custo de mana ("linhas baratas", por instrumentação da AST), limites de mana, tempo, ações, saídas e memória, watchdog no Godot, sandbox. Guia de arte com prompts. 105 pytest e 28 GdUnit4 verdes. Marco M1 fechado.
+- Próximo: Sprint 3 (personagem e mundo); build de fumaça quando os templates de exportação estiverem instalados.

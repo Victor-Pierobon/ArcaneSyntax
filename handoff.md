@@ -1,7 +1,7 @@
 # Handoff — ArcaneSyntax
 
 > Contexto para começar uma conversa nova sem reler toda a documentação.
-> **Atualizado em:** 2026-10-25, fim da Sprint 1.
+> **Atualizado em:** 2026-10-25, fim da Sprint 2.
 > **Atualizar** ao fim de cada sprint (ou quando algo aqui deixar de ser verdade).
 
 ## 1. O projeto em 30 segundos
@@ -14,11 +14,11 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 
 | | |
 | --- | --- |
-| Sprint atual | **Sprint 1 concluída**; a próxima é a **Sprint 2** (custo de mana, limites, sandbox) |
-| Último commit | `8b798a0` (Sprint 0). **A Sprint 1 e esta documentação ainda não foram commitadas**; o Victor revisa e commita |
-| Testes | 51 pytest + 23 GdUnit4, todos verdes localmente |
-| CI | Configurado, **ainda não verificado no GitHub** |
-| Pendências do Victor | Tutorial 2D do Godot; escolher assets provisórios; push e conferir o CI |
+| Sprint atual | **Sprint 2 concluída** (fecha o marco M1: o executor está completo e seguro); a próxima é a **Sprint 3** (personagem e mundo) |
+| Commits | Sprints 0 e 1 e a documentação estão commitadas. **A Sprint 2 ainda não**; o Victor revisa e commita |
+| Testes | 105 pytest + 28 GdUnit4, todos verdes localmente |
+| CI | Configurado, **ainda não confirmado verde no GitHub** |
+| Pendências do Victor | Tutorial 2D do Godot; escolher assets provisórios (bloqueia a Sprint 3); conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
 
 ## 3. Regras de trabalho (combinadas com o Victor)
 
@@ -42,14 +42,18 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 | Visão do jogo completo | `docs/gdd.md` (longo) |
 | Escopo e horas originais da Alpha | `docs/plano-alpha.md` |
 | Histórico por sessão | `docs/diario.md` |
+| Arte: especificações, lista de assets, prompts para IA | `docs/arte/guia-de-arte.md` |
 
 ## 5. Arquitetura em uma tela
 
 - **Godot (`game/`)**: regras puras em `src/core/` (sem Node, testáveis sem cena); Nodes em `src/nodes/`; cliente do executor em `src/executor_client/`.
 - **Executor (`executor/`)**: worker Python persistente. O Godot sobe `runtime/python/python.exe -I -S -u executor/run_worker.py` com `OS.execute_with_pipe` e troca **uma linha JSON por requisição**. A ida e volta roda numa `Thread`; `execute()` é usado com `await`.
 - **Modelo de execução (ADR-001)**: o jogo manda uma foto do mundo; o executor roda o feitiço inteiro, simulando só a mana do mago, e devolve todas as ações, cada uma com a `linha` que a gerou. O resto do mundo não muda durante a execução.
-- **Protocolo v1**: requisição `{versao:1, id, codigo, mundo:{mago:{vida,mana,mana_max}, alvo:{id,elemento,distancia}|null}, regras?}` → resposta `{versao:1, id, ok, acoes:[{tipo,linha,...}], saidas:[{linha,texto}], mago, erro:{tipo,mensagem,linha,coluna}|null}`.
+- **Protocolo v1**: requisição `{versao:1, id, codigo, mundo:{mago:{vida,mana,mana_max}, alvo:{id,elemento,distancia}|null}, regras?}` → resposta `{versao:1, id, ok, acoes:[{tipo,linha,...}], saidas:[{linha,texto}], mago, custo_mana, erro:{tipo,mensagem,linha,coluna}|null}`.
 - **Peças**: `lancar(elemento, forma, alvo=None)`, `mover(passos)`, `levitar(altura)`, `meditar()`, `absorver_mana()`. Elementos `fogo/gelo/raio` e formas `projetil/escudo` são strings. Sentidos: `mana`, `mana_max`, `vida_atual`, `alvo` (`.elemento`, `.distancia`, somente leitura).
+- **Custo de mana (EXE-custo)**: instrução simples custa 0,1, cobrada **depois** de rodar (`return/break/continue/raise`: antes); estruturas (`while/if/for/def`…) não custam; peças: `lancar` 3, `mover` 1, `levitar` 2, `meditar`/`absorver_mana` 0; teto `mana_max` aplicado depois de pagar. Mana interna em décimos inteiros. Feito por **instrumentação da AST** (ganchos `__instrucao__` e `__volta__`).
+- **Limites (EXE-limites)**: `ManaEsgotada`, `TempoEsgotado` (1000 ms no worker; watchdog de 3000 ms no Godot), `LimiteExcedido` (1000 ações, 200 saídas); memória do worker limitada a 256 MB. Os limites não podem ser capturados pelo feitiço.
+- **Sandbox (EXE-sandbox)**: só `import math`/`random`; nomes `__x` e atributos `_x` proibidos; `except:` e `BaseException` proibidos; builtins em lista branca (sem `open`, `exec`, `eval`…). Violação → `FeiticoProibido` e nada roda.
 - **Movimento**: `Player` (CharacterBody2D) chama `PlayerMotor.step(velocity, intent, on_floor, delta)`; a intenção vem de `Player.intent_source` (teclado por padrão; testes injetam).
 - **Contrato**: `tests/contract/*.json` é verificado pelas duas suítes.
 
@@ -83,7 +87,9 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 - GdUnit4 precisa de `--ignoreHeadlessMode`; o `ERROR: Remote Debugger ... 127.0.0.1:0` na saída é esperado.
 - Script novo com `class_name` → rodar `--import` antes dos testes.
 - `JSON.parse_string` do Godot devolve números como float → `SpellResult` converte `linha`; comparar com fixtures via `ContractFixtures.normalize`.
-- `res://` não alcança a raiz do repo; o cliente usa `globalize_path("res://") + "/.."`, **que só funciona em desenvolvimento** (resolver no build).
+- `res://` não alcança a raiz do repo; `PythonSpellExecutor.base_dir()` usa a raiz do repo no editor e a pasta do `.exe` no jogo exportado (o build precisa copiar `executor/` e `runtime/python/` para lá).
+- Teste de limite com laço infinito **trava** o pytest enquanto o limite não existe: rodar com `timeout` no comando.
+- Feitiços de teste com muitos `print`/ações esgotam a mana padrão (5): dar mana alta.
 - O `python` do PATH no Windows é o alias da Microsoft Store; usar `runtime/python`.
 - Python local do Victor é 3.15; o runtime e o CI usam 3.14. Rodar o pytest também com o 3.14 quando mexer em mensagens de erro ou custo.
 - **Para o assistente:** comandos Bash com heredoc contendo Python com barras invertidas ou caminhos do Windows já falharam duas vezes; prefira as ferramentas Write/Edit para criar e alterar arquivos.
@@ -92,12 +98,12 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 
 | Decisão | Onde está a proposta |
 | --- | --- |
-| **Regra de custo de mana** (o primeiro feitiço é `meditar()` com mana 0; cobrança por linha não pode impedir isso nem tornar o loop de absorver negativo) | `docs/sprints/sprint-02-executor-custo-sandbox.md` — decidir com o Victor antes de escrever `EXE-custo` |
 | Ações anteriores a um erro acontecem no mundo? | Sprint 6 |
+| Build de fumaça completo (exportar e conjurar no `.exe`) | Passos em `docs/sprints/sprint-02-executor-custo-sandbox.md`; depende dos templates de exportação |
 | Lista de peças desbloqueadas entra no protocolo? | Sprint 5 |
 | Peças novas para puzzles (runas, símbolo da porta, blocos) e combate (`inimigos`, `alvo.escudo`) | Sprints 9 e 10 |
 | Questões do GDD: título, protagonista, motivo do mago, público, C++ | `docs/gdd.md`, fim |
 
 ## 9. Próximo passo
 
-Começar a **Sprint 2** pelo item "Decisão a tomar antes" do arquivo da sprint: apresentar ao Victor a proposta da regra de custo de mana e, com a resposta, escrever `docs/specs/executor/EXE-custo.md`, `EXE-limites.md` e `EXE-sandbox.md`, e então os testes.
+Começar a **Sprint 3** (`docs/sprints/sprint-03-personagem-mundo.md`). Antes, perguntar ao Victor se os assets provisórios já foram escolhidos: o tilemap depende deles. Se ainda não, dá para começar pelo que não depende: movimento completo (esquiva, coyote time, jump buffer), `Health`, transição de salas e HUD, todos em TDD.

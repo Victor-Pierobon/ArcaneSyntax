@@ -49,7 +49,8 @@ def test_EXE_036_sem_vazamento_de_detalhes_internos():
 
 
 def test_EXE_037_systemexit_vira_erro_comum():
+    # Desde o sandbox (Sprint 2) SystemExit nem existe no feitiço; o worker segue de pé.
     r = run("meditar()\nraise SystemExit")
-    assert r["erro"]["tipo"] == "SystemExit"
+    assert r["erro"]["tipo"] == "NameError"
     assert r["erro"]["linha"] == 2
     assert len(r["acoes"]) == 1

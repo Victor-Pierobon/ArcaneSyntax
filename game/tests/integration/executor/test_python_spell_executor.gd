@@ -53,6 +53,25 @@ func test_EXE_007_chamadas_simultaneas_sao_atendidas_em_ordem() -> void:
 	assert_int(results[1].actions.size()).is_equal(2)
 
 
+func test_EXE_007_custo_de_mana_chega_ao_godot() -> void:
+	var result: SpellResult = await executor.execute(SpellRequest.make("lancar(fogo, projetil, alvo)", MAGO, ALVO))
+	assert_float(result.cost).is_equal_approx(3.1, 0.0001)
+	assert_float(float(result.mago["mana"])).is_equal_approx(1.9, 0.0001)
+
+
+func test_EXE_058_watchdog_mata_feitico_preso_em_codigo_c() -> void:
+	executor.timeout_ms = 1500
+	await executor.execute(SpellRequest.make("meditar()", MAGO))
+	var old_pid := executor.worker_pid()
+	var started := Time.get_ticks_msec()
+	var stuck: SpellResult = await executor.execute(SpellRequest.make("x = 10 ** 10 ** 8", MAGO))
+	assert_str(stuck.error.type).is_equal("TempoEsgotado")
+	assert_int(Time.get_ticks_msec() - started).is_less(4000)
+	var next: SpellResult = await executor.execute(SpellRequest.make("levitar(2)", MAGO))
+	assert_bool(next.ok).is_true()
+	assert_int(executor.worker_pid()).is_not_equal(old_pid)
+
+
 func test_EXE_008_worker_morto_e_substituido() -> void:
 	await executor.execute(SpellRequest.make("meditar()", MAGO))
 	var old_pid := executor.worker_pid()

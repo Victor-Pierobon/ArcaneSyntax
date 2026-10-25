@@ -17,12 +17,12 @@ def test_EXE_001_resposta_de_sucesso():
 
 def test_EXE_002_estado_final_do_mago():
     r = run("meditar()", mago={"vida": 9, "mana": 1, "mana_max": 20}, regras={"ganho_meditar": 4})
-    assert r["mago"] == {"vida": 9, "mana": 5, "mana_max": 20}
+    assert r["mago"] == {"vida": 9, "mana": 4.9, "mana_max": 20}
 
 
 def test_EXE_003_regras_padrao():
     r = run("meditar()\nabsorver_mana()", mago={"vida": 10, "mana": 0, "mana_max": 20})
-    assert r["mago"]["mana"] == 6
+    assert r["mago"]["mana"] == 5.8
 
 
 def test_EXE_003_regra_parcial_usa_padrao_no_resto():
@@ -31,7 +31,7 @@ def test_EXE_003_regra_parcial_usa_padrao_no_resto():
         mago={"vida": 10, "mana": 0, "mana_max": 20},
         regras={"ganho_meditar": 2},
     )
-    assert r["mago"]["mana"] == 3
+    assert r["mago"]["mana"] == 2.8
 
 
 def _assert_invalida(r, id=None):
@@ -40,6 +40,8 @@ def _assert_invalida(r, id=None):
     assert r["erro"]["linha"] is None
     assert r["id"] == id
     assert r["acoes"] == [] and r["saidas"] == []
+    assert r["mago"] is None
+    assert r["custo_mana"] == 0
 
 
 def test_EXE_004_sem_codigo():

@@ -57,4 +57,4 @@ O GDD exige a mensagem real da linguagem com a linha marcada, para o aprendizado
 ### EXE-037 — Feitiço não derruba o worker
 
 - **Quando** o feitiço faz `raise SystemExit`
-- **Então** a resposta é um erro comum com `erro.tipo` `"SystemExit"` e o worker continua atendendo
+- **Então** a resposta é um erro comum e o worker continua atendendo. Desde a Sprint 2, `SystemExit` não está entre os builtins do feitiço (EXE-sandbox), então o erro é `NameError`; o executor também captura qualquer exceção que escape.

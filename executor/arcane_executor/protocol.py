@@ -51,13 +51,14 @@ def _resposta(id, resultado):
         "acoes": resultado["acoes"],
         "saidas": resultado["saidas"],
         "mago": resultado["mago"],
+        "custo_mana": resultado["custo_mana"],
         "erro": resultado["erro"],
     }
 
 
 def _invalida(id, mensagem):
     erro = {"tipo": "RequisicaoInvalida", "mensagem": mensagem, "linha": None, "coluna": None}
-    return _resposta(id, {"acoes": [], "saidas": [], "mago": None, "erro": erro})
+    return _resposta(id, {"acoes": [], "saidas": [], "mago": None, "custo_mana": 0, "erro": erro})
 
 
 def handle_request(req):

@@ -19,6 +19,7 @@
     "acoes": [],
     "saidas": [],
     "mago": null,
+    "custo_mana": 0,
     "erro": {
       "tipo": "RequisicaoInvalida",
       "mensagem": "campo obrigatório ausente: codigo",

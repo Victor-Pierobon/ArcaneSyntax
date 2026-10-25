@@ -16,7 +16,7 @@ Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5
 
 1. **Elementos** são strings comuns, disponíveis como nomes prontos: `fogo`, `gelo`, `raio`. **Formas**: `projetil`, `escudo`. Por serem strings, `alvo.elemento == "fogo"` e `alvo.elemento == fogo` funcionam, e `lancar(alvo.elemento, ...)` é válido.
 2. **Sentidos** são variáveis globais lidas do mundo: `mana`, `mana_max`, `vida_atual` e `alvo`. `alvo` é `None` quando não há alvo; senão tem os atributos somente-leitura `elemento` e `distancia`.
-3. Os sentidos do mago são ressincronizados com o estado real a cada chamada de peça. Se o jogador escrever `mana = 999`, isso não dá mana nenhuma: na próxima peça o valor volta ao real.
+3. Os sentidos do mago são ressincronizados com o estado real **depois de cada instrução** (desde a Sprint 2, EXE-custo regra 7; antes era a cada peça). Se o jogador escrever `mana = 999`, isso não dá mana nenhuma: no fim da instrução o valor volta ao real.
 4. Peças:
 
 | Peça | Ação registrada | Efeito na simulação | Validação |
@@ -83,7 +83,7 @@ Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5
 
 - **Dado** o mago com mana 0 de 5 e `ganho_absorver` 1
 - **Quando** o feitiço é `while mana < mana_max:\n    absorver_mana()`
-- **Então** registra exatamente 5 ações `absorver_mana` e termina com mana 5
+- **Então** termina com mana 5 e todas as ações na linha 2 (são 6 ações desde a Sprint 2, porque cada volta paga 0,1; ver EXE-045)
 
 ### EXE-020 — Sentidos do mundo
 
@@ -103,8 +103,8 @@ Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5
 ### EXE-023 — Sentidos não podem ser trapaceados
 
 - **Dado** mana 2 de 10
-- **Quando** o feitiço faz `mana = 999` e depois chama `absorver_mana()`
-- **Então** a variável `mana` vale 3 depois da chamada e a mana final é 3
+- **Quando** o feitiço faz `mana = 999`, depois chama `absorver_mana()` e depois `print(mana)`
+- **Então** imprime `2.8` (2 − 0,1 + 1 − 0,1) e a mana final é 2.7: o 999 nunca valeu
 
 ### EXE-024 — O feitiço adaptável do GDD roda
 

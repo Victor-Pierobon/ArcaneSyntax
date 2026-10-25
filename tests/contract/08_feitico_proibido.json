@@ -1,0 +1,35 @@
+{
+  "descricao": "Import fora da lista branca: nada roda",
+  "requisicao": {
+    "versao": 1,
+    "id": 8,
+    "codigo": "meditar()\nimport os",
+    "mundo": {
+      "mago": {
+        "vida": 10,
+        "mana": 0,
+        "mana_max": 20
+      },
+      "alvo": null
+    }
+  },
+  "resposta": {
+    "versao": 1,
+    "id": 8,
+    "ok": false,
+    "acoes": [],
+    "saidas": [],
+    "mago": {
+      "vida": 10,
+      "mana": 0,
+      "mana_max": 20
+    },
+    "custo_mana": 0,
+    "erro": {
+      "tipo": "FeiticoProibido",
+      "mensagem": "import os não é permitido; só math e random podem ser importados",
+      "linha": 2,
+      "coluna": 1
+    }
+  }
+}

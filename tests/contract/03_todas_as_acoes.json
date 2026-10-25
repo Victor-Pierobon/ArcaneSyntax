@@ -7,7 +7,7 @@
     "mundo": {
       "mago": {
         "vida": 4,
-        "mana": 0,
+        "mana": 10,
         "mana_max": 20
       },
       "alvo": null
@@ -43,9 +43,10 @@
     "saidas": [],
     "mago": {
       "vida": 4,
-      "mana": 5,
+      "mana": 8.6,
       "mana_max": 20
     },
+    "custo_mana": 6.4,
     "erro": null
   }
 }
