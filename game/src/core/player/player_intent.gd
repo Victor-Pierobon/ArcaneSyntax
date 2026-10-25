@@ -5,6 +5,7 @@ extends RefCounted
 var move_x: float = 0.0
 var jump_pressed: bool = false
 var jump_held: bool = false
+var dodge_pressed: bool = false
 
 
 static func make(p_move_x: float = 0.0, p_jump_pressed: bool = false, p_jump_held: bool = false) -> PlayerIntent:
@@ -16,8 +17,10 @@ static func make(p_move_x: float = 0.0, p_jump_pressed: bool = false, p_jump_hel
 
 
 static func from_input() -> PlayerIntent:
-	return make(
+	var intent := make(
 		Input.get_axis(&"move_left", &"move_right"),
 		Input.is_action_just_pressed(&"jump"),
 		Input.is_action_pressed(&"jump"),
 	)
+	intent.dodge_pressed = Input.is_action_just_pressed(&"dodge")
+	return intent

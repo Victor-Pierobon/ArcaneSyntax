@@ -55,8 +55,8 @@ Os quatro marcos abaixo foram inferidos das fases, porque o diagrama de marcos d
 | 0 | [Fundação e esteira de testes](sprints/sprint-00-fundacao.md) | 0 | 20–32 | M1 · Feitiço vira ação | Concluída (tutorial e assets pendentes) |
 | 1 | [Executor: protocolo e peças](sprints/sprint-01-executor-protocolo.md) | 1 | 14–21 | M1 | Concluída |
 | 2 | [Executor: custo, limites e sandbox](sprints/sprint-02-executor-custo-sandbox.md) | 1 | 15–23 | M1 | Concluída (build de fumaça pendente) |
-| 3 | [Personagem e mundo](sprints/sprint-03-personagem-mundo.md) | 2 | 20–30 | M2 · Núcleo jogável | **Próxima** |
-| 4 | [Grimório I: editor e feitiços salvos](sprints/sprint-04-grimorio-editor.md) | 3 | 12–16 | M2 | Planejada |
+| 3 | [Personagem e mundo](sprints/sprint-03-personagem-mundo.md) | 2 | 20–30 | M2 · Núcleo jogável | Concluída (arte provisória) |
+| 4 | [Grimório I: editor e feitiços salvos](sprints/sprint-04-grimorio-editor.md) | 3 | 12–16 | M2 | **Próxima** |
 | 5 | [Grimório II: slots, erros, custo e autocompletar](sprints/sprint-05-grimorio-slots.md) | 3 | 15–21 | M2 | Planejada |
 | 6 | [Magia no mundo I: ações, formas, elementos](sprints/sprint-06-magia-acoes.md) | 4 | 17–25 | M2 | Planejada |
 | 7 | [Magia no mundo II: mana viva](sprints/sprint-07-magia-mana.md) | 4 | 10–16 | M2 (playtest do núcleo) | Planejada |
@@ -115,4 +115,5 @@ ArcaneSyntax/
 | Sprint 1 | Processo por feitiço vs. worker persistente | **Worker persistente**, Python 3.14 standalone (ADR-002) |
 | Sprint 2 | Regra de custo de mana | **Linhas baratas**: instrução 0,1 cobrada depois, estruturas grátis, peças com custo base (EXE-custo) |
 | Sprint 2 | Contagem de instruções | **Instrumentação da AST** (não `sys.settrace`) |
+| Sprint 3 | Como descrever as salas | **Layout em texto** + tileset provisório (MUN-salas); rever quando a arte chegar |
 | Sprint 6 | Ações anteriores a um erro acontecem no mundo? | Aberta |

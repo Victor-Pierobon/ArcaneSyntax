@@ -1,0 +1,26 @@
+extends GdUnitTestSuite
+## Spec: docs/specs/ui/UI-hud.md
+
+var hud: Hud
+var state: MagoState
+
+
+func before_test() -> void:
+	hud = auto_free(Hud.new())
+	add_child(hud)
+	state = MagoState.new()
+	hud.bind(state)
+
+
+func test_UI_001_mostra_o_estado_inicial() -> void:
+	assert_str(hud.life_label.text).contains("5/5")
+	assert_str(hud.mana_label.text).contains("0.0/10.0")
+	assert_float(hud.mana_bar.value).is_equal(0.0)
+
+
+func test_UI_002_acompanha_mudancas() -> void:
+	state.health.damage(2)
+	state.set_mana(4.9)
+	assert_str(hud.life_label.text).contains("3/5")
+	assert_str(hud.mana_label.text).contains("4.9/10.0")
+	assert_float(hud.mana_bar.value).is_equal_approx(49.0, 0.01)

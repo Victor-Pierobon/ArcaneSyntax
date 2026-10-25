@@ -1,2 +1,4 @@
 keys,pt_BR
-PROTOTIPO_DICA,"A/D ou setas para andar, Espaço ou W para pular"
+PROTOTIPO_DICA,"A/D ou setas para andar, Espaço ou W para pular, Shift para esquivar"
+HUD_VIDA,Vida %d/%d
+HUD_MANA,Mana %.1f/%.1f
