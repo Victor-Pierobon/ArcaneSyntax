@@ -150,6 +150,17 @@ func test_MAG_010_projetil_mira_o_alvo_mesmo_de_costas() -> void:
 	assert_str(_target("sala_alvos_alvo_1").last_hit_element).is_equal("fogo")
 
 
+## Regressão (Sprint 8, achado pelo PUZ-005): de costas para o alvo e encostado na parede,
+## o projétil nascia na mão do lado da parede e sumia na hora.
+func test_MAG_010_projetil_de_costas_encostado_na_parede() -> void:
+	await _start("sala_aberta")
+	await _teleport(Vector2(23, FLOOR_Y))
+	player.motor.facing = -1
+	world.action_player.play([{"tipo": "lancar", "elemento": "gelo", "forma": "projetil", "alvo": "sala_aberta_alvo_1", "linha": 1}])
+	await _frames(45)
+	assert_str(_target("sala_aberta_alvo_1").last_hit_element).is_equal("gelo")
+
+
 func test_MAG_010_projetil_acerta_o_alvo() -> void:
 	await _start("sala_alvos")
 	await _play([{"tipo": "lancar", "elemento": "gelo", "forma": "projetil", "alvo": "sala_alvos_alvo_1", "linha": 1}])

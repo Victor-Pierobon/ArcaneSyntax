@@ -35,6 +35,12 @@ func test_MUN_031_caractere_desconhecido() -> void:
 	assert_int(layout.solids.size()).is_equal(5)
 
 
+func test_PUZ_005_porta_no_layout() -> void:
+	var layout := RoomLayout.parse("..|\n..|")
+	assert_array(layout.doors).contains_exactly([Vector2i(2, 0), Vector2i(2, 1)])
+	assert_array(layout.errors).is_empty()
+
+
 func test_MUN_040_bonecos_no_layout() -> void:
 	var layout := RoomLayout.parse("1.2")
 	assert_dict(layout.targets).is_equal({"1": Vector2i(0, 0), "2": Vector2i(2, 0)})

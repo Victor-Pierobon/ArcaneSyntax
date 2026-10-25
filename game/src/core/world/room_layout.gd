@@ -10,6 +10,8 @@ var solids: Array[Vector2i] = []
 var platforms: Array[Vector2i] = []
 var spikes: Array[Vector2i] = []
 var safe_points: Array[Vector2i] = []
+## Células de porta de runas (`|`, spec PUZ-validacao).
+var doors: Array[Vector2i] = []
 ## Letra maiúscula → célula, na ordem de leitura.
 var entries: Dictionary = {}
 ## Letra minúscula → Array[Vector2i] com as células da saída.
@@ -56,6 +58,8 @@ func _read(c: String, cell: Vector2i) -> void:
 			spikes.append(cell)
 		"*":
 			safe_points.append(cell)
+		"|":
+			doors.append(cell)
 		".", " ":
 			pass
 		_:

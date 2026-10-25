@@ -9,6 +9,9 @@ signal spell_cast(slot_number: int, result: SpellResult)
 
 ## Raio em que um boneco ou inimigo vira o "alvo" dos feitiços (spec MUN-alvos).
 const TARGET_RANGE_TILES := 12.0
+## Pausa base entre ações nas salas com puzzle, dividida pela velocidade (spec PUZ-passo-a-passo).
+const STEP_DELAY := 0.3
+const STEP_SPEEDS := [1.0, 2.0, 0.5]
 
 @export var rooms_dir: String = "res://content/rooms/"
 @export var start_room: String = "sala_01"
@@ -18,6 +21,9 @@ const TARGET_RANGE_TILES := 12.0
 
 var state := MagoState.new()
 var passive_scheduler := PassiveScheduler.new()
+## Puzzles resolvidos nesta sessão (gravar em disco é da Sprint 13).
+var solved_puzzles: Dictionary = {}
+var step_speed := 1.0
 var grimoire: Grimoire
 var grimoire_store: GrimoireStore
 var current_room: Room
@@ -43,6 +49,7 @@ var _changing_room := false
 ## Toca as ações do slot passivo, sem atrasar as conjurações (MAG-056).
 @onready var passive_player: ActionPlayer = $PassivePlayer
 @onready var sfx: Sfx = $Sfx
+@onready var step_view: StepView = $StepView
 
 
 func _ready() -> void:
@@ -57,6 +64,9 @@ func _ready() -> void:
 	world_actions.world = self
 	action_player.port = world_actions
 	passive_player.port = world_actions
+	action_player.sequence_started.connect(_on_sequence_started)
+	action_player.action_started.connect(_on_action_started)
+	action_player.finished.connect(_on_actions_finished)
 	state.health.attack_blocked.connect(world_actions.on_attack_blocked)
 	grimoire.passive_changed.connect(_on_passive_changed)
 	grimoire.spell_code_changed.connect(func(spell_name: String) -> void:
@@ -79,6 +89,10 @@ func _physics_process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"step_speed"):
+		cycle_step_speed()
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed(&"attack"):
 		world_actions.staff_attack()
 		get_viewport().set_input_as_handled()
@@ -98,7 +112,8 @@ func cast(slot_number: int) -> void:
 	if spell_name.is_empty():
 		cast_log.add_lines(PackedStringArray([tr("CONJURAR_SLOT_VAZIO") % slot_number]))
 		return
-	var result := await _execute(grimoire.code_of(spell_name))
+	var code := grimoire.code_of(spell_name)
+	var result := await _execute(code)
 	cast_log.add_lines(SpellReport.cast_lines(slot_number, spell_name, result))
 	grimoire_ui.remember_result(spell_name, result)
 	var visions := PackedStringArray()
@@ -106,8 +121,43 @@ func cast(slot_number: int) -> void:
 		visions.append(output["texto"])
 	world_actions.show_visions(visions)
 	# Mesmo com erro, o que rodou antes acontece no mundo (decisão do Victor, MAG-acoes regra 5).
-	action_player.play(result.actions)
+	action_player.play(result.actions, code)
 	spell_cast.emit(slot_number, result)
+
+
+func is_puzzle_solved(puzzle_id: String) -> bool:
+	return solved_puzzles.has(puzzle_id)
+
+
+## Tecla V: 1× → 2× → 0,5× → 1× (PUZ-013).
+func cycle_step_speed() -> void:
+	var index := STEP_SPEEDS.find(step_speed)
+	step_speed = STEP_SPEEDS[(index + 1) % STEP_SPEEDS.size()]
+	step_view.set_speed(step_speed)
+	_apply_step_mode()
+
+
+func _in_puzzle_room() -> bool:
+	return current_room != null and current_room.has_puzzle()
+
+
+func _apply_step_mode() -> void:
+	action_player.step_delay = STEP_DELAY / step_speed if _in_puzzle_room() else 0.0
+
+
+func _on_sequence_started(code: String) -> void:
+	if _in_puzzle_room():
+		step_view.show_code(code)
+
+
+func _on_action_started(action: Dictionary) -> void:
+	if _in_puzzle_room() and step_view.is_showing():
+		step_view.highlight(int(action.get("linha", -1)))
+
+
+func _on_actions_finished() -> void:
+	if step_view.is_showing():
+		step_view.finish()
 
 
 ## Executa um código com o estado real e aplica a mana pela variação.
@@ -202,6 +252,10 @@ func go_to(room_id: String, entry: String) -> void:
 	current_room.exit_touched.connect(_on_exit_touched)
 	current_room.hazard_touched.connect(_on_hazard_touched)
 	current_room.safe_point_touched.connect(func(feet: Vector2) -> void: safe_point = feet)
+	current_room.puzzle_solved.connect(func(puzzle_id: String) -> void: solved_puzzles[puzzle_id] = true)
+	if current_room.has_puzzle() and solved_puzzles.has(current_room.puzzle_id()):
+		current_room.apply_solved()
+	_apply_step_mode()
 	for node in current_room.get_children():
 		if node is TrainingTarget:
 			node.was_hit.connect(_on_target_hit)

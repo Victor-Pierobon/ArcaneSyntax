@@ -5,6 +5,8 @@ extends Node2D
 signal exit_touched(target_room: String, target_entry: String)
 signal hazard_touched
 signal safe_point_touched(feet: Vector2)
+## O puzzle da sala foi resolvido (spec PUZ-validacao).
+signal puzzle_solved(puzzle_id: String)
 
 const TILESET := preload("res://assets/placeholder/tiles.tres")
 const ATLAS_STONE := Vector2i(0, 0)
@@ -18,12 +20,17 @@ const TILE := RoomLayout.TILE
 @export var exits: Dictionary = {}
 ## Dígito do boneco de treino → elemento, ex.: {"1": "fogo"} (spec MUN-alvos).
 @export var targets: Dictionary = {}
+## {"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]} ou vazio (spec PUZ-validacao).
+@export var puzzle: Dictionary = {}
 
 var data: RoomLayout
 var tiles: TileMapLayer
 var errors: Array[String] = []
 
 var _areas: Array[Area2D] = []
+var _crystals: Dictionary = {}
+var _door: RuneDoor
+var _solved := false
 
 
 func _ready() -> void:
@@ -32,6 +39,7 @@ func _ready() -> void:
 	_build_tiles()
 	_build_exits()
 	_build_targets()
+	_build_puzzle()
 	for cell in data.spikes:
 		_add_area(Rect2(cell.x * TILE + 2, cell.y * TILE + TILE / 2.0, TILE - 4, TILE / 2.0), hazard_touched.emit)
 	for cell in data.safe_points:
@@ -49,6 +57,40 @@ func _activate_areas_after_first_frame() -> void:
 	for area in _areas:
 		if is_instance_valid(area):
 			area.set_deferred(&"monitoring", true)
+
+
+func has_puzzle() -> bool:
+	return not puzzle.is_empty()
+
+
+func puzzle_id() -> String:
+	return str(puzzle.get("id", ""))
+
+
+func is_solved() -> bool:
+	return _solved
+
+
+## Foto do estado da sala para o PuzzleValidator.
+func puzzle_state() -> Dictionary:
+	var crystals := {}
+	for digit: String in _crystals:
+		crystals[digit] = _crystals[digit].lit
+	return {"cristais": crystals}
+
+
+## Sala de um puzzle já resolvido: cristais acesos e portas abertas, sem avisar de novo (PUZ-006).
+func apply_solved() -> void:
+	_solved = true
+	for crystal: Crystal in _crystals.values():
+		crystal.lit = true
+		crystal._refresh_color()
+	if _door:
+		_door.open()
+
+
+func doors_open() -> bool:
+	return _door == null or _door.is_open
 
 
 func bounds() -> Rect2:
@@ -96,9 +138,38 @@ func _build_targets() -> void:
 		if not targets.has(digit):
 			errors.append("boneco '%s' sem elemento (use targets = {\"%s\": \"fogo\"})" % [digit, digit])
 			continue
-		var target := TrainingTarget.make("%s_alvo_%s" % [room_id, digit], str(targets[digit]))
+		var spec := str(targets[digit])
+		var target_id := "%s_alvo_%s" % [room_id, digit]
+		var target: TrainingTarget
+		if spec.begins_with("cristal"):
+			var crystal := Crystal.make_crystal(target_id, spec)
+			crystal.lit_changed.connect(func(_lit: bool) -> void: _check_puzzle())
+			_crystals[digit] = crystal
+			target = crystal
+		else:
+			target = TrainingTarget.make(target_id, spec)
 		target.position = RoomLayout.cell_feet(data.targets[digit])
 		add_child(target)
+
+
+func _build_puzzle() -> void:
+	if not data.doors.is_empty():
+		_door = RuneDoor.make(data.doors)
+		add_child(_door)
+	if has_puzzle():
+		errors.append_array(PuzzleValidator.authoring_errors(puzzle.get("condicoes", [])))
+		if puzzle_id().is_empty():
+			errors.append("puzzle sem id")
+
+
+func _check_puzzle() -> void:
+	if _solved or not has_puzzle():
+		return
+	if PuzzleValidator.evaluate(puzzle.get("condicoes", []), puzzle_state()):
+		_solved = true
+		if _door:
+			_door.open()
+		puzzle_solved.emit(puzzle_id())
 
 
 func _add_area(rect: Rect2, on_player_enter: Callable) -> void:

@@ -227,6 +227,20 @@ Esperado: visão `vou dar 3 passos` e ação `mover` (3).
 
 ---
 
+## 4b. Puzzle 1: o cristal adormecido (Sprint 8)
+
+Na sala_01, antes da saída para a sala_02, há uma **porta de runas** fechada e um **cristal** apagado. Ele acende com qualquer feitiço que o atinja (o cajado não serve); com o cristal aceso, a porta abre. Você começa sem mana. Nas salas com puzzle aparece o **passo a passo**, com a linha atual destacada; a tecla **V** muda a velocidade.
+
+Ande até perto do cristal e experimente:
+
+```python
+# primeiro reunir mana
+meditar()
+lancar(fogo, projetil, alvo)
+```
+
+Outras soluções também funcionam, porque o jogo só olha se o cristal acendeu: dois feitiços separados (`meditar()` e depois `lancar(gelo, projetil, alvo)`), ou um loop (`while mana < 5:` / `absorver_mana()` e depois o `lancar`). Não funcionam: `lancar` sem mana (a mana acaba) e `lancar(fogo, escudo)` (escudo não atinge o cristal).
+
 ## 5. Erros de propósito (para ver as mensagens)
 
 ### 5.1 Esqueci os dois-pontos

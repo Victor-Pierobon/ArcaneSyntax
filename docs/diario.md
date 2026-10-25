@@ -46,3 +46,8 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 
 - Slot passivo (a cada 1 s, sem sobrepor, desliga com erro e religa ao editar), sons e partículas provisórios gerados por código, roteiro de playtest do núcleo. Captura de tela achou o status do passivo em cima do mago (teste de regressão criado). 179 GdUnit4 e 114 pytest verdes.
 - Próximo: Victor faz o playtest do núcleo (fecha o M2); depois Sprint 8 (puzzles).
+
+## 2026-10-25 (Sprint 8)
+
+- Puzzles validados só pelo estado do mundo (cristais e porta de runas), passo a passo com a linha destacada e velocidade (V), Puzzle 1 na sala_01 com teste de aceitação no Python real (3 soluções que passam, 2 que falham). Bugs achados e com regressão: projétil de costas encostado na parede; painel do passo a passo cobrindo a ação. 202 GdUnit4 e 114 pytest verdes.
+- Próximo: Sprint 9 (Puzzles 2 a 6). Playtest do núcleo ainda pendente.

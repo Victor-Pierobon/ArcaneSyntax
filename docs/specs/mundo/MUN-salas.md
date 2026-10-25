@@ -20,6 +20,8 @@ A torre é um mapa contínuo dividido em salas. Enquanto não há arte definitiv
    | `*` | marcador de ponto seguro (invisível) |
    | `A`–`Z` | entrada: o mago aparece com os pés no fundo desta célula |
    | `a`–`z` | saída: tocar leva a outra sala |
+   | `1`–`9` | boneco de treino ou cristal (elemento em `targets`; MUN-alvos, PUZ-validacao) |
+   | `\|` | porta de runas: sólida até o puzzle da sala ser resolvido (PUZ-validacao) |
    | `.` ou espaço | vazio |
 
 2. Cada sala é uma cena em `res://content/rooms/<id>.tscn` com o script `Room`: `layout` (texto), `exits` (mapa letra → `"sala:Entrada"`, ex.: `{"b": "sala_02:A"}`).

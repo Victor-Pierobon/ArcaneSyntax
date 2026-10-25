@@ -132,9 +132,14 @@ func show_visions(texts: PackedStringArray) -> void:
 
 func _launch_projectile(element: String, target_id: Variant) -> void:
 	var player := world.player
+	var target: TrainingTarget = world.find_target(str(target_id)) if target_id != null else null
+	if target:
+		# Vira para o alvo: a mão fica do lado dele, não da parede atrás (regressão MAG-010).
+		var side := signf(target.center().x - player.global_position.x)
+		if side != 0.0:
+			player.motor.facing = int(side)
 	var hand := player.global_position + Vector2(HAND_OFFSET.x * player.motor.facing, HAND_OFFSET.y)
 	var direction := Vector2(player.motor.facing, 0)
-	var target: TrainingTarget = world.find_target(str(target_id)) if target_id != null else null
 	if target:
 		direction = (target.center() - hand).normalized()
 	var projectile := Projectile.make(element, direction)

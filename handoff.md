@@ -1,7 +1,7 @@
 # Handoff — ArcaneSyntax
 
 > Contexto para começar uma conversa nova sem reler toda a documentação.
-> **Atualizado em:** 2026-10-25, fim da Sprint 7.
+> **Atualizado em:** 2026-10-25, fim da Sprint 8.
 > **Atualizar** ao fim de cada sprint (ou quando algo aqui deixar de ser verdade).
 
 ## 1. O projeto em 30 segundos
@@ -14,9 +14,9 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 
 | | |
 | --- | --- |
-| Sprint atual | **Sprint 7 concluída** (slot passivo, sons e partículas provisórios, roteiro de playtest). **O marco M2 fecha quando o Victor fizer o playtest do núcleo** (`docs/playtest/roteiro-nucleo.md`). A próxima é a **Sprint 8** (puzzles: validação pelo estado do mundo, execução passo a passo, Puzzle 1) |
-| Commits | Sprints 0 a 6 commitadas (último: `22f970f`). **A Sprint 7 ainda não**; o Victor revisa e commita |
-| Testes | 114 pytest + 179 GdUnit4, todos verdes localmente |
+| Sprint atual | **Sprint 8 concluída** (puzzles validados pelo estado do mundo, passo a passo com linha destacada, Puzzle 1 na sala_01). A próxima é a **Sprint 9** (Puzzles 2 a 6). O marco M2 ainda espera o playtest do núcleo |
+| Commits | Sprints 0 a 7 commitadas (último: `cc00e02`). **A Sprint 8 ainda não**; o Victor revisa e commita |
+| Testes | 114 pytest + 202 GdUnit4 (inclui aceitação com Python real), todos verdes localmente |
 | CI | Configurado, **ainda não confirmado verde no GitHub** |
 | Pendências do Victor | **Playtest do núcleo** (roteiro em `docs/playtest/roteiro-nucleo.md`); Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); jogar e preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
 
@@ -62,10 +62,11 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 - **Conjurar (Sprint 5)**: teclas 1–5 → `World.cast(n)` envia código + `MagoState.to_spell_mago()` + alvo (boneco mais perto em 12 tiles) + `unlocked_pieces`; aplica a **variação** de mana; resultado no `CastLog` (as ações ainda não acontecem no mundo). Grimório: botões 1–5 equipam, **Testar** roda sem gastar mana e marca a linha do erro, custo estimado com mana 1000 e alvo de fogo, autocompletar. Executor recusa peças fora de `pecas` (`PecaBloqueada`). Testes usam `FakeSpellExecutor`.
 - **Ações no mundo (Sprint 6)**: `World.cast` → `ActionPlayer.play(result.actions)` (sempre, inclusive com erro) → `WorldActions.act_<tipo>`. Projétil (220 px/s, mira o alvo pelo id), escudo (2 s, bloqueia um ataque), `mover`/`levitar`/`meditar` controlam o mago e devolvem o controle, cajado (J, sem mana). `ElementTable`: fogo > planta, gelo > fogo, raio > gelo; cada um resiste a si mesmo. Bonecos mostram `Fraco!/Resistiu/Acertou`. Tudo congela com o grimório aberto.
 - **Passivo (Sprint 7)**: botão **Passivo** no grimório; `World` roda o passivo a cada 1 s via `PassiveScheduler` (sem sobrepor, pausado não roda), aplica a variação de mana, toca as ações no `PassivePlayer`; erro desliga (menos `ManaEsgotada`/`ExecutorIndisponivel`), editar religa; HUD mostra o status. Sons (`Sfx`) e partículas (`Fx`) provisórios, gerados por código.
+- **Puzzles (Sprint 8)**: na cena da sala, `puzzle = {"id", "condicoes"}`, cristais em `targets` (`"cristal"`/`"cristal:fogo"`) e porta `|` no layout. `PuzzleValidator` decide só pelo estado do mundo; cristal acende com feitiço (não cajado); resolvido abre a porta e fica salvo em `World.solved_puzzles` (memória). Nas salas com puzzle, painel de passo a passo com a linha destacada (V = velocidade). **A saída da sala_01 só abre com o Puzzle 1 resolvido.** Testes de aceitação em `tests/acceptance/` (sala do jogo + Python real).
 - **Grimório**: Tab abre (pausa o mundo), Esc fecha. `Grimoire` (modelo; nomes até 24, únicos sem diferenciar maiúsculas; sinais de renomear/apagar para os slots), `GrimoireStore` (`user://grimorio.json`, gravação atômica, `.bak` se o arquivo estiver ilegível), `GrimoireUI` (lista + `CodeEdit` com realce de Python e das peças do jogo). Ainda não executa feitiços.
 - **Contrato**: `tests/contract/*.json` é verificado pelas duas suítes.
 
-Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `CastLog`, `TrainingTarget`, `ActionPlayer`, `WorldActions`, `Projectile`, `Shield`, `ElementTable`, `PassiveScheduler`, `Sfx`, `Fx`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellReport`, `CompletionProvider`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
+Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `CastLog`, `TrainingTarget`, `ActionPlayer`, `WorldActions`, `Projectile`, `Shield`, `ElementTable`, `PassiveScheduler`, `Sfx`, `Fx`, `PuzzleValidator`, `Crystal`, `RuneDoor`, `StepView`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellReport`, `CompletionProvider`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
 
 ## 6. Comandos
 
@@ -123,5 +124,5 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 
 ## 9. Próximo passo
 
-1. Perguntar ao Victor se fez o **playtest do núcleo**; se sim, registrar os achados em `docs/playtest/` e transformar os problemas em tarefas antes de seguir (podem mudar prioridades).
-2. Começar a **Sprint 8** (`docs/sprints/sprint-08-puzzles-validacao.md`): condições declarativas de puzzle avaliadas pelo estado do mundo (`PuzzleValidator`), execução passo a passo com a linha destacada (as ações já trazem `linha`), e o Puzzle 1 (meditar para reunir a primeira mana e abrir o caminho), com teste de aceitação que roda o executor real com soluções que passam e que falham.
+1. Perguntar ao Victor sobre o **playtest do núcleo** (ainda pendente; fecha o M2).
+2. Começar a **Sprint 9** (`docs/sprints/sprint-09-puzzles-conteudo.md`): Puzzles 2 a 6 (variáveis, condicionais, loops, funções, revisão com estrelas). **Primeiro** listar as peças e condições novas que eles exigem (ler valor de runa, símbolo da porta, construir bloco, novos tipos de condição no `PuzzleValidator`), atualizar `EXE-pecas`, o protocolo e o validador, e só então montar as salas. Cada puzzle com teste de aceitação (Python real) com 3 soluções válidas de estilos diferentes e 2 inválidas.

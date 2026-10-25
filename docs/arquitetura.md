@@ -1,6 +1,6 @@
 # Arquitetura
 
-Estado em 2026-10-25, fim da Sprint 7. Atualizar ao fim de cada sprint que mudar a estrutura.
+Estado em 2026-10-25, fim da Sprint 8. Atualizar ao fim de cada sprint que mudar a estrutura.
 
 ## Visão geral
 
@@ -58,7 +58,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - Ações de input: `move_left` (A, ←), `move_right` (D, →), `jump` (Espaço, W, ↑).
 - Textos: `content/text/textos.csv` (coluna `pt_BR`) importado como tradução; nunca escrever texto visível direto no código, usar chaves (`PROTOTIPO_DICA`).
 - Plugin GdUnit4 habilitado.
-- Ações de input: também `dodge` (Shift, K), `grimoire` (Tab), `slot_1` … `slot_5` (teclas 1–5) e `attack` (J, cajado).
+- Ações de input: também `dodge` (Shift, K), `grimoire` (Tab), `slot_1` … `slot_5` (teclas 1–5), `attack` (J, cajado) e `step_speed` (V).
 - Cor de fundo padrão escura (`default_clear_color`).
 - Cena principal: `res://src/nodes/world/world.tscn`.
 
@@ -113,7 +113,17 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `Sfx` (`src/nodes/fx/sfx.gd`, nó `Sfx` no `World`): sons gerados por código para `conjurar` (timbre por elemento), `acerto`, `fraco`, `escudo`, `cajado`, `mana`; `played` guarda o histórico; barramento `SFX` (`default_bus_layout.tres`).
 - `Fx.burst(pai, posição, cor, quantidade, subindo)` (`src/nodes/fx/fx.gd`): partículas provisórias. `TrainingTarget` emite `was_hit` (o `World` toca o som).
 
-- Salas do jogo: `content/rooms/sala_01..03.tscn` (40–60 × 23 tiles). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
+### Puzzles (specs PUZ-validacao, PUZ-passo-a-passo, PUZ-01-meditar)
+
+- Autoria na cena da sala: `puzzle = {"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]}`; cristais em `targets` (`"cristal"` ou `"cristal:fogo"`); porta `|` no layout.
+- `PuzzleValidator` (`src/core/puzzles/`): `evaluate(condicoes, estado)` sobre `{"cristais": {dígito: aceso}}`; `authoring_errors(condicoes)`. Condição hoje: `cristais_acesos` (todos ou `ids`).
+- `Crystal` (`src/nodes/puzzles/crystal.gd`, herda de `TrainingTarget`, `elemento == "cristal"`): acende com feitiço (não cajado), respeita `required_element`, sinal `lit_changed`. `RuneDoor` (`rune_door.gd`): `StaticBody2D` das células `|`, `open()`.
+- `Room`: avalia o puzzle quando um cristal acende; resolvido → abre a porta e emite `puzzle_solved`; `puzzle_state()`, `apply_solved()`, `doors_open()`, `has_puzzle()`, `puzzle_id()`.
+- `World.solved_puzzles` (memória; disco na Sprint 13); ao voltar numa sala resolvida chama `apply_solved()`.
+- Passo a passo: `ActionPlayer` emite `sequence_started(codigo)` e `action_started(acao)` e espera `step_delay` entre ações; nas salas com puzzle o `World` usa 0,3 s ÷ `step_speed` e mostra o `StepView` (painel no alto com o código e a linha destacada). `World.cycle_step_speed()` (V): 1× → 2× → 0,5×.
+- Testes de aceitação de puzzle em `tests/acceptance/`: sala do jogo + Python real + soluções que passam e que falham.
+
+- Salas do jogo: `content/rooms/sala_01..03.tscn` (sala_01 tem o Puzzle 1) (40–60 × 23 tiles). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
 
 ### Cliente do executor (spec EXE-protocolo)
 

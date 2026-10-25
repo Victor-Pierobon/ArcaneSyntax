@@ -52,3 +52,4 @@ HUD_PASSIVO,Passivo: %s
 HUD_PASSIVO_DESLIGADO,Passivo: %s (desligado)
 PASSIVO_DESLIGADO,O passivo %s foi desligado:
 PASSIVO_SEM_MANA,O passivo %s ficou sem mana.
+PASSO_VELOCIDADE,Passo a passo · velocidade %s× (V)

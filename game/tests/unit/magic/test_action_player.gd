@@ -35,6 +35,29 @@ func test_MAG_003_segunda_fila_espera_a_primeira() -> void:
 	assert_bool(player.is_playing()).is_false()
 
 
+func test_PUZ_010_avisa_a_sequencia_e_cada_acao() -> void:
+	var events := []
+	player.sequence_started.connect(func(code: String) -> void: events.append("seq " + code))
+	player.action_started.connect(func(action: Dictionary) -> void: events.append("ação %d" % action["linha"]))
+	player.play([{"tipo": "meditar", "linha": 1}, {"tipo": "mover", "linha": 2}], "meditar()\nmover(1)")
+	player.play([{"tipo": "meditar", "linha": 1}], "meditar()")
+	await player.finished
+	assert_array(events).is_equal(["seq meditar()\nmover(1)", "ação 1", "ação 2", "seq meditar()", "ação 1"])
+
+
+func test_PUZ_011_pausa_entre_acoes() -> void:
+	player.step_delay = 0.2
+	var started := Time.get_ticks_msec()
+	player.play([{"tipo": "meditar"}, {"tipo": "meditar"}])
+	await player.finished
+	assert_int(Time.get_ticks_msec() - started).is_greater_equal(380)
+	player.step_delay = 0.0
+	started = Time.get_ticks_msec()
+	player.play([{"tipo": "meditar"}, {"tipo": "meditar"}])
+	await player.finished
+	assert_int(Time.get_ticks_msec() - started).is_less(200)
+
+
 func test_fila_vazia_termina_na_hora() -> void:
 	player.play([])
 	assert_bool(player.is_playing()).is_false()
