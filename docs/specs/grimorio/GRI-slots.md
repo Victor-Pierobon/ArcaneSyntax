@@ -85,4 +85,4 @@ Cinco feitiços ficam ligados a teclas e são conjurados na hora (GDD). Esta spr
 
 - **Dado** o feitiço `meditar()` no slot 1, mana 0, executor real
 - **Quando** conjura
-- **Então** a mana do mago vai a 4.9
+- **Então** a mana do mago vai a 4.8 (4,9 antes do custo de inscrição da Sprint 9)

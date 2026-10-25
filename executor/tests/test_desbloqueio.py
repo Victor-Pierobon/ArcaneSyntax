@@ -2,7 +2,10 @@
 from arcane_executor.protocol import handle_request
 from helpers import requisicao
 
-TODAS = ["lancar", "mover", "levitar", "meditar", "absorver_mana", "fogo", "gelo", "raio", "projetil", "escudo"]
+TODAS = [
+    "lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco",
+    "fogo", "gelo", "raio", "projetil", "escudo",
+]
 
 
 def run_com(codigo, pecas, **kwargs):
@@ -40,7 +43,7 @@ def test_EXE_083_texto_com_elemento_bloqueado():
     assert [a["tipo"] for a in r["acoes"]] == ["mover"]
     assert r["erro"]["tipo"] == "PecaBloqueada"
     assert r["erro"]["linha"] == 2
-    assert r["custo_mana"] == 1.1
+    assert r["custo_mana"] == 1.2
 
 
 def test_EXE_083_texto_com_forma_bloqueada():
@@ -60,3 +63,16 @@ def test_EXE_085_nome_desconhecido_na_lista():
 
 def test_EXE_085_lista_precisa_ser_de_textos():
     assert run_com("x = 1", "fogo")["erro"]["tipo"] == "RequisicaoInvalida"
+
+
+def test_EXE_082_pecas_dos_puzzles_bloqueadas():
+    for peca, codigo in (("inscrever", "inscrever(3)"), ("construir_bloco", "construir_bloco()")):
+        r = run_com(codigo, sem(peca))
+        assert r["erro"]["tipo"] == "PecaBloqueada", peca
+        assert peca in r["erro"]["mensagem"]
+
+
+def test_EXE_084_ler_runa_sempre_disponivel():
+    req = requisicao("print(ler_runa(1))", sala={"runas": [5]})
+    req["pecas"] = []
+    assert handle_request(req)["saidas"][0]["texto"] == "5"

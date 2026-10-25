@@ -21,8 +21,12 @@ const STEP_SPEEDS := [1.0, 2.0, 0.5]
 
 var state := MagoState.new()
 var passive_scheduler := PassiveScheduler.new()
-## Puzzles resolvidos nesta sessão (gravar em disco é da Sprint 13).
+## Puzzles resolvidos nesta sessão: id → {"estrelas": melhor} (gravar em disco é da Sprint 13).
 var solved_puzzles: Dictionary = {}
+## Mana gasta na sala atual pelos feitiços que agem, até o puzzle ser resolvido (PUZ-validacao, regra 14).
+var room_mana_spent := 0.0
+## Sorteio das runas `?` e dos cristais mutáveis; os testes fixam a semente.
+var rng := RandomNumberGenerator.new()
 var step_speed := 1.0
 var grimoire: Grimoire
 var grimoire_store: GrimoireStore
@@ -129,6 +133,28 @@ func is_puzzle_solved(puzzle_id: String) -> bool:
 	return solved_puzzles.has(puzzle_id)
 
 
+## Melhor quantidade de estrelas do puzzle; 0 se não foi resolvido ou não tem estrelas.
+func puzzle_stars(puzzle_id: String) -> int:
+	return int(solved_puzzles.get(puzzle_id, {}).get("estrelas", 0))
+
+
+func _on_puzzle_solved(puzzle_id: String) -> void:
+	var stars := PuzzleValidator.stars(current_room.puzzle.get("estrelas", []), room_mana_spent)
+	solved_puzzles[puzzle_id] = {"estrelas": maxi(stars, puzzle_stars(puzzle_id))}
+	if stars > 0:
+		cast_log.add_lines(PackedStringArray([tr("PUZZLE_RESOLVIDO_ESTRELAS") % [stars, room_mana_spent]]))
+	else:
+		cast_log.add_lines(PackedStringArray([tr("PUZZLE_RESOLVIDO")]))
+
+
+## Soma o custo das conjurações que agem enquanto o puzzle da sala não foi resolvido (regra 14).
+func _tally_mana(result: SpellResult) -> void:
+	if current_room == null or not current_room.has_puzzle() or current_room.is_solved():
+		return
+	if PuzzleValidator.counts_for_stars(result.actions):
+		room_mana_spent += result.cost
+
+
 ## Tecla V: 1× → 2× → 0,5× → 1× (PUZ-013).
 func cycle_step_speed() -> void:
 	var index := STEP_SPEEDS.find(step_speed)
@@ -163,8 +189,9 @@ func _on_actions_finished() -> void:
 ## Executa um código com o estado real e aplica a mana pela variação.
 func _execute(code: String) -> SpellResult:
 	var context := spell_context()
-	var request := SpellRequest.make(code, context["mago"], context["target"], {}, context["pieces"])
+	var request := SpellRequest.make(code, context["mago"], context["target"], {}, context["pieces"], context["room"])
 	var result: SpellResult = await executor.execute(request)
+	_tally_mana(result)
 	if not result.mago.is_empty():
 		# Variação, não valor absoluto: outra coisa pode ter mudado a mana enquanto o feitiço rodava (GRI-041).
 		state.set_mana(state.mana + float(result.mago["mana"]) - float(request.mago["mana"]))
@@ -199,9 +226,10 @@ func _update_passive_hud() -> void:
 	hud.set_passive_status(grimoire.passive(), passive_scheduler.is_disabled())
 
 
-## Estado do mundo que vai para o executor: mago, alvo e peças desbloqueadas.
+## Estado do mundo que vai para o executor: mago, alvo, peças desbloqueadas e o que a sala mostra.
 func spell_context() -> Dictionary:
-	return {"mago": state.to_spell_mago(), "target": current_target(), "pieces": state.unlocked_pieces}
+	var room: Dictionary = current_room.spell_room() if current_room else {}
+	return {"mago": state.to_spell_mago(), "target": current_target(), "pieces": state.unlocked_pieces, "room": room}
 
 
 func _on_target_hit(_attack_element: String, effect: ElementTable.Effect) -> void:
@@ -246,13 +274,15 @@ func go_to(room_id: String, entry: String) -> void:
 		current_room.queue_free()
 
 	current_room = load(path).instantiate()
+	current_room.rng = rng
+	room_mana_spent = 0.0
 	add_child(current_room)
 	move_child(current_room, 0)
 	authoring_errors.append_array(current_room.errors)
 	current_room.exit_touched.connect(_on_exit_touched)
 	current_room.hazard_touched.connect(_on_hazard_touched)
 	current_room.safe_point_touched.connect(func(feet: Vector2) -> void: safe_point = feet)
-	current_room.puzzle_solved.connect(func(puzzle_id: String) -> void: solved_puzzles[puzzle_id] = true)
+	current_room.puzzle_solved.connect(_on_puzzle_solved)
 	if current_room.has_puzzle() and solved_puzzles.has(current_room.puzzle_id()):
 		current_room.apply_solved()
 	_apply_step_mode()

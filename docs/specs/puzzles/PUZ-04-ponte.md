@@ -1,6 +1,6 @@
 # PUZ-04-ponte — Puzzle 4: a ponte de 12 blocos
 
-- **Status:** Rascunho
+- **Status:** Implementada
 - **Sprint:** 9
 - **Relacionadas:** PUZ-validacao (regras 11, 13 e 14), EXE-custo (regra 13, custo de inscrição), EXE-pecas, GDD "Bloqueio por conhecimento"
 - **Conceito:** loops

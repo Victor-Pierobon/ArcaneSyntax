@@ -6,6 +6,8 @@ extends Node
 const CAST_DELAY := 0.15
 const MEDITATE_TIME := 0.5
 const ABSORB_TIME := 0.08
+const INSCRIBE_TIME := 0.3
+const BLOCK_TIME := 0.15
 const FLY_SPEED := 96.0
 const HOVER_TIME := 0.3
 const STUCK_TIME := 0.3
@@ -20,6 +22,10 @@ const HAND_OFFSET := Vector2(8, -16)
 var world: World
 
 var _staff_ready_at := 0.0
+## Levitar seguido de mover: o mago continua voando durante o mover (MAG-070).
+## Guarda o controle que estava antes do levitar, para devolver no fim do mover.
+var _flying := false
+var _control_before_flight: Callable
 
 
 func act_lancar(action: Dictionary) -> void:
@@ -34,14 +40,21 @@ func act_lancar(action: Dictionary) -> void:
 
 
 func act_mover(action: Dictionary) -> void:
+	var player := world.player
+	var flying := _flying
+	_flying = false
+	var saved: Callable = _control_before_flight if flying else player.intent_source
 	var steps := float(action.get("passos", 0))
 	if is_zero_approx(steps):
+		player.intent_source = saved
 		return
-	var player := world.player
 	var direction := signf(steps)
 	var target_x := player.global_position.x + steps * RoomLayout.TILE
-	var saved := player.intent_source
-	player.intent_source = func() -> PlayerIntent: return PlayerIntent.make(direction)
+	player.intent_source = func() -> PlayerIntent:
+		var intent := PlayerIntent.make(direction)
+		if flying:
+			intent.fly_y = 0.0
+		return intent
 	await _until(func() -> bool: return (target_x - player.global_position.x) * direction <= 1.0,
 			func() -> float: return player.global_position.x)
 	player.intent_source = saved
@@ -56,6 +69,11 @@ func act_levitar(action: Dictionary) -> void:
 	await _until(func() -> bool: return start_y - player.global_position.y >= height - 1.0,
 			func() -> float: return player.global_position.y)
 	player.intent_source = func() -> PlayerIntent: return _fly(0.0)
+	if action.get("seguinte", "") == "mover":
+		# Continua no ar: o mover seguinte voa na horizontal e devolve o controle (MAG-070).
+		_flying = true
+		_control_before_flight = saved
+		return
 	await _wait(HOVER_TIME)
 	player.intent_source = saved
 
@@ -69,6 +87,32 @@ func act_meditar(_action: Dictionary) -> void:
 	world.sfx.play("mana")
 	await _wait(MEDITATE_TIME)
 	player.intent_source = saved
+
+
+## Uma runa com o número vai até o cadeado mais perto (PUZ-validacao, regra 10).
+func act_inscrever(action: Dictionary) -> void:
+	var room := world.current_room
+	var player := world.player
+	var status := room.inscribe(float(action.get("valor", 0)), player.global_position) if room else "sem_cadeado"
+	match status:
+		"sem_cadeado":
+			world.cast_log.add_lines(PackedStringArray([tr("INSCREVER_SEM_CADEADO")]))
+		"longe":
+			world.cast_log.add_lines(PackedStringArray([tr("INSCREVER_LONGE")]))
+		_:
+			Fx.burst(room, room.to_local(room.lock_position()) + Vector2(0, -8), Color("c9b8ff"), 10)
+			world.sfx.play("mana" if status == "aberto" else "cajado")
+	await _wait(INSCRIBE_TIME)
+
+
+## O próximo bloco da ponte aparece (PUZ-validacao, regra 11).
+func act_construir_bloco(_action: Dictionary) -> void:
+	var room := world.current_room
+	if room and room.build_block():
+		world.sfx.play("acerto")
+	else:
+		world.cast_log.add_lines(PackedStringArray([tr("PONTE_PRONTA" if room and room.bridge else "PONTE_SEM_VAO")]))
+	await _wait(BLOCK_TIME)
 
 
 func act_absorver_mana(_action: Dictionary) -> void:

@@ -39,6 +39,13 @@ def _validar(req):
         _exigir(alvo, "id", lambda v: isinstance(v, str), "texto", "mundo.alvo.")
         _exigir(alvo, "elemento", lambda v: isinstance(v, str), "texto", "mundo.alvo.")
         _exigir(alvo, "distancia", _numero, "um número", "mundo.alvo.")
+    sala = mundo.get("sala")
+    if sala is not None:
+        if not isinstance(sala, dict):
+            raise RequisicaoInvalida("mundo.sala precisa ser um objeto ou null")
+        runas = sala.get("runas", [])
+        if not isinstance(runas, list) or not all(isinstance(v, int) and not isinstance(v, bool) for v in runas):
+            raise RequisicaoInvalida("mundo.sala.runas precisa ser uma lista de números inteiros")
     pecas = req.get("pecas")
     if pecas is not None:
         if not isinstance(pecas, list) or not all(isinstance(p, str) for p in pecas):
@@ -78,7 +85,9 @@ def handle_request(req):
     except RequisicaoInvalida as e:
         return _invalida(id, str(e))
     mundo = req["mundo"]
-    resultado = run_spell(req["codigo"], mundo["mago"], mundo.get("alvo"), req.get("regras"), req.get("pecas"))
+    resultado = run_spell(
+        req["codigo"], mundo["mago"], mundo.get("alvo"), req.get("regras"), req.get("pecas"), mundo.get("sala")
+    )
     return _resposta(id, resultado)
 
 

@@ -1,6 +1,6 @@
 # EXE-pecas — Peças disponíveis para os feitiços (Alpha)
 
-- **Status:** Implementada (Sprint 1); **regras 6 a 9 em rascunho, Sprint 9**
+- **Status:** Implementada
 - **Sprint:** 1, 9
 - **Relacionadas:** EXE-protocolo, ADR-001, PUZ-02-runas, PUZ-04-ponte, GDD "Sistema de feitiços"
 

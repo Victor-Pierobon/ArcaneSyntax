@@ -236,3 +236,27 @@ func test_MAG_033_boneco_mostra_o_efeito() -> void:
 	assert_str(target.last_hit_element).is_equal("gelo")
 	assert_int(target.last_effect).is_equal(ElementTable.Effect.WEAK)
 	assert_str(target.effect_label.text).is_equal(tr("ALVO_FRACO"))
+
+
+func test_MAG_070_levitar_e_mover_voa_na_horizontal() -> void:
+	await _start("sala_aberta")
+	await _teleport(Vector2(120, FLOOR_Y))
+	await _play([{"tipo": "levitar", "altura": 3, "linha": 1}, {"tipo": "mover", "passos": 2, "linha": 2}])
+	assert_float(FLOOR_Y - player.global_position.y).is_equal_approx(48.0, 4.0)
+	assert_float(player.global_position.x).is_equal_approx(152.0, 4.0)
+	await _frames(60)
+	assert_float(player.global_position.y).is_equal_approx(FLOOR_Y, 1.0)
+
+
+func test_MAG_070_levitar_e_meditar_cai_antes() -> void:
+	await _start("sala_aberta")
+	await _teleport(Vector2(120, FLOOR_Y))
+	var heights := []
+	world.action_player.action_started.connect(func(action: Dictionary) -> void:
+		if action["tipo"] == "meditar":
+			heights.append(FLOOR_Y - player.global_position.y)
+	)
+	await _play([{"tipo": "levitar", "altura": 3, "linha": 1}, {"tipo": "meditar", "linha": 2}])
+	# Ao começar a meditar ele ainda está no ar, mas já sem voo: cai durante a meditação.
+	assert_float(player.global_position.y).is_equal_approx(FLOOR_Y, 1.0)
+	assert_int(heights.size()).is_equal(1)

@@ -45,3 +45,11 @@ func test_MUN_040_bonecos_no_layout() -> void:
 	var layout := RoomLayout.parse("1.2")
 	assert_dict(layout.targets).is_equal({"1": Vector2i(0, 0), "2": Vector2i(2, 0)})
 	assert_array(layout.errors).is_empty()
+
+
+func test_PUZ_015_vao_de_ponte_e_placa_no_layout() -> void:
+	var layout := RoomLayout.parse("._.\n~~#")
+	assert_array(layout.bridge_cells).contains_exactly([Vector2i(0, 1), Vector2i(1, 1)])
+	assert_array(layout.plates).contains_exactly([Vector2i(1, 0)])
+	assert_array(layout.solids).contains_exactly([Vector2i(2, 1)])
+	assert_array(layout.errors).is_empty()

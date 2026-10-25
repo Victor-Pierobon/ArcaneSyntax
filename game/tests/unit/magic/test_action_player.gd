@@ -61,3 +61,15 @@ func test_PUZ_011_pausa_entre_acoes() -> void:
 func test_fila_vazia_termina_na_hora() -> void:
 	player.play([])
 	assert_bool(player.is_playing()).is_false()
+
+
+func test_MAG_071_acoes_dos_puzzles_tocam() -> void:
+	player.play([{"tipo": "inscrever", "valor": 13}, {"tipo": "construir_bloco"}])
+	await player.finished
+	assert_array(port.calls).is_equal(["início inscrever", "fim inscrever", "início construir_bloco", "fim construir_bloco"])
+
+
+func test_MAG_070_levitar_sabe_qual_e_a_proxima_acao() -> void:
+	player.play([{"tipo": "levitar", "altura": 2}, {"tipo": "mover", "passos": 1}, {"tipo": "levitar", "altura": 1}])
+	await player.finished
+	assert_array(port.next_after_levitar).is_equal(["mover", ""])

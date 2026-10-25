@@ -1,6 +1,6 @@
 # PUZ-03-simbolo — Puzzle 3: o cristal que muda de símbolo
 
-- **Status:** Rascunho
+- **Status:** Implementada
 - **Sprint:** 9
 - **Relacionadas:** PUZ-validacao (regra 8), MAG-elementos, ADR-001, GDD "uma porta que muda de símbolo e exige uma condicional"
 - **Conceito:** condicionais

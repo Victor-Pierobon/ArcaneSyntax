@@ -113,17 +113,19 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `Sfx` (`src/nodes/fx/sfx.gd`, nó `Sfx` no `World`): sons gerados por código para `conjurar` (timbre por elemento), `acerto`, `fraco`, `escudo`, `cajado`, `mana`; `played` guarda o histórico; barramento `SFX` (`default_bus_layout.tres`).
 - `Fx.burst(pai, posição, cor, quantidade, subindo)` (`src/nodes/fx/fx.gd`): partículas provisórias. `TrainingTarget` emite `was_hit` (o `World` toca o som).
 
-### Puzzles (specs PUZ-validacao, PUZ-passo-a-passo, PUZ-01-meditar)
+### Puzzles (specs PUZ-validacao, PUZ-passo-a-passo, PUZ-01 a PUZ-06)
 
-- Autoria na cena da sala: `puzzle = {"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]}`; cristais em `targets` (`"cristal"` ou `"cristal:fogo"`); porta `|` no layout.
-- `PuzzleValidator` (`src/core/puzzles/`): `evaluate(condicoes, estado)` sobre `{"cristais": {dígito: aceso}}`; `authoring_errors(condicoes)`. Condição hoje: `cristais_acesos` (todos ou `ids`).
-- `Crystal` (`src/nodes/puzzles/crystal.gd`, herda de `TrainingTarget`, `elemento == "cristal"`): acende com feitiço (não cajado), respeita `required_element`, sinal `lit_changed`. `RuneDoor` (`rune_door.gd`): `StaticBody2D` das células `|`, `open()`.
-- `Room`: avalia o puzzle quando um cristal acende; resolvido → abre a porta e emite `puzzle_solved`; `puzzle_state()`, `apply_solved()`, `doors_open()`, `has_puzzle()`, `puzzle_id()`.
-- `World.solved_puzzles` (memória; disco na Sprint 13); ao voltar numa sala resolvida chama `apply_solved()`.
+- Autoria na cena da sala: `puzzle = {"id", "condicoes", "estrelas"?}`. Em `targets`: `"cristal"`, `"cristal:fogo"`, `"cristal:mutavel[:cargas]"`, `"runa:4"`/`"runa:?"`, `"cadeado:soma"`. No layout: porta `|`, vão de ponte `~`, placa `_`.
+- `PuzzleValidator` (`src/core/puzzles/`): `evaluate(condicoes, estado)` sobre `{"cristais", "cadeados", "ponte": {feitos, total}, "placas": [..]}`; condições `cristais_acesos` (todos ou `ids`), `cadeados_abertos`, `ponte_completa`, `placas_pisadas`; `authoring_errors`; `stars(limites, gasto)`; `counts_for_stars(acoes)` (só recuperar mana não conta).
+- `MutableCrystalRule` (`src/core/puzzles/`): símbolo, cargas, `answer(simbolo)` (o elemento que vence, pela `ElementTable`), `hit(elemento)`; o gerador vem do `World`.
+- `Crystal` (`src/nodes/puzzles/crystal.gd`, herda de `TrainingTarget`, `elemento == "cristal"`): acende com feitiço (não cajado), respeita `required_element`, sinal `lit_changed`. Mutável: tem `rule` e o `element` é o símbolo atual (é o que o feitiço lê em `alvo.elemento`). `RuneDoor` (`rune_door.gd`): `StaticBody2D` das células `|`, `open()`.
+- `Rune` (número; não é alvo), `RuneLock` (`inscribe(valor, esperado)`, alcance 3 tiles, não é alvo), `Bridge` (`StaticBody2D` das células `~`, `build_next()`, esquerda → direita), `PressurePlate` (`Area2D`; pisada com o mago no chão dentro).
+- `Room`: avalia o puzzle quando um mecanismo muda; resolvido → abre a porta e emite `puzzle_solved`; `puzzle_state()`, `apply_solved()`, `doors_open()`, `has_puzzle()`, `puzzle_id()`, `spell_room()` (`{"runas": [...]}` para o executor), `runes()`, `inscribe(valor, de)`, `build_block()`, `bridge`. Runas e placas são numeradas da esquerda para a direita. `rng` vem do `World` antes de a sala entrar na árvore.
+- `World.solved_puzzles`: id → `{"estrelas": melhor}` (memória; disco na Sprint 13); ao voltar numa sala resolvida chama `apply_solved()`. `World.room_mana_spent` soma o custo das conjurações que agem (slots e passivo) até resolver; zera ao entrar na sala. `puzzle_stars(id)`. `World.rng` sorteia runas `?` e cristais mutáveis (testes fixam a semente).
 - Passo a passo: `ActionPlayer` emite `sequence_started(codigo)` e `action_started(acao)` e espera `step_delay` entre ações; nas salas com puzzle o `World` usa 0,3 s ÷ `step_speed` e mostra o `StepView` (painel no alto com o código e a linha destacada). `World.cycle_step_speed()` (V): 1× → 2× → 0,5×.
-- Testes de aceitação de puzzle em `tests/acceptance/`: sala do jogo + Python real + soluções que passam e que falham.
+- Testes de aceitação de puzzle em `tests/acceptance/`: sala do jogo + Python real + soluções que passam e que falham. `tests/support/puzzle_driver.gd` (`PuzzleDriver`) joga a sala: `start`, `place`, `walk_until_x`, `set_runes`, `cast` (enche a mana antes), `run_passive`.
 
-- Salas do jogo: `content/rooms/sala_01..03.tscn` (sala_01 tem o Puzzle 1) (40–60 × 23 tiles). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
+- Salas do jogo: `content/rooms/sala_01..03.tscn` (sala_01 tem o Puzzle 1) (40–60 × 23 tiles) e `sala_p02..p06.tscn` (Puzzles 2 a 6), em sequência a partir da saída `b` da sala_03 (provisório até a Sprint 14). As salas `sala_p0N` foram geradas por script; se mudar uma, confira a geometria (o elevador depende de colunas de 2 tiles coladas). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
 
 ### Cliente do executor (spec EXE-protocolo)
 
@@ -131,10 +133,9 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `PythonSpellExecutor`: sobe o worker com `OS.execute_with_pipe(python, ["-I", "-S", "-u", run_worker.py])`; cada `execute` roda a ida e volta numa `Thread` (o pipe vai como argumento) e espera com `await process_frame` (não trava o jogo). Chamadas simultâneas esperam numa fila (`_busy`). **Watchdog:** passou de `timeout_ms` (padrão 3000), mata o worker e devolve `TempoEsgotado`. Se o processo morreu, sobe outro na próxima chamada. `_exit_tree` mata o worker.
 - `PythonSpellExecutor.base_dir()`: pasta que contém `executor/` e `runtime/`. No editor (inclusive nos testes) é a raiz do repo; no jogo exportado, a pasta do `.exe`.
 - Python usado, nesta ordem: `python_path` exportado → env `ARCANE_PYTHON` → `<base_dir>/runtime/python/python.exe` (Windows) ou `bin/python3` → `python`/`python3` do PATH.
-- `SpellRequest.make(code, mago, target=null, rules={})` → `to_dict(id)`.
+- `SpellRequest.make(code, mago, target=null, rules={}, pieces=null, room={})` → `to_dict(id)`; `room` vira `mundo.sala` quando não está vazio.
 - `SpellResult.from_dict(data)`: `ok`, `actions: Array[Dictionary]`, `outputs`, `mago`, `cost` (float, `custo_mana`), `error: SpellError` (ou null). `SpellResult.failure(tipo, msg)` para falhas do lado Godot (`ExecutorIndisponivel`, `RespostaInvalida`).
 - `SpellError`: `type`, `message`, `line`, `column`; `NO_POSITION = -1` representa null.
-- Ainda **não existe** `FakeSpellExecutor`; criar em `game/tests/support/` quando o primeiro sistema que usa feitiços precisar (Sprint 4/5).
 
 ### Ferramenta de desenvolvimento
 
@@ -146,7 +147,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 | --- | --- |
 | `worker.py` | Limita a própria memória (256 MB: Job Object no Windows, `RLIMIT_AS` no Linux); loop: lê linha do stdin (UTF-8), escreve resposta no stdout real, `flush` |
 | `protocol.py` | `handle_line(str) -> str`, `handle_request(dict) -> dict`; valida requisição; JSON de saída com `ensure_ascii=True` |
-| `runner.py` | `run_spell(codigo, mago, alvo, regras)`: `ast.parse` → `sandbox.verificar` → `instrumentar` (ganchos de custo e de volta) → `compile` como `<feitico>` → `exec`; captura erros com a linha do jogador |
+| `runner.py` | `run_spell(codigo, mago, alvo, regras, pecas, sala)`: `ast.parse` → `sandbox.verificar` → `instrumentar` (ganchos de custo e de volta) → `compile` como `<feitico>` → `exec`; captura erros com a linha do jogador |
 | `sandbox.py` | Verificador da AST (imports, nomes `__`, atributos `_`, `except:`/`BaseException`), builtins em lista branca, `getattr` e companhia protegidos, importador com lista branca (`math`, `random`) |
 | `pieces.py` | `Contexto` (fila de ações, saídas, mago simulado em gotas, custo, ganchos `instrucao`/`volta`, limites), peças, `Alvo` somente leitura, exceções de limite, `linha_do_jogador()` |
 | `run_worker.py` | Entrada; põe `executor/` no `sys.path` (necessário porque `-I` não faz isso) |
@@ -157,19 +158,19 @@ Pontos importantes:
 - Sentidos (`mana`, `mana_max`, `vida_atual`) são variáveis globais do namespace, ressincronizadas depois de cada instrução paga. `alvo` é um objeto `Alvo` ou `None`.
 - Elementos e formas são strings (`fogo = "fogo"`).
 - Erro de execução não descarta o que rodou antes; o executor captura qualquer exceção (menos `KeyboardInterrupt`).
-- **Custo (EXE-custo):** a instrumentação insere `__instrucao__(linha)` depois de cada instrução simples (antes de `return/break/continue/raise`) e `__volta__(linha)` no início de cada volta de laço. O gancho de instrução cobra `custo_instrucao`, aplica o teto `mana_max` e sincroniza os sentidos; os dois ganchos conferem o tempo. Peças cobram o custo base na chamada.
+- **Custo (EXE-custo):** a instrumentação insere `__instrucao__(linha)` depois de cada instrução simples (antes de `return/break/continue/raise`) e `__volta__(linha)` no início de cada volta de laço. O gancho de instrução cobra `custo_instrucao` (mais `custo_inscricao` na primeira vez de cada linha, guardada em `Contexto.inscritas`), aplica o teto `mana_max` e sincroniza os sentidos; os dois ganchos conferem o tempo. Peças cobram o custo base na chamada.
 - **Mana em gotas:** 1 mana = 10 gotas (inteiros); `para_gotas`/`para_mana` convertem. Valores inteiros saem como `int` na resposta.
 - **Limites (EXE-limites):** `ManaEsgotada`, `TempoEsgotado` e `LimiteExcedido` herdam de `BaseException`; depois do primeiro estouro, todo gancho relança o mesmo erro (`Contexto.estouro`).
 
 ## Protocolo v1 (resumo; detalhes em `docs/specs/executor/EXE-protocolo.md`)
 
-Requisição: `{versao: 1, id, codigo, mundo: {mago: {vida, mana, mana_max}, alvo: {id, elemento, distancia} | null}, regras?: {ganho_meditar, ganho_absorver, custo_instrucao, custo_lancar, custo_mover, custo_levitar, custo_meditar, custo_absorver, limite_tempo_ms}}`
+Requisição: `{versao: 1, id, codigo, mundo: {mago: {vida, mana, mana_max}, alvo: {id, elemento, distancia} | null, sala?: {runas: [int]}}, pecas?: [..], regras?: {ganho_meditar, ganho_absorver, custo_instrucao, custo_inscricao, custo_lancar, custo_mover, custo_levitar, custo_meditar, custo_absorver, custo_inscrever, custo_bloco, limite_tempo_ms}}`
 
 Resposta: `{versao: 1, id, ok, acoes: [{tipo, linha, ...}], saidas: [{linha, texto}], mago: {...} | null, custo_mana, erro: {tipo, mensagem, linha, coluna} | null}`
 
 Tipos de erro do executor além das exceções do Python: `RequisicaoInvalida`, `ManaEsgotada`, `TempoEsgotado`, `LimiteExcedido`, `FeiticoProibido`. Do Godot: `ExecutorIndisponivel`, `RespostaInvalida`, `TempoEsgotado` (watchdog).
 
-Ações: `lancar {elemento, forma, alvo}`, `mover {passos}`, `levitar {altura}`, `meditar`, `absorver_mana`.
+Ações: `lancar {elemento, forma, alvo}`, `mover {passos}`, `levitar {altura}`, `meditar`, `absorver_mana`, `inscrever {valor}`, `construir_bloco`. Sentido-função: `ler_runa(n)` (não gera ação).
 
 ## Testes
 
@@ -198,6 +199,9 @@ Convenções:
 | `JSON.parse_string` do Godot lê todo número como float | Converter `linha` para int (`SpellResult`); comparar com fixtures via `ContractFixtures.normalize` |
 | `res://` não alcança a raiz do repositório | `PythonSpellExecutor.base_dir()`: no editor usa `globalize_path("res://") + "/.."`; no jogo exportado, a pasta do `.exe` |
 | Python com `-I` não põe a pasta do script no `sys.path` | `run_worker.py` insere manualmente |
+| `ActionPlayer.play` com só ações desconhecidas emite `finished` antes de devolver | Um `await player.finished` depois disso trava o teste até o tempo limite; achado na Sprint 9 |
+| O pytest não está instalado no Python 3.14 embutido | Rodar com o pytest do Python local no `sys.path`: `runtime/python/python.exe -c "import sys; sys.path.append(r'<site-packages>'); import pytest; pytest.main(['-q', '-p', 'no:cacheprovider'])"` |
+| Script Python gravando arquivo com `write_text` no Windows | Grava CRLF; usar `write_bytes(texto.encode())` para manter LF |
 | `python` do PATH no Windows é o alias da Microsoft Store | Usar `runtime/python` (`scripts/fetch_python.sh`) |
 | Executável do Godot para linha de comando | `Godot_v4.7.2-stable_win64_console.exe` (o sem `_console` não mostra saída) |
 | Teste com laço infinito trava o pytest quando o limite ainda não existe | Rodar a suíte com `timeout` no comando; no TDD de limites, o vermelho é um travamento |

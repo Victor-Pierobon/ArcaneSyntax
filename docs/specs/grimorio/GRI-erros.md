@@ -52,7 +52,7 @@ O GDD pede a mensagem real da linguagem, a linha marcada e uma tradução no mun
 
 - **Dado** mana 5 e o feitiço `print("oi")\nlancar(fogo, projetil)`
 - **Quando** aperta Testar
-- **Então** o painel mostra a visão "oi", a ação e o custo 3.2, e a mana do mago continua 5
+- **Então** o painel mostra a visão "oi", a ação e o custo 3.4, e a mana do mago continua 5
 
 ### GRI-052 — Linha marcada e desmarcada
 
@@ -68,7 +68,7 @@ O GDD pede a mensagem real da linguagem, a linha marcada e uma tradução no mun
 ### GRI-060 — Custo estimado
 
 - **Quando** seleciona `lancar(fogo, projetil, alvo)`
-- **Então** aparece `Custo estimado: 3.1`; a requisição usou mana 1000 de 1000 e alvo de fogo
+- **Então** aparece `Custo estimado: 3.2`; a requisição usou mana 1000 de 1000 e alvo de fogo
 
 ### GRI-061 — Estimativa com erro
 

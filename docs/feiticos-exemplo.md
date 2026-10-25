@@ -1,6 +1,6 @@
 # Feitiços de exemplo
 
-Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 7).
+Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 9). Os custos já contam o custo de inscrição da Sprint 9.
 
 ## Onde testar
 
@@ -16,9 +16,13 @@ Cada feitiço diz a **mana inicial** e o **alvo** sugeridos e o resultado espera
 | O quê | Custo |
 | --- | --- |
 | Cada instrução simples (`x = 1`, `print(...)`, `meditar()`) | 0,1 |
+| A **primeira vez** que cada linha roda (custo de inscrição, Sprint 9) | +0,1 |
 | `while`, `if`, `for`, `def` por si | 0 |
-| `lancar` / `mover` / `levitar` | 3 / 1 / 2 (mais 0,1 da instrução) |
+| `lancar` / `mover` / `levitar` | 3 / 1 / 2 (mais a instrução) |
+| `inscrever` / `construir_bloco` / `ler_runa` (Sprint 9) | 1 / 0,5 / 0 (mais a instrução) |
 | `meditar()` / `absorver_mana()` | grátis; dão +5 / +1 de mana |
+
+Na prática, uma linha que roda uma vez custa 0,2; dentro de um loop, a primeira volta custa 0,2 e as outras, 0,1. Por isso um loop sai mais barato que as mesmas linhas repetidas.
 
 ---
 
@@ -32,7 +36,7 @@ Mana inicial **0**, qualquer alvo.
 meditar()
 ```
 
-Esperado: uma ação `meditar`, mana final **4.9** (ganhou 5, a instrução custou 0,1).
+Esperado: uma ação `meditar`, mana final **4.8** (ganhou 5; a instrução custou 0,1 e a inscrição da linha, 0,1).
 
 ### 1.2 Visões (print)
 
@@ -43,7 +47,7 @@ print("olá, torre")
 print("minha mana:", mana, "de", mana_max)
 ```
 
-Esperado: duas visões; a segunda mostra `1.9 de 10` (a primeira instrução já custou 0,1).
+Esperado: duas visões; a segunda mostra `1.8 de 10` (a primeira linha já custou 0,2).
 
 ### 1.3 Variáveis
 
@@ -57,7 +61,7 @@ levitar(altura)
 print("andei", passos, "e subi", altura)
 ```
 
-Esperado: ações `mover` (3) e `levitar` (2); custo 3,5.
+Esperado: ações `mover` (3) e `levitar` (2); custo 4.
 
 ---
 
@@ -73,7 +77,7 @@ while mana < mana_max:
 print("mana cheia:", mana)
 ```
 
-Esperado: 12 ações `absorver_mana` (cada volta rende +0,9), visão `mana cheia: 10`, mana final 9.9 (o `print` custou 0,1).
+Esperado: 12 ações `absorver_mana` (a primeira volta rende +0,8 e as outras +0,9), visão `mana cheia: 10`, mana final 9.8 (o `print` custou 0,2).
 
 **Como passivo (Sprint 7):** no grimório, selecione o feitiço e aperte **Passivo**. Ele roda sozinho a cada segundo e mantém a mana cheia. O HUD mostra `Passivo: <nome>`; se o feitiço der erro, o passivo é desligado e o registro explica por quê (edite o código para religar). Compare com um passivo ruim, `while True:` + `absorver_mana()`, que é desligado por `LimiteExcedido`.
 
@@ -89,7 +93,7 @@ else:
     print("mana suficiente")
 ```
 
-Esperado: com 2, medita (mana final 6.8); com 9, só mostra a visão (custo 0,1).
+Esperado: com 2, medita (mana final 6.6); com 9, só mostra a visão (custo 0,2).
 
 ### 2.3 Checar antes economiza
 
@@ -104,7 +108,7 @@ if mana < mana_max:
 absorver_mana()
 ```
 
-Esperado: o primeiro custa **0** (nada rodou dentro do `if`); o segundo custa **0.1**.
+Esperado: o primeiro custa **0** (nada rodou dentro do `if`); o segundo custa **0.2**.
 
 ---
 
@@ -118,7 +122,7 @@ Mana inicial **5**, alvo **gelo**.
 lancar(fogo, projetil, alvo)
 ```
 
-Esperado: uma ação `lancar` com elemento `fogo` no alvo `alvo_1`; custo 3.1.
+Esperado: uma ação `lancar` com elemento `fogo` no alvo `alvo_1`; custo 3.2.
 
 ### 3.2 O feitiço adaptável (o momento do trailer)
 
@@ -179,13 +183,13 @@ for i in range(3):
 print("rajada pronta")
 ```
 
-Esperado: 3 ações `lancar`; custo 9.4. Com mana 8 o terceiro lançamento falha com `ManaEsgotada`, e os dois primeiros continuam valendo.
+Esperado: 3 ações `lancar`; custo 9.6. Com mana 8 o terceiro lançamento falha com `ManaEsgotada`, e os dois primeiros continuam valendo.
 
 ---
 
 ## 4. Movimento e funções
 
-### 4.1 Elevador com função (o puzzle 5 do plano)
+### 4.1 Função com parâmetro
 
 Mana inicial **10**.
 
@@ -197,7 +201,7 @@ subir(1)
 subir(2)
 ```
 
-Esperado: ações `levitar` com alturas 2 e 4; custo 4.4 (o `def` não custa).
+Esperado: ações `levitar` com alturas 2 e 4; custo 4.7 (o `def` não custa). Desde a Sprint 9, um `levitar` seguido de `mover` voa na horizontal: é assim que se sobe no elevador do Puzzle 5.
 
 ### 4.2 Patrulha
 
@@ -208,7 +212,7 @@ for lado in [1, -1, 1, -1]:
     mover(lado * 2)
 ```
 
-Esperado: 4 ações `mover` (2, −2, 2, −2); custo 4.4.
+Esperado: 4 ações `mover` (2, −2, 2, −2); custo 4.5.
 
 ### 4.3 Usando math
 
@@ -240,6 +244,68 @@ lancar(fogo, projetil, alvo)
 ```
 
 Outras soluções também funcionam, porque o jogo só olha se o cristal acendeu: dois feitiços separados (`meditar()` e depois `lancar(gelo, projetil, alvo)`), ou um loop (`while mana < 5:` / `absorver_mana()` e depois o `lancar`). Não funcionam: `lancar` sem mana (a mana acaba) e `lancar(fogo, escudo)` (escudo não atinge o cristal).
+
+## 4c. Puzzles 2 a 6 (Sprint 9)
+
+As salas ficam depois da sala_03, pela saída de baixo à direita: `sala_p02` a `sala_p06`, nessa ordem. A posição é provisória, até o mapa da Sprint 14. Em todas, a porta abre quando o **mundo** fica do jeito certo; qualquer código que chegue lá vale. Encha a mana antes (`meditar()` ou o passivo do 2.1).
+
+### Puzzle 2: o cadeado de runas (variáveis)
+
+Três runas com números sorteados e um cadeado **Σ**, que abre com a soma. Os números mudam a cada vez que você entra na sala. Fique a até 3 passos do cadeado:
+
+```python
+a = ler_runa(1)
+b = ler_runa(2)
+c = ler_runa(3)
+inscrever(a + b + c)
+```
+
+Também valem: `inscrever(ler_runa(1) + ler_runa(2) + ler_runa(3))`, um loop com acumulador, ou ver a soma com `print(...)` e depois `inscrever(13)` (se a soma for 13). Longe do cadeado, a inscrição se perde.
+
+### Puzzle 3: o cristal que muda de símbolo (condicionais)
+
+O cristal mostra `planta`, `fogo` ou `gelo` (é o `alvo.elemento`) e só aceita o elemento que vence o símbolo. São 3 acertos seguidos; um erro zera. Conjure **três vezes**, uma depois da outra:
+
+```python
+if alvo.elemento == "planta":
+    lancar(fogo, projetil, alvo)
+elif alvo.elemento == "fogo":
+    lancar(gelo, projetil, alvo)
+else:
+    lancar(raio, projetil, alvo)
+```
+
+Também valem um dicionário (`vence = {"planta": fogo, "fogo": gelo, "gelo": raio}`), uma função com `return` e o mesmo feitiço como **passivo**. Repare que um `for` que lança três vezes num feitiço só **não** funciona: o feitiço vê o mundo como ele era quando foi conjurado, e o segundo lançamento usa o símbolo antigo.
+
+### Puzzle 4: a ponte de 12 blocos (loops, com estrelas)
+
+```python
+for i in range(12):
+    construir_bloco()
+```
+
+Custa 7.3 e dá **3 estrelas**. Doze linhas `construir_bloco()` também constroem a ponte, mas custam 8.4 (2 estrelas), porque cada linha paga a inscrição. As estrelas aparecem no registro quando a porta abre. Meditar não conta na soma.
+
+### Puzzle 5: o elevador (funções)
+
+Três colunas com as alturas gravadas: 5, 7 e 6. Ande até encostar na primeira e conjure:
+
+```python
+def subir(altura):
+    meditar()
+    levitar(altura)
+    mover(2)
+
+subir(5)
+subir(7)
+subir(6)
+```
+
+O `meditar()` dentro da função paga as três subidas. Também valem um `for altura in [5, 7, 6]:` e três feitiços separados (`levitar(5)` / `mover(2)` e assim por diante). A mesma altura para todas bate na parede da segunda coluna.
+
+### Puzzle 6: a câmara de revisão (tudo junto, com estrelas)
+
+Da esquerda para a direita: cadeado de runas, ponte de 8 blocos, cristal mutável de 2 cargas e duas colunas (alturas 5 e 6). A porta abre com tudo feito. A solução econômica gasta cerca de 19.5 de mana e ganha 3 estrelas (até 20); até 24, são 2 estrelas.
 
 ## 5. Erros de propósito (para ver as mensagens)
 
@@ -287,7 +353,7 @@ mover(1)
 lancar(fogo, projetil)
 ```
 
-Esperado: `mover` acontece; `ManaEsgotada` na linha 2 ("lancar() custava 3 e restavam 0.9").
+Esperado: `mover` acontece; `ManaEsgotada` na linha 2 ("lancar() custava 3 e restavam 0.8").
 
 ### 5.6 Loop infinito
 

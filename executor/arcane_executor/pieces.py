@@ -11,7 +11,7 @@ ARQUIVO_FEITICO = "<feitico>"
 
 ELEMENTOS = ("fogo", "gelo", "raio")
 FORMAS = ("projetil", "escudo")
-ACOES = ("lancar", "mover", "levitar", "meditar", "absorver_mana")
+ACOES = ("lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco")
 # Peças sujeitas a desbloqueio (spec EXE-desbloqueio); os sentidos ficam sempre disponíveis.
 PECAS_DESBLOQUEAVEIS = ACOES + ELEMENTOS + FORMAS
 
@@ -19,11 +19,14 @@ REGRAS_PADRAO = {
     "ganho_meditar": 5,
     "ganho_absorver": 1,
     "custo_instrucao": 0.1,
+    "custo_inscricao": 0.1,
     "custo_lancar": 3,
     "custo_mover": 1,
     "custo_levitar": 2,
     "custo_meditar": 0,
     "custo_absorver": 0,
+    "custo_inscrever": 1,
+    "custo_bloco": 0.5,
     "limite_tempo_ms": 1000,
 }
 
@@ -114,7 +117,7 @@ class Alvo:
 class Contexto:
     """Estado de uma execução: fila de ações, saídas, mago simulado e mana gasta."""
 
-    def __init__(self, mago, alvo, regras=None, pecas=None):
+    def __init__(self, mago, alvo, regras=None, pecas=None, sala=None):
         regras = {**REGRAS_PADRAO, **(regras or {})}
         self.bloqueadas = set() if pecas is None else set(PECAS_DESBLOQUEAVEIS) - set(pecas)
         self.vida = mago["vida"]
@@ -124,15 +127,21 @@ class Contexto:
         self.ganho = {"meditar": para_gotas(regras["ganho_meditar"]), "absorver": para_gotas(regras["ganho_absorver"])}
         self.custo = {
             "instrucao": para_gotas(regras["custo_instrucao"]),
+            "inscricao": para_gotas(regras["custo_inscricao"]),
             "lancar": para_gotas(regras["custo_lancar"]),
             "mover": para_gotas(regras["custo_mover"]),
             "levitar": para_gotas(regras["custo_levitar"]),
             "meditar": para_gotas(regras["custo_meditar"]),
             "absorver": para_gotas(regras["custo_absorver"]),
+            "inscrever": para_gotas(regras["custo_inscrever"]),
+            "bloco": para_gotas(regras["custo_bloco"]),
         }
+        # Linhas que já pagaram a inscrição nesta execução (EXE-custo, regra 13).
+        self.inscritas = set()
         self.limite_tempo = regras["limite_tempo_ms"] / 1000
         self.inicio = time.perf_counter()
         self.alvo = Alvo(alvo["id"], alvo["elemento"], alvo["distancia"]) if alvo else None
+        self.runas = tuple((sala or {}).get("runas") or ())
         self.acoes = []
         self.saidas = []
         self.namespace = None
@@ -156,6 +165,9 @@ class Contexto:
             levitar=self.levitar,
             meditar=self.meditar,
             absorver_mana=self.absorver_mana,
+            inscrever=self.inscrever,
+            construir_bloco=self.construir_bloco,
+            ler_runa=self.ler_runa,
             alvo=self.alvo,
             __instrucao__=self.instrucao,
             __volta__=self.volta,
@@ -199,7 +211,9 @@ class Contexto:
     def instrucao(self, linha):
         """Gancho inserido depois de cada instrução simples (antes de return/break/continue/raise)."""
         self._conferir(linha)
-        self._pagar(self.custo["instrucao"], linha, "a instrução")
+        custo = self.custo["instrucao"] + (0 if linha in self.inscritas else self.custo["inscricao"])
+        self._pagar(custo, linha, "a instrução")
+        self.inscritas.add(linha)
         self.gotas = min(self.gotas, self.gotas_max)
         self.sincronizar()
 
@@ -266,3 +280,23 @@ class Contexto:
         self._cobrar_peca("absorver")
         self.gotas += self.ganho["absorver"]
         self.registrar("absorver_mana")
+
+    # --- peças dos puzzles (Sprint 9) ---
+
+    def ler_runa(self, n):
+        if isinstance(n, bool) or not isinstance(n, int):
+            raise TypeError(f"ler_runa() precisa do número da runa (1, 2, 3...), recebeu {n!r}")
+        if not self.runas:
+            raise ValueError("não há runas nesta sala")
+        if not 1 <= n <= len(self.runas):
+            raise ValueError(f"ler_runa(): a sala tem {len(self.runas)} runas; use um número de 1 a {len(self.runas)}, recebeu {n}")
+        return self.runas[n - 1]
+
+    def inscrever(self, valor):
+        _exigir_numero("inscrever", "valor", valor)
+        self._cobrar_peca("inscrever")
+        self.registrar("inscrever", valor=valor)
+
+    def construir_bloco(self):
+        self._cobrar_peca("bloco")
+        self.registrar("construir_bloco")

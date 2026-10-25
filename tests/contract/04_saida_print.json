@@ -26,10 +26,10 @@
     ],
     "mago": {
       "vida": 10,
-      "mana": 4.8,
+      "mana": 4.6,
       "mana_max": 20
     },
-    "custo_mana": 0.2,
+    "custo_mana": 0.4,
     "erro": null
   }
 }

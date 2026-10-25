@@ -7,7 +7,7 @@ signal mana_changed(mana: float, mana_max: float)
 const MANA_STEP := 0.1
 ## Peças sujeitas a desbloqueio (spec EXE-desbloqueio).
 const ALL_PIECES: Array[String] = [
-	"lancar", "mover", "levitar", "meditar", "absorver_mana",
+	"lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco",
 	"fogo", "gelo", "raio", "projetil", "escudo",
 ]
 

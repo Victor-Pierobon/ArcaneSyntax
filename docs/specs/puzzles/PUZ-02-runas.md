@@ -1,6 +1,6 @@
 # PUZ-02-runas — Puzzle 2: o cadeado de runas
 
-- **Status:** Rascunho
+- **Status:** Implementada
 - **Sprint:** 9
 - **Relacionadas:** PUZ-validacao (regras 9, 10 e 13), EXE-pecas (regras 6 e 7), EXE-protocolo (regra 7)
 - **Conceito:** variáveis
@@ -11,7 +11,7 @@ Na parede da sala há três runas com números sorteados (`runa:?`). Diante da p
 
 - Sala: `sala_p02`, ligada à sala_03. A posição é provisória: o mapa é montado na Sprint 14.
 - Puzzle: `{"id": "p02_runas", "condicoes": [{"tipo": "cadeados_abertos"}]}`
-- Runas: três dígitos `runa:?`. Cadeado: um dígito `cadeado:soma`, a 2 tiles da porta.
+- Runas: três dígitos `runa:?`. Cadeado: um dígito `cadeado:soma`, a 4 tiles da porta.
 - Custo de referência da solução A: 1.8.
 
 ## Soluções que devem passar

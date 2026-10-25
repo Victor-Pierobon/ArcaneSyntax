@@ -1,6 +1,6 @@
 # EXE-protocolo — Protocolo Godot ↔ executor (v1)
 
-- **Status:** Implementada (Sprint 1); **regra 7 em rascunho, Sprint 9**
+- **Status:** Implementada
 - **Sprint:** 1, 9
 - **Relacionadas:** ADR-001, ADR-002, EXE-pecas, EXE-erros
 

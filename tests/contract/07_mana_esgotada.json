@@ -27,13 +27,13 @@
     "saidas": [],
     "mago": {
       "vida": 10,
-      "mana": 0.9,
+      "mana": 0.8,
       "mana_max": 20
     },
-    "custo_mana": 1.1,
+    "custo_mana": 1.2,
     "erro": {
       "tipo": "ManaEsgotada",
-      "mensagem": "a mana acabou na linha 2: lancar() custava 3 e restavam 0.9",
+      "mensagem": "a mana acabou na linha 2: lancar() custava 3 e restavam 0.8",
       "linha": 2,
       "coluna": null
     }

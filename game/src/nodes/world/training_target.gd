@@ -23,6 +23,8 @@ var last_hit_element := ""
 var last_effect: ElementTable.Effect = ElementTable.Effect.NORMAL
 var hits := 0
 var effect_label := Label.new()
+## Nome do elemento sobre o boneco (o cristal mutável troca o texto).
+var name_label := Label.new()
 
 var _body := ColorRect.new()
 
@@ -41,11 +43,10 @@ func _ready() -> void:
 	_body.size = SIZE
 	_body.position = Vector2(-SIZE.x / 2, -SIZE.y)
 	add_child(_body)
-	var label := Label.new()
-	label.text = element
-	label.add_theme_font_size_override(&"font_size", 7)
-	label.position = Vector2(-12, -34)
-	add_child(label)
+	name_label.text = element
+	name_label.add_theme_font_size_override(&"font_size", 7)
+	name_label.position = Vector2(-12, -34)
+	add_child(name_label)
 	effect_label.add_theme_font_size_override(&"font_size", 8)
 	effect_label.position = Vector2(-16, -46)
 	effect_label.modulate.a = 0.0

@@ -106,5 +106,5 @@ func test_GRI_045_de_ponta_a_ponta_com_o_python_de_verdade() -> void:
 	world.grimoire.equip(2, "Meditar")
 	world.state.set_mana(0.0)
 	await world.cast(2)
-	assert_float(world.state.mana).is_equal_approx(4.9, 0.0001)
+	assert_float(world.state.mana).is_equal_approx(4.8, 0.0001)
 	real.queue_free()

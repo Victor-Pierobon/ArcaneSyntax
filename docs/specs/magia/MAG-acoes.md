@@ -1,6 +1,6 @@
 # MAG-acoes — As ações do feitiço acontecem no mundo
 
-- **Status:** Implementada (Sprint 6); **levitar + mover, inscrever e construir_bloco em rascunho, Sprint 9**
+- **Status:** Implementada
 - **Sprint:** 6, 9
 - **Relacionadas:** MAG-formas, MAG-elementos, GRI-slots, EXE-pecas, MUN-movimento (MUN-015)
 - **Decisão do Victor (2026-10-25):** quando o feitiço dá erro, as ações anteriores ao erro **acontecem** no mundo.

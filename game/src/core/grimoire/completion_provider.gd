@@ -4,10 +4,12 @@ extends RefCounted
 
 enum Group { GAME, BUILTIN, KEYWORD }
 
-const GAME_FUNCTIONS := ["lancar", "mover", "levitar", "meditar", "absorver_mana"]
+const GAME_FUNCTIONS := ["lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco"]
 const GAME_CONSTANTS := ["fogo", "gelo", "raio", "projetil", "escudo"]
 ## Sentidos: sempre disponíveis (spec EXE-desbloqueio, regra 2).
 const SENSES := ["mana", "mana_max", "vida_atual", "alvo"]
+## Sentidos que são funções (Sprint 9, EXE-pecas regra 6).
+const SENSE_FUNCTIONS := ["ler_runa"]
 
 
 ## Lista de {display, insert, group}, ordenada por grupo e nome.
@@ -27,6 +29,9 @@ static func suggest(prefix: String, unlocked: Variant) -> Array[Dictionary]:
 	for word in SENSES:
 		if word.begins_with(lowered):
 			game.append({"display": word, "insert": word, "group": Group.GAME})
+	for word in SENSE_FUNCTIONS:
+		if word.begins_with(lowered):
+			game.append({"display": word, "insert": word + "(", "group": Group.GAME})
 	var builtins: Array[Dictionary] = []
 	for word: String in PythonHighlighter.BUILTINS:
 		if word.begins_with(lowered):

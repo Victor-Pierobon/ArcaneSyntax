@@ -53,3 +53,9 @@ HUD_PASSIVO_DESLIGADO,Passivo: %s (desligado)
 PASSIVO_DESLIGADO,O passivo %s foi desligado:
 PASSIVO_SEM_MANA,O passivo %s ficou sem mana.
 PASSO_VELOCIDADE,Passo a passo · velocidade %s× (V)
+INSCREVER_SEM_CADEADO,A runa se desfaz: não há cadeado nesta sala
+INSCREVER_LONGE,O cadeado está longe demais (chegue a 3 passos dele)
+PONTE_PRONTA,A ponte já está pronta
+PONTE_SEM_VAO,Não há vão para construir uma ponte aqui
+PUZZLE_RESOLVIDO,Puzzle resolvido!
+"PUZZLE_RESOLVIDO_ESTRELAS","Puzzle resolvido! Estrelas: %d de 3 (mana gasta: %.1f)"

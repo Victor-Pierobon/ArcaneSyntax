@@ -48,7 +48,7 @@ func test_resultado_converte_linhas_para_int() -> void:
 
 func test_resultado_le_o_custo_de_mana() -> void:
 	var result := SpellResult.from_dict(fixtures["01_lancar_com_alvo"]["resposta"])
-	assert_float(result.cost).is_equal_approx(3.1, 0.0001)
+	assert_float(result.cost).is_equal_approx(3.2, 0.0001)
 
 
 func test_resultado_de_erro_de_requisicao_tem_mago_vazio() -> void:
@@ -70,3 +70,19 @@ func test_falha_local_do_cliente() -> void:
 	assert_bool(result.ok).is_false()
 	assert_str(result.error.type).is_equal("ExecutorIndisponivel")
 	assert_array(result.actions).is_empty()
+
+
+func test_EXE_111_requisicao_leva_a_sala() -> void:
+	var fixture: Dictionary = fixtures["10_pecas_de_puzzle"]
+	var request := SpellRequest.make(
+		fixture["requisicao"]["codigo"],
+		{"vida": 5, "mana": 5, "mana_max": 10},
+		null, {}, null,
+		{"runas": [4, 7]},
+	)
+	assert_dict(ContractFixtures.normalize(request.to_dict(10))).is_equal(fixture["requisicao"])
+
+
+func test_EXE_111_sem_sala_omite_o_campo() -> void:
+	var request := SpellRequest.make("meditar()", {"vida": 10, "mana": 5, "mana_max": 20})
+	assert_bool(request.to_dict(1)["mundo"].has("sala")).is_false()

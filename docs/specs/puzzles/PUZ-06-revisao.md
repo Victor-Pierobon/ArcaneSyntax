@@ -1,6 +1,6 @@
 # PUZ-06-revisao — Puzzle 6: a câmara de revisão
 
-- **Status:** Rascunho
+- **Status:** Implementada
 - **Sprint:** 9
 - **Relacionadas:** PUZ-02 a PUZ-05, PUZ-validacao (regras 8 a 15)
 - **Conceito:** revisão (sequência, variáveis, condicionais, loops e funções), com estrelas por economia de mana
@@ -12,7 +12,7 @@ Uma sala só, com os quatro mecanismos em sequência, da esquerda para a direita
 1. **Cadeado de runas:** três runas sorteadas e um `cadeado:soma` perto da entrada.
 2. **Ponte de 8 blocos** sobre espinhos.
 3. **Cristal mutável com 2 cargas** depois da ponte.
-4. **Duas plataformas** com placas, de alturas 4 e 5.
+4. **Duas colunas** com placas, de 4 e 9 tiles (levitar 5 e depois 6; ver PUZ-05).
 
 A porta, no fim, abre quando tudo está feito. As estrelas medem a mana gasta nos feitiços que agem (PUZ-validacao, regra 14).
 
@@ -26,9 +26,9 @@ O teste fixa as runas em 4, 7 e 2 e a semente do cristal. Ele leva o mago a cada
 
 | # | Estilo | Feitiços, na ordem | Custo | Estrelas |
 | --- | --- | --- | --- | --- |
-| A | Econômica | `inscrever(ler_runa(1) + ler_runa(2) + ler_runa(3))` (1.2); `for i in range(8):` / `construir_bloco()` (4.9); a solução A do PUZ-03 duas vezes (3.2 cada); `def subir(h):` / `levitar(h)` / `mover(2)` / `subir(4)` / `subir(5)` (7.0) | 19.5 | 3 |
-| B | Detalhada | a solução A do PUZ-02 (1.8); 8 linhas `construir_bloco()` (5.6); a solução B do PUZ-03 duas vezes (3.4 cada); `levitar(4)` / `mover(2)` / `levitar(5)` / `mover(2)` (6.8) | 21.0 | 2 |
-| C | Passivo e funções | a solução A do PUZ-03 no passivo, ligado antes de atravessar a ponte; o resto como em A | — | pelo menos 1 |
+| A | Econômica | `inscrever(ler_runa(1) + ler_runa(2) + ler_runa(3))` (1.2); `for i in range(8):` / `construir_bloco()` (4.9); a solução A do PUZ-03 duas vezes (3.2 cada); `def subir(h):` / `levitar(h)` / `mover(2)` / `subir(5)` / `subir(6)` (7.0) | 19.5 | 3 |
+| B | Detalhada | a solução A do PUZ-02 (1.8); 8 linhas `construir_bloco()` (5.6); a solução B do PUZ-03 duas vezes (3.4 cada); `levitar(5)` / `mover(2)` / `levitar(6)` / `mover(2)` (6.8) | 21.0 | 2 |
+| C | Passivo e funções | a ponte com uma função `ponte(n)`; a solução A do PUZ-03 no passivo, ligado diante do cristal; o resto como em A | — | pelo menos 1 |
 
 ## Soluções que devem falhar
 
@@ -47,12 +47,12 @@ O teste fixa as runas em 4, 7 e 2 e a semente do cristal. Ele leva o mago a cada
 
 ### PUZ-071 — Estrelas pela economia
 
-- **Então** a solução A ganha 3 estrelas e a B, 2; um erro a mais no cristal (3.2 gastos à toa) tira a A das 3 estrelas
+- **Então** a solução A ganha 3 estrelas e a B, 2; um erro a mais no cristal (3.2 gastos à toa, total 22.7) tira a A das 3 estrelas
 
 ### PUZ-072 — Soluções erradas não abrem
 
 - **Quando** X ou Y
-- **Então** a porta continua fechada, mesmo com as outras três condições cumpridas
+- **Então** a porta continua fechada, mesmo com as outras três condições cumpridas (em X, o teste põe o mago do outro lado do vão para fazer o resto)
 
 ## Perguntas em aberto
 

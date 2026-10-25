@@ -5,6 +5,8 @@ extends Node
 var calls: Array[String] = []
 ## Quadros que cada ação demora.
 var frames_per_action := 2
+## Para cada levitar, a ação que vem depois (MAG-070).
+var next_after_levitar: Array[String] = []
 
 
 func act_lancar(action: Dictionary) -> void:
@@ -16,6 +18,7 @@ func act_mover(action: Dictionary) -> void:
 
 
 func act_levitar(action: Dictionary) -> void:
+	next_after_levitar.append(str(action.get("seguinte", "")))
 	await _run("levitar", action)
 
 
@@ -25,6 +28,14 @@ func act_meditar(action: Dictionary) -> void:
 
 func act_absorver_mana(action: Dictionary) -> void:
 	await _run("absorver_mana", action)
+
+
+func act_inscrever(action: Dictionary) -> void:
+	await _run("inscrever", action)
+
+
+func act_construir_bloco(action: Dictionary) -> void:
+	await _run("construir_bloco", action)
 
 
 func _run(kind: String, _action: Dictionary) -> void:

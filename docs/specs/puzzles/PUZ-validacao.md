@@ -1,6 +1,6 @@
 # PUZ-validacao — Puzzles validados pelo estado do mundo
 
-- **Status:** Implementada (Sprint 8); **regras 8 a 15 em rascunho, Sprint 9**
+- **Status:** Implementada
 - **Sprint:** 8, 9
 - **Relacionadas:** PUZ-01 a PUZ-06, PUZ-passo-a-passo, MUN-salas, MAG-formas, MAG-elementos, EXE-pecas, GDD "Validação pelo estado do mundo"
 
@@ -31,7 +31,7 @@ O jogo **nunca compara o código com um gabarito**: só verifica o resultado no 
 9. **Runa** (`targets = {"6": "runa:4"}`, ou `runa:?` para um valor sorteado de 1 a 9 ao entrar na sala). Mostra o número. Não é alvo: projéteis passam por ela e ela não entra na escolha do `alvo`. As runas da sala, da esquerda para a direita (empate: de cima para baixo), formam `mundo.sala.runas` (EXE-protocolo, regra 7).
 10. **Cadeado** (`targets = {"7": "cadeado:soma"}`). Recebe as ações `inscrever(valor)` quando o mago está a até 3 tiles dele; mais longe, a inscrição se perde, com o aviso "o cadeado está longe demais". Abre quando o valor é igual à **soma das runas da sala**. Valor errado: pisca e continua fechado, sem limite de tentativas. Aberto, continua aberto. O cadeado também não é alvo.
 11. **Vão de ponte** (`~` no layout). Começa vazio. Cada `construir_bloco()` preenche a próxima célula `~` que ainda está vazia, da esquerda para a direita (empate: de baixo para cima). O bloco é sólido, como a pedra. Sem célula vazia, a ação não faz nada e avisa "a ponte já está pronta".
-12. **Placa** (`_` no layout). Uma placa fina no fundo da célula, que fica **pisada** quando o mago está no chão dentro dela. Uma vez pisada, continua pisada. As placas são numeradas na mesma ordem das runas.
+12. **Placa** (`_` no layout). Uma placa fina no fundo da célula, que fica **pisada** quando o mago está no chão dentro dela. Uma vez pisada, continua pisada. As placas são numeradas na mesma ordem das runas, da esquerda para a direita, e não na ordem de leitura do layout (bug corrigido na Sprint 9).
 13. **Condições novas:**
 
     | Condição | Verdadeira quando |
@@ -43,6 +43,7 @@ O jogo **nunca compara o código com um gabarito**: só verifica o resultado no 
     A foto do estado passa a ser `{"cristais": {...}, "cadeados": {"7": true}, "ponte": {"feitos": 5, "total": 12}, "placas": [true, false]}`.
 14. **Estrelas** (opcional): `puzzle = {..., "estrelas": [3.0, 5.0]}`. A sala soma o `custo_mana` das conjurações que terminam ali, dos slots e do passivo, desde a entrada até o puzzle ser resolvido. **Ficam de fora as conjurações que só recuperam mana**, isto é, as que não têm ação nenhuma além de `meditar` e `absorver_mana`. Sem isso, o passivo de absorver mana pioraria as estrelas só pelo tempo parado na sala, e reunir mana nunca deve ser punido. Ao resolver, dá 3 estrelas se a soma for até o primeiro número, 2 se for até o segundo e 1 caso contrário. As estrelas nunca impedem a solução: só medem a economia. Sair da sala sem resolver zera a soma.
 15. O `World` guarda, para cada puzzle resolvido, a **melhor** quantidade de estrelas. Hoje isso fica só na memória; o disco é da Sprint 13. Um puzzle já resolvido não volta a contar mana. Para melhorar as estrelas, o jogador joga a sala de revisão de novo, mas isso fica para depois da Alpha.
+16. **Gravura** (`targets = {"1": "gravura:5"}`): um texto pintado na parede, sem efeito no jogo. Serve para dar ao jogador uma informação que o puzzle pede, como as alturas do elevador. Achado por captura de tela na Sprint 9: sem as gravuras, as alturas do Puzzle 5 eram só adivinhação.
 
 ## Critérios de aceite
 

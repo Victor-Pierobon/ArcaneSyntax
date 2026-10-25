@@ -18,7 +18,8 @@ const TILE := RoomLayout.TILE
 @export_multiline var layout: String = ""
 ## Letra da saída → "sala:Entrada", ex.: {"b": "sala_02:A"}.
 @export var exits: Dictionary = {}
-## Dígito do boneco de treino → elemento, ex.: {"1": "fogo"} (spec MUN-alvos).
+## Dígito → o que ele é: elemento de boneco ({"1": "fogo"}, spec MUN-alvos), "cristal[:...]",
+## "runa:<n>" ou "runa:?", "cadeado:soma", "gravura:<texto>" (spec PUZ-validacao).
 @export var targets: Dictionary = {}
 ## {"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]} ou vazio (spec PUZ-validacao).
 @export var puzzle: Dictionary = {}
@@ -26,14 +27,25 @@ const TILE := RoomLayout.TILE
 var data: RoomLayout
 var tiles: TileMapLayer
 var errors: Array[String] = []
+## Sorteio das runas `?` e dos cristais mutáveis; o World passa o dele antes de pôr a sala na árvore.
+var rng: RandomNumberGenerator
+var bridge: Bridge
 
 var _areas: Array[Area2D] = []
 var _crystals: Dictionary = {}
 var _door: RuneDoor
 var _solved := false
+## Runas da esquerda para a direita (empate: de cima para baixo), como `ler_runa` as numera.
+var _runes: Array[Rune] = []
+var _locks: Dictionary = {}
+var _plates: Array[PressurePlate] = []
+## Textos gravados na parede (regra 16), da esquerda para a direita.
+var _engravings: Array[Label] = []
 
 
 func _ready() -> void:
+	if rng == null:
+		rng = RandomNumberGenerator.new()
 	data = RoomLayout.parse(layout)
 	errors.append_array(data.errors)
 	_build_tiles()
@@ -57,6 +69,8 @@ func _activate_areas_after_first_frame() -> void:
 	for area in _areas:
 		if is_instance_valid(area):
 			area.set_deferred(&"monitoring", true)
+	for plate in _plates:
+		plate.set_deferred(&"monitoring", true)
 
 
 func has_puzzle() -> bool:
@@ -76,7 +90,67 @@ func puzzle_state() -> Dictionary:
 	var crystals := {}
 	for digit: String in _crystals:
 		crystals[digit] = _crystals[digit].lit
-	return {"cristais": crystals}
+	var locks := {}
+	for digit: String in _locks:
+		locks[digit] = _locks[digit].is_open
+	var bridge_state := {"feitos": bridge.built() if bridge else 0, "total": bridge.total() if bridge else 0}
+	return {
+		"cristais": crystals,
+		"cadeados": locks,
+		"ponte": bridge_state,
+		"placas": _plates.map(func(plate: PressurePlate) -> bool: return plate.is_pressed),
+	}
+
+
+## O que a sala mostra ao feitiço (EXE-protocolo, regra 7); vazio se não há nada.
+func spell_room() -> Dictionary:
+	if _runes.is_empty():
+		return {}
+	return {"runas": _runes.map(func(rune: Rune) -> int: return rune.value)}
+
+
+func runes() -> Array[Rune]:
+	return _runes
+
+
+func engravings() -> Array[String]:
+	var texts: Array[String] = []
+	for label in _engravings:
+		texts.append(label.text)
+	return texts
+
+
+## `inscrever(valor)` vindo de `from` (os pés do mago): o cadeado mais perto no alcance recebe o valor.
+## Devolve "aberto", "errado", "longe" ou "sem_cadeado".
+func inscribe(value: float, from: Vector2) -> String:
+	if _locks.is_empty():
+		return "sem_cadeado"
+	var best: RuneLock = null
+	var best_distance := INF
+	for lock: RuneLock in _locks.values():
+		var distance := from.distance_to(lock.global_position)
+		if distance < best_distance:
+			best = lock
+			best_distance = distance
+	if best_distance > RuneLock.REACH_TILES * TILE + 0.5:
+		return "longe"
+	return "aberto" if best.inscribe(value, _rune_sum()) else "errado"
+
+
+## `construir_bloco()`: false se a sala não tem ponte ou ela já está pronta.
+func build_block() -> bool:
+	return bridge != null and bridge.build_next()
+
+
+func lock_position() -> Variant:
+	return null if _locks.is_empty() else _locks.values()[0].global_position
+
+
+func _rune_sum() -> int:
+	var total := 0
+	for rune in _runes:
+		total += rune.value
+	return total
 
 
 ## Sala de um puzzle já resolvido: cristais acesos e portas abertas, sem avisar de novo (PUZ-006).
@@ -85,6 +159,12 @@ func apply_solved() -> void:
 	for crystal: Crystal in _crystals.values():
 		crystal.lit = true
 		crystal._refresh_color()
+	for lock: RuneLock in _locks.values():
+		lock.open()
+	if bridge:
+		bridge.complete()
+	for plate in _plates:
+		plate.press()
 	if _door:
 		_door.open()
 
@@ -139,23 +219,76 @@ func _build_targets() -> void:
 			errors.append("boneco '%s' sem elemento (use targets = {\"%s\": \"fogo\"})" % [digit, digit])
 			continue
 		var spec := str(targets[digit])
+		var cell: Vector2i = data.targets[digit]
+		if spec.begins_with("runa:"):
+			_add_rune(spec.trim_prefix("runa:"), cell)
+			continue
+		if spec.begins_with("gravura:"):
+			_add_engraving(spec.trim_prefix("gravura:"), cell)
+			continue
+		if spec.begins_with("cadeado"):
+			var lock := RuneLock.make()
+			lock.position = RoomLayout.cell_feet(cell)
+			lock.opened.connect(_check_puzzle)
+			_locks[digit] = lock
+			add_child(lock)
+			continue
 		var target_id := "%s_alvo_%s" % [room_id, digit]
 		var target: TrainingTarget
 		if spec.begins_with("cristal"):
-			var crystal := Crystal.make_crystal(target_id, spec)
+			var crystal := Crystal.make_crystal(target_id, spec, rng)
 			crystal.lit_changed.connect(func(_lit: bool) -> void: _check_puzzle())
 			_crystals[digit] = crystal
 			target = crystal
 		else:
 			target = TrainingTarget.make(target_id, spec)
-		target.position = RoomLayout.cell_feet(data.targets[digit])
+		target.position = RoomLayout.cell_feet(cell)
 		add_child(target)
+	_runes.sort_custom(func(a: Rune, b: Rune) -> bool:
+		return a.position.x < b.position.x or (a.position.x == b.position.x and a.position.y < b.position.y)
+	)
+	_engravings.sort_custom(func(a: Label, b: Label) -> bool: return a.position.x < b.position.x)
+
+
+func _add_engraving(text: String, cell: Vector2i) -> void:
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override(&"font_size", 10)
+	label.add_theme_color_override(&"font_color", Color("ffd27a"))
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.size = Vector2(TILE, TILE)
+	label.position = Vector2(cell * TILE)
+	_engravings.append(label)
+	add_child(label)
+
+
+func _add_rune(value_spec: String, cell: Vector2i) -> void:
+	var value := rng.randi_range(1, 9) if value_spec == "?" else value_spec.to_int()
+	if value_spec != "?" and not value_spec.is_valid_int():
+		errors.append("runa com valor inválido '%s' (use runa:4 ou runa:?)" % value_spec)
+	var rune := Rune.make(value)
+	rune.position = RoomLayout.cell_feet(cell)
+	_runes.append(rune)
+	add_child(rune)
 
 
 func _build_puzzle() -> void:
 	if not data.doors.is_empty():
 		_door = RuneDoor.make(data.doors)
 		add_child(_door)
+	if not data.bridge_cells.is_empty():
+		bridge = Bridge.make(data.bridge_cells)
+		bridge.changed.connect(_check_puzzle)
+		add_child(bridge)
+	# Da esquerda para a direita, empate de cima para baixo, como as runas (regra 12); não na ordem de leitura.
+	var plate_cells := data.plates.duplicate()
+	plate_cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.x < b.x or (a.x == b.x and a.y < b.y))
+	for cell: Vector2i in plate_cells:
+		var plate := PressurePlate.make(cell)
+		plate.pressed.connect(_check_puzzle)
+		_plates.append(plate)
+		add_child(plate)
 	if has_puzzle():
 		errors.append_array(PuzzleValidator.authoring_errors(puzzle.get("condicoes", [])))
 		if puzzle_id().is_empty():

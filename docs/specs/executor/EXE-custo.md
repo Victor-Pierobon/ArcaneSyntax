@@ -1,6 +1,6 @@
 # EXE-custo — Custo de mana dos feitiços
 
-- **Status:** Implementada (Sprint 2); **regra 13 (custo de inscrição) em rascunho, Sprint 9**
+- **Status:** Implementada
 - **Sprint:** 2, 9
 - **Relacionadas:** EXE-protocolo, EXE-pecas, EXE-limites, PUZ-04-ponte, GDD "Mana como custo de execução"
 - **Decisão do Victor (2026-10-25):** "linhas baratas": cada instrução custa pouco, peças têm custo base, recuperar mana é grátis.
