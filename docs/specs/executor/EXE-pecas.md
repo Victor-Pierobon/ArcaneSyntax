@@ -1,8 +1,8 @@
 # EXE-pecas — Peças disponíveis para os feitiços (Alpha)
 
-- **Status:** Implementada
-- **Sprint:** 1
-- **Relacionadas:** EXE-protocolo, ADR-001, GDD "Sistema de feitiços"
+- **Status:** Implementada (Sprint 1); **regras 6 a 9 em rascunho, Sprint 9**
+- **Sprint:** 1, 9
+- **Relacionadas:** EXE-protocolo, ADR-001, PUZ-02-runas, PUZ-04-ponte, GDD "Sistema de feitiços"
 
 ## Contexto
 
@@ -28,6 +28,20 @@ Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5
 | `absorver_mana()` | `{"tipo": "absorver_mana"}` | mana += `ganho_absorver`, até `mana_max` | — |
 
 5. Validação falha com exceção Python real (`TypeError` ou `ValueError`) e mensagem em português que diz o que era esperado. A linha do erro é a do código do jogador.
+
+### Peças dos puzzles (Sprint 9)
+
+6. **Runas.** A foto do mundo pode trazer as runas da sala (`mundo.sala.runas`, EXE-protocolo), uma lista de números em ordem da esquerda para a direita. O sentido `ler_runa(n)` devolve o valor da runa `n`, **contando a partir de 1**, como o jogador as vê na sala. Ele não registra ação e não custa nada além da instrução.
+7. Peças novas:
+
+   | Peça | Ação registrada | Efeito na simulação | Validação |
+   | --- | --- | --- | --- |
+   | `ler_runa(n)` | — (sentido) | devolve o número | `n` inteiro (não `bool`), `TypeError`; fora de 1..quantidade, `ValueError` com a quantidade de runas; sala sem runas, `ValueError` "não há runas nesta sala" |
+   | `inscrever(valor)` | `{"tipo": "inscrever", "valor"}` | — | número (não `bool`) |
+   | `construir_bloco()` | `{"tipo": "construir_bloco"}` | — | — |
+
+8. O executor **não sabe** se o cadeado abre ou se a ponte já está pronta: ele só registra as ações. Quem decide é o jogo, pelo estado do mundo (PUZ-validacao).
+9. `inscrever` e `construir_bloco` estão sujeitas a desbloqueio (EXE-desbloqueio). `ler_runa` é um sentido e está sempre disponível.
 
 ## Critérios de aceite
 
@@ -104,10 +118,43 @@ Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5
 
 - **Dado** mana 2 de 10
 - **Quando** o feitiço faz `mana = 999`, depois chama `absorver_mana()` e depois `print(mana)`
-- **Então** imprime `2.8` (2 − 0,1 + 1 − 0,1) e a mana final é 2.7: o 999 nunca valeu
+- **Então** imprime `2.6` (2 − 0,2 + 1 − 0,2, com a inscrição da Sprint 9) e a mana final é 2.4: o 999 nunca valeu
 
 ### EXE-024 — O feitiço adaptável do GDD roda
 
 - **Dado** um alvo de elemento `"planta"`
 - **Quando** o feitiço define `feitico_adaptavel(alvo)` como no GDD e o chama
 - **Então** registra `lancar` com elemento `fogo`
+
+### EXE-100 — ler_runa lê a sala
+
+- **Dado** `mundo.sala.runas` `[4, 7, 2]`
+- **Quando** o feitiço é `a = ler_runa(1)\nb = ler_runa(3)\nprint(a + b)`
+- **Então** a saída é `6` e não há ações
+
+### EXE-101 — ler_runa fora da sala
+
+- **Dado** `mundo.sala.runas` `[4, 7, 2]`
+- **Então** `ler_runa(0)` e `ler_runa(4)` dão `ValueError` com a mensagem citando as 3 runas; `ler_runa("1")` e `ler_runa(True)` dão `TypeError`
+
+### EXE-102 — Sala sem runas
+
+- **Dado** uma requisição sem `mundo.sala`, ou com `sala.runas` vazia
+- **Quando** o feitiço chama `ler_runa(1)`
+- **Então** dá `ValueError` "não há runas nesta sala"
+
+### EXE-103 — inscrever
+
+- **Quando** o feitiço chama `inscrever(13)` na linha 1
+- **Então** a ação é `{"tipo": "inscrever", "linha": 1, "valor": 13}`; `inscrever("13")` e `inscrever(True)` dão `TypeError`
+
+### EXE-104 — construir_bloco
+
+- **Quando** o feitiço chama `construir_bloco()` duas vezes
+- **Então** registra duas ações `{"tipo": "construir_bloco"}`, cada uma com a sua linha
+
+### EXE-105 — As runas não podem ser trapaceadas
+
+- **Dado** `mundo.sala.runas` `[4, 7, 2]`
+- **Quando** o feitiço faz `ler_runa = lambda n: 99` e depois `inscrever(ler_runa(1))`
+- **Então** a ação registra `valor` 99: trocar a peça só engana o próprio feitiço, e o cadeado continua julgando pelo valor certo (PUZ-02)

@@ -12,7 +12,7 @@ Novos elementos, formas e ações são encontrados pela torre e funcionam como o
 ## Regras
 
 1. A requisição pode trazer `"pecas"`: a lista de peças desbloqueadas. **Sem o campo, tudo está desbloqueado** (compatível com o protocolo v1 e com os testes antigos).
-2. Peças sujeitas a desbloqueio: `lancar`, `mover`, `levitar`, `meditar`, `absorver_mana`, `fogo`, `gelo`, `raio`, `projetil`, `escudo`. Os sentidos (`mana`, `mana_max`, `vida_atual`, `alvo`) estão sempre disponíveis.
+2. Peças sujeitas a desbloqueio: `lancar`, `mover`, `levitar`, `meditar`, `absorver_mana`, `fogo`, `gelo`, `raio`, `projetil`, `escudo` e, desde a Sprint 9, `inscrever` e `construir_bloco`. Os sentidos (`mana`, `mana_max`, `vida_atual`, `alvo`, `ler_runa`) estão sempre disponíveis.
 3. Um nome desconhecido em `pecas` torna a requisição inválida (`RequisicaoInvalida`).
 4. **Antes de executar:** usar o nome de uma peça bloqueada gera o erro `PecaBloqueada` com linha e coluna, e **nada roda** (como o `FeiticoProibido`).
 5. **Durante a execução:** `lancar` recusa elemento ou forma bloqueados que chegam como texto (`lancar("raio", ...)` ou `lancar(alvo.elemento, ...)`) com `PecaBloqueada` na linha; a ação não é registrada nem cobrada.

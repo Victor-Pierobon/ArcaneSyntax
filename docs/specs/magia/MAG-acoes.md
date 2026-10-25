@@ -1,7 +1,7 @@
 # MAG-acoes — As ações do feitiço acontecem no mundo
 
-- **Status:** Implementada
-- **Sprint:** 6
+- **Status:** Implementada (Sprint 6); **levitar + mover, inscrever e construir_bloco em rascunho, Sprint 9**
+- **Sprint:** 6, 9
 - **Relacionadas:** MAG-formas, MAG-elementos, GRI-slots, EXE-pecas, MUN-movimento (MUN-015)
 - **Decisão do Victor (2026-10-25):** quando o feitiço dá erro, as ações anteriores ao erro **acontecem** no mundo.
 
@@ -17,7 +17,9 @@ O executor devolve a fila de ações do feitiço, cada uma com a linha que a ger
    | --- | --- | --- |
    | `lancar` | cria o projétil ou o escudo (MAG-formas) | depois de 0,15 s (o projétil segue voando sozinho) |
    | `mover(passos)` | o mago anda `passos` tiles (sinal = direção), respeitando paredes | quando chega, ou quando fica 0,3 s sem avançar (parede), ou em até 3 s |
-   | `levitar(altura)` | o mago sobe `altura` tiles sem gravidade (MUN-015), paira 0,3 s e solta | depois de pairar |
+   | `levitar(altura)` | o mago sobe `altura` tiles sem gravidade (MUN-015), paira 0,3 s e solta. **Sprint 9:** se a próxima ação da fila for `mover`, ele continua sem gravidade durante esse `mover` (voa na horizontal) e só depois solta | depois de pairar |
+   | `inscrever(valor)` (Sprint 9) | uma runa com o número sai da mão do mago até o cadeado mais perto (PUZ-validacao, regra 10) | depois de 0,3 s |
+   | `construir_bloco` (Sprint 9) | o próximo bloco da ponte aparece (PUZ-validacao, regra 11) | depois de 0,15 s |
    | `meditar` | o mago fica parado, com aura | depois de 0,5 s |
    | `absorver_mana` | brilho rápido | depois de 0,08 s |
 
@@ -85,3 +87,14 @@ O executor devolve a fila de ações do feitiço, cada uma com a linha que a ger
 
 - **Quando** o resultado traz as visões "a", "b", "c" e "d"
 - **Então** aparecem sobre o mago "b", "c" e "d"
+
+### MAG-070 — Levitar e depois mover voa na horizontal (Sprint 9)
+
+- **Dado** o mago no chão, com espaço livre acima e à direita
+- **Quando** toca `levitar(3)` seguido de `mover(2)`
+- **Então** ao fim do `mover` o mago está cerca de 48 px acima do chão (tolerância de 4 px) e 32 px à direita, e só depois cai; com `levitar(3)` seguido de `meditar`, ele cai antes de meditar
+
+### MAG-071 — inscrever e construir_bloco tocam (Sprint 9)
+
+- **Dado** a fila `inscrever(13)`, `construir_bloco`
+- **Então** o mundo recebe as duas, em ordem, e chama o cadeado e a ponte da sala (PUZ-009, PUZ-015); numa sala sem cadeado nem ponte, cada uma só avisa e a fila continua

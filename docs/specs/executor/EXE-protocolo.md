@@ -1,7 +1,7 @@
 # EXE-protocolo — Protocolo Godot ↔ executor (v1)
 
-- **Status:** Implementada
-- **Sprint:** 1
+- **Status:** Implementada (Sprint 1); **regra 7 em rascunho, Sprint 9**
+- **Sprint:** 1, 9
 - **Relacionadas:** ADR-001, ADR-002, EXE-pecas, EXE-erros
 
 ## Contexto
@@ -37,6 +37,8 @@ As regras de custo, limites e sandbox estão em EXE-custo, EXE-limites e EXE-san
    | `custo_instrucao` | 0.1 | EXE-custo |
    | `custo_lancar` / `custo_mover` / `custo_levitar` | 3 / 1 / 2 | EXE-custo |
    | `custo_meditar` / `custo_absorver` | 0 / 0 | EXE-custo |
+   | `custo_inscricao` (Sprint 9) | 0.1 | EXE-custo, regra 13 |
+   | `custo_inscrever` / `custo_bloco` (Sprint 9) | 1 / 0.5 | EXE-custo |
    | `limite_tempo_ms` | 1000 | EXE-limites |
 3. Resposta:
    ```json
@@ -56,6 +58,7 @@ As regras de custo, limites e sandbox estão em EXE-custo, EXE-limites e EXE-san
 4. Toda ação e toda saída carregam a `linha` do código do jogador que a gerou.
 5. Quando dá erro, `ok` é `false` e `erro` segue EXE-erros. As ações e saídas produzidas **antes** do erro continuam na resposta.
 6. Uma requisição inválida nunca derruba o worker: ele responde com erro e segue lendo.
+7. **Sala (Sprint 9, ainda v1).** `mundo.sala` é opcional: `{"runas": [4, 7, 2]}`, com números inteiros. Sem o campo, a sala não tem runas. Campos desconhecidos dentro de `sala` são ignorados, para o jogo poder mandar mais coisas no futuro sem quebrar o executor. As ações novas (`inscrever`, `construir_bloco`) seguem a regra 4. Uma requisição antiga, sem `sala`, continua válida e dá a mesma resposta.
 
 ## Critérios de aceite
 
@@ -112,3 +115,14 @@ As regras de custo, limites e sandbox estão em EXE-custo, EXE-limites e EXE-san
 - **Dado** as fixtures em `tests/contract/`
 - **Quando** rodam as suítes
 - **Então** o executor produz exatamente cada `resposta` a partir da `requisicao`, e o Godot lê cada `resposta` sem perder campos
+
+### EXE-110 — Sala inválida
+
+- **Dado** `mundo.sala` que não é objeto, ou `sala.runas` que não é uma lista de inteiros
+- **Então** `RequisicaoInvalida`
+
+### EXE-111 — Contrato das peças dos puzzles
+
+- **Dado** uma fixture nova `10_pecas_de_puzzle.json`, com runas na sala, `ler_runa`, `inscrever` e `construir_bloco`
+- **Quando** rodam as duas suítes
+- **Então** o executor produz a resposta da fixture, e o Godot manda `mundo.sala` montado a partir da sala atual e lê as ações novas sem perder campos

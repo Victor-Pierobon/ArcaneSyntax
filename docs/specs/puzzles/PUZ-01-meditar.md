@@ -11,7 +11,7 @@ Na sala_01, antes da saída para a sala_02, uma **porta de runas** fecha a passa
 
 - Puzzle: `{"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]}`
 - Cristal: dígito `5`, `cristal` (qualquer elemento)
-- O lançamento custa 3,1; meditar rende 4,9 já descontada a instrução
+- O lançamento custa 3,2; meditar rende 4,8 já descontada a instrução. Na Sprint 8 eram 3,1 e 4,9; mudou com o custo de inscrição da Sprint 9 (EXE-custo, regra 13), e as três soluções continuam passando.
 
 ## Soluções que devem passar (teste de aceitação com o Python real, mana inicial 0)
 

@@ -15,7 +15,7 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 | | |
 | --- | --- |
 | Sprint atual | **Sprint 8 concluída** (puzzles validados pelo estado do mundo, passo a passo com linha destacada, Puzzle 1 na sala_01). A próxima é a **Sprint 9** (Puzzles 2 a 6). O marco M2 ainda espera o playtest do núcleo |
-| Commits | Sprints 0 a 7 commitadas (último: `cc00e02`). **A Sprint 8 ainda não**; o Victor revisa e commita |
+| Commits | Sprints 0 a 8 commitadas (último: `5216351`). Sprint 9 em andamento: specs escritas, esperando a revisão do Victor |
 | Testes | 114 pytest + 202 GdUnit4 (inclui aceitação com Python real), todos verdes localmente |
 | CI | Configurado, **ainda não confirmado verde no GitHub** |
 | Pendências do Victor | **Playtest do núcleo** (roteiro em `docs/playtest/roteiro-nucleo.md`); Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); jogar e preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
