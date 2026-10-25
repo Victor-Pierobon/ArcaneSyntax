@@ -20,6 +20,14 @@ Metroidvania em pixel art em que cada feitiço é código Python real. Em desenv
 
 Requisitos: Python 3.12+ com `pytest`, Godot 4.7.
 
+Uma vez só, baixe o Python que o jogo usa para rodar os feitiços (vai para `runtime/`, fora do git):
+
+```bash
+scripts/fetch_python.sh
+```
+
+Depois:
+
 ```bash
 export GODOT_BIN="/c/Users/victo/Downloads/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64_console.exe"
 scripts/test.sh
@@ -33,6 +41,16 @@ cd game && bash addons/gdUnit4/runtest.sh --headless -a res://tests --ignoreHead
 ```
 
 Em modo headless o Godot não entrega eventos de input, por isso os testes de cena injetam a intenção do jogador (`Player.intent_source`) em vez de simular teclas.
+
+## Console de feitiços (ferramenta de desenvolvimento)
+
+Para testar o executor na mão: digite Python, aperte Ctrl+Enter e veja ações, visões (`print`), erros e a mana final.
+
+```powershell
+& "C:\Users\victo\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64.exe" --path game res://src/nodes/dev/spell_console.tscn
+```
+
+No editor: abra `src/nodes/dev/spell_console.tscn` e aperte F6.
 
 ## Fluxo de trabalho
 

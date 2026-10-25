@@ -1,0 +1,44 @@
+{
+  "descricao": "O que rodou antes do erro continua na resposta",
+  "requisicao": {
+    "versao": 1,
+    "id": 5,
+    "codigo": "print('antes')\nmeditar()\nprint(y)",
+    "mundo": {
+      "mago": {
+        "vida": 10,
+        "mana": 0,
+        "mana_max": 20
+      },
+      "alvo": null
+    }
+  },
+  "resposta": {
+    "versao": 1,
+    "id": 5,
+    "ok": false,
+    "acoes": [
+      {
+        "tipo": "meditar",
+        "linha": 2
+      }
+    ],
+    "saidas": [
+      {
+        "linha": 1,
+        "texto": "antes"
+      }
+    ],
+    "mago": {
+      "vida": 10,
+      "mana": 5,
+      "mana_max": 20
+    },
+    "erro": {
+      "tipo": "NameError",
+      "mensagem": "name 'y' is not defined",
+      "linha": 3,
+      "coluna": null
+    }
+  }
+}

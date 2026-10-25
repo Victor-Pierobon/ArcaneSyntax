@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://byrx088fbuiis"]
+
+[ext_resource type="Script" uid="uid://c0nm8k2k0nvad" path="res://src/nodes/dev/spell_console.gd" id="1_console"]
+
+[node name="SpellConsole" type="Control" unique_id=1943785224]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_console")

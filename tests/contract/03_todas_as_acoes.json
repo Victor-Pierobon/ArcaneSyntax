@@ -1,0 +1,51 @@
+{
+  "descricao": "Uma ação de cada tipo, com regras padrão",
+  "requisicao": {
+    "versao": 1,
+    "id": 3,
+    "codigo": "meditar()\nmover(-2)\nlevitar(3)\nlancar(raio, escudo)",
+    "mundo": {
+      "mago": {
+        "vida": 4,
+        "mana": 0,
+        "mana_max": 20
+      },
+      "alvo": null
+    }
+  },
+  "resposta": {
+    "versao": 1,
+    "id": 3,
+    "ok": true,
+    "acoes": [
+      {
+        "tipo": "meditar",
+        "linha": 1
+      },
+      {
+        "tipo": "mover",
+        "linha": 2,
+        "passos": -2
+      },
+      {
+        "tipo": "levitar",
+        "linha": 3,
+        "altura": 3
+      },
+      {
+        "tipo": "lancar",
+        "linha": 4,
+        "elemento": "raio",
+        "forma": "escudo",
+        "alvo": null
+      }
+    ],
+    "saidas": [],
+    "mago": {
+      "vida": 4,
+      "mana": 5,
+      "mana_max": 20
+    },
+    "erro": null
+  }
+}

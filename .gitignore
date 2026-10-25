@@ -16,3 +16,6 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# Python embutido (scripts/fetch_python.sh)
+runtime/

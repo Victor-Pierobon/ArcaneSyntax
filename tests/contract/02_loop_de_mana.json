@@ -1,0 +1,41 @@
+{
+  "descricao": "Feitiço passivo do GDD enche a mana até o máximo",
+  "requisicao": {
+    "versao": 1,
+    "id": 2,
+    "codigo": "while mana < mana_max:\n    absorver_mana()",
+    "mundo": {
+      "mago": {
+        "vida": 10,
+        "mana": 1,
+        "mana_max": 3
+      },
+      "alvo": null
+    },
+    "regras": {
+      "ganho_absorver": 1
+    }
+  },
+  "resposta": {
+    "versao": 1,
+    "id": 2,
+    "ok": true,
+    "acoes": [
+      {
+        "tipo": "absorver_mana",
+        "linha": 2
+      },
+      {
+        "tipo": "absorver_mana",
+        "linha": 2
+      }
+    ],
+    "saidas": [],
+    "mago": {
+      "vida": 10,
+      "mana": 3,
+      "mana_max": 3
+    },
+    "erro": null
+  }
+}

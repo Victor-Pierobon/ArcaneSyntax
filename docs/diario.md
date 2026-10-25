@@ -6,3 +6,13 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 
 - Sprint 0: repositório, estrutura de pastas, pytest + GdUnit4 + CI, spec MUN-movimento e protótipo do mago andando e pulando (10 testes verdes).
 - Próximo: fazer o tutorial 2D do Godot, escolher os assets provisórios e rodar o CI no GitHub.
+
+## 2026-10-25 (Sprint 1)
+
+- Executor Python: worker persistente, protocolo v1, peças, erros com linha, cliente Godot e console de feitiços. Specs EXE-protocolo, EXE-pecas, EXE-erros; ADR-001 e ADR-002. 51 testes pytest e 23 GdUnit4 verdes.
+- Próximo: Sprint 2, com custo de mana, limites de mana e tempo, e sandbox.
+
+## 2026-10-25 (documentação)
+
+- Documentação consolidada: `docs/arquitetura.md`, um arquivo por sprint em `docs/sprints/` (relatórios da 0 e da 1, planos da 2 à 15), roadmap virou índice com status, `handoff.md` + `CLAUDE.md` para novas conversas.
+- Próximo: decidir a regra de custo de mana e começar a Sprint 2.

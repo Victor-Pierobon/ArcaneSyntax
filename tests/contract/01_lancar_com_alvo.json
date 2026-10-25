@@ -1,0 +1,41 @@
+{
+  "descricao": "Lança gelo num alvo de fogo",
+  "requisicao": {
+    "versao": 1,
+    "id": 1,
+    "codigo": "lancar(gelo, projetil, alvo)",
+    "mundo": {
+      "mago": {
+        "vida": 10,
+        "mana": 5,
+        "mana_max": 20
+      },
+      "alvo": {
+        "id": "elemental_1",
+        "elemento": "fogo",
+        "distancia": 4.5
+      }
+    }
+  },
+  "resposta": {
+    "versao": 1,
+    "id": 1,
+    "ok": true,
+    "acoes": [
+      {
+        "tipo": "lancar",
+        "linha": 1,
+        "elemento": "gelo",
+        "forma": "projetil",
+        "alvo": "elemental_1"
+      }
+    ],
+    "saidas": [],
+    "mago": {
+      "vida": 10,
+      "mana": 5,
+      "mana_max": 20
+    },
+    "erro": null
+  }
+}

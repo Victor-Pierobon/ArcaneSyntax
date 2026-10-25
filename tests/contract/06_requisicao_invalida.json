@@ -1,0 +1,29 @@
+{
+  "descricao": "Requisição sem código",
+  "requisicao": {
+    "versao": 1,
+    "id": 6,
+    "mundo": {
+      "mago": {
+        "vida": 10,
+        "mana": 5,
+        "mana_max": 20
+      },
+      "alvo": null
+    }
+  },
+  "resposta": {
+    "versao": 1,
+    "id": 6,
+    "ok": false,
+    "acoes": [],
+    "saidas": [],
+    "mago": null,
+    "erro": {
+      "tipo": "RequisicaoInvalida",
+      "mensagem": "campo obrigatório ausente: codigo",
+      "linha": null,
+      "coluna": null
+    }
+  }
+}
