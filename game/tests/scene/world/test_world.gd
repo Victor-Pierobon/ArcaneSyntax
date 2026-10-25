@@ -8,6 +8,7 @@ const ENTRY_B_SALA_1 := Vector2(200, 64)
 const ENTRY_A_SALA_2 := Vector2(56, 64)
 const SAFE_MARKER_SALA_1 := Vector2(72, 64)
 const ABOVE_SPIKES_SALA_1 := Vector2(152, 40)
+const GRIMOIRE_PATH := "user://tests/grimorio_world.json"
 
 var world: World
 var player: Player
@@ -18,6 +19,7 @@ func before_test() -> void:
 	world.rooms_dir = "res://tests/fixtures/rooms/"
 	world.start_room = "sala_1"
 	world.start_entry = "A"
+	world.grimoire_path = GRIMOIRE_PATH
 	add_child(world)
 	player = world.player
 	_set_intent(0.0)
@@ -119,3 +121,20 @@ func test_MUN_027_morte_e_renascimento() -> void:
 	assert_int(world.state.health.current).is_equal(5)
 	assert_float(world.state.mana).is_equal(3.0)
 	assert_vector(player.global_position).is_equal_approx(ENTRY_A_SALA_1, Vector2(1, 1))
+
+
+func after_test() -> void:
+	get_tree().paused = false
+	var file := ProjectSettings.globalize_path(GRIMOIRE_PATH)
+	if FileAccess.file_exists(file):
+		DirAccess.remove_absolute(file)
+
+
+func test_GRI_005_mundo_carrega_o_grimorio_do_arquivo_configurado() -> void:
+	assert_str(world.grimoire_store.path).is_equal(GRIMOIRE_PATH)
+	world.grimoire_ui.open()
+	assert_bool(get_tree().paused).is_true()
+	world.grimoire_ui.new_spell()
+	world.grimoire_ui.close()
+	assert_bool(get_tree().paused).is_false()
+	assert_array(Array(GrimoireStore.new(GRIMOIRE_PATH).load_grimoire().names())).is_equal(["Feitiço 1"])

@@ -52,6 +52,8 @@ Para testar o executor na mão: digite Python, aperte Ctrl+Enter e veja ações,
 
 No editor: abra `src/nodes/dev/spell_console.tscn` e aperte F6.
 
+Feitiços prontos para colar, com o resultado esperado de cada um: `docs/feiticos-exemplo.md`.
+
 ## Fluxo de trabalho
 
 Spec → teste vermelho → código → refatorar → commit com tudo verde. Detalhes em `docs/roadmap-alpha.md`.

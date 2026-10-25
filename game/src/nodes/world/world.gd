@@ -8,8 +8,12 @@ signal room_changed(room_id: String)
 @export var rooms_dir: String = "res://content/rooms/"
 @export var start_room: String = "sala_01"
 @export var start_entry: String = "A"
+## Arquivo do grimório; os testes usam outro caminho para não tocar no do jogador.
+@export var grimoire_path: String = GrimoireStore.DEFAULT_PATH
 
 var state := MagoState.new()
+var grimoire: Grimoire
+var grimoire_store: GrimoireStore
 var current_room: Room
 ## Entrada pela qual o mago chegou na sala atual (para onde volta ao morrer).
 var current_entry := ""
@@ -20,10 +24,17 @@ var _changing_room := false
 
 @onready var player: Player = $Player
 @onready var hud: Hud = $Hud
+@onready var grimoire_ui: GrimoireUI = $GrimoireUI
 
 
 func _ready() -> void:
 	hud.bind(state)
+	grimoire_store = GrimoireStore.new(grimoire_path)
+	grimoire = grimoire_store.load_grimoire()
+	grimoire_ui.bind(grimoire, grimoire_store)
+	grimoire_ui.load_problem = grimoire_store.last_problem
+	if not grimoire_store.last_problem.is_empty():
+		push_warning("%s; cópia guardada em %s" % [grimoire_store.last_problem, grimoire_store.backup_path()])
 	state.health.died.connect(_on_died)
 	go_to(start_room, start_entry)
 

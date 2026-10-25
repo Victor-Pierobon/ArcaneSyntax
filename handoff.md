@@ -1,7 +1,7 @@
 # Handoff — ArcaneSyntax
 
 > Contexto para começar uma conversa nova sem reler toda a documentação.
-> **Atualizado em:** 2026-10-25, fim da Sprint 3.
+> **Atualizado em:** 2026-10-25, fim da Sprint 4.
 > **Atualizar** ao fim de cada sprint (ou quando algo aqui deixar de ser verdade).
 
 ## 1. O projeto em 30 segundos
@@ -14,9 +14,9 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 
 | | |
 | --- | --- |
-| Sprint atual | **Sprint 3 concluída** (mago com esquiva, vida, salas com transição, HUD); a próxima é a **Sprint 4** (grimório: editor e feitiços salvos) |
-| Commits | Sprints 0 a 2 commitadas. **A Sprint 3 ainda não**; o Victor revisa e commita |
-| Testes | 105 pytest + 65 GdUnit4, todos verdes localmente |
+| Sprint atual | **Sprint 4 concluída** (grimório com editor e feitiços salvos); a próxima é a **Sprint 5** (slots, conjurar, painel de erros, custo estimado, autocompletar) |
+| Commits | Sprints 0 a 3 commitadas (último: `20c8e31`). **A Sprint 4 ainda não**; o Victor revisa e commita |
+| Testes | 105 pytest + 96 GdUnit4, todos verdes localmente |
 | CI | Configurado, **ainda não confirmado verde no GitHub** |
 | Pendências do Victor | Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); jogar e preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
 
@@ -43,6 +43,7 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 | Escopo e horas originais da Alpha | `docs/plano-alpha.md` |
 | Histórico por sessão | `docs/diario.md` |
 | Arte: especificações, lista de assets, prompts para IA | `docs/arte/guia-de-arte.md` |
+| Feitiços prontos para testar (com resultado esperado; manter atualizado se as regras de custo/peças mudarem) | `docs/feiticos-exemplo.md` |
 
 ## 5. Arquitetura em uma tela
 
@@ -56,9 +57,10 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 - **Sandbox (EXE-sandbox)**: só `import math`/`random`; nomes `__x` e atributos `_x` proibidos; `except:` e `BaseException` proibidos; builtins em lista branca (sem `open`, `exec`, `eval`…). Violação → `FeiticoProibido` e nada roda.
 - **Movimento**: `Player` (CharacterBody2D) chama `PlayerMotor.step(velocity, intent, on_floor, delta)`; a intenção vem de `Player.intent_source` (teclado por padrão; testes injetam). Pulo de 3 tiles, coyote/buffer 0,1 s, esquiva (Shift) de 3 tiles com invulnerabilidade a ataques.
 - **Mundo**: cena principal `World` carrega salas de `content/rooms/` (layout em texto: `#` pedra, `=` plataforma, `^` espinhos, `*` ponto seguro, `A–Z` entradas, `a–z` saídas; `exits = {"b": "sala_02:A"}`). `MagoState` (vida 5, mana 0/10) é a mana **real**; `to_spell_mago()` alimenta o executor. Espinho: −1 e volta ao ponto seguro; morte: vida cheia na entrada da sala. `Hud` mostra vida e mana.
+- **Grimório**: Tab abre (pausa o mundo), Esc fecha. `Grimoire` (modelo; nomes até 24, únicos sem diferenciar maiúsculas; sinais de renomear/apagar para os slots), `GrimoireStore` (`user://grimorio.json`, gravação atômica, `.bak` se o arquivo estiver ilegível), `GrimoireUI` (lista + `CodeEdit` com realce de Python e das peças do jogo). Ainda não executa feitiços.
 - **Contrato**: `tests/contract/*.json` é verificado pelas duas suítes.
 
-Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
+Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
 
 ## 6. Comandos
 
@@ -94,6 +96,8 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 - GdUnit4 para a suíte no primeiro teste que falha: a contagem total cai; não confiar nela quando há falha.
 - `Area2D` recém-criada vê a posição antiga do corpo no primeiro quadro → `Room` liga as áreas só depois do primeiro quadro. Trocar de sala/teleportar dentro de `body_entered`: sempre `call_deferred`.
 - Level design: o pulo alcança 3 tiles no limite; degraus de no máximo 2 tiles, e toda sala precisa deixar voltar.
+- **Testes e jogo compartilham `user://`**: todo teste que cria `World` ou mexe no grimório usa `user://tests/…` (`world.grimoire_path`) e apaga no `after_test`. Teste que pausa a árvore despausa no `after_test`.
+- Captura de tela por script (`godot --path game -s script.gd`) já pegou bugs visuais que os testes não pegam; vale repetir ao mexer em interface.
 - O `python` do PATH no Windows é o alias da Microsoft Store; usar `runtime/python`.
 - Python local do Victor é 3.15; o runtime e o CI usam 3.14. Rodar o pytest também com o 3.14 quando mexer em mensagens de erro ou custo.
 - **Para o assistente:** comandos Bash com heredoc contendo Python com barras invertidas ou caminhos do Windows já falharam duas vezes; prefira as ferramentas Write/Edit para criar e alterar arquivos.
@@ -110,4 +114,4 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 
 ## 9. Próximo passo
 
-Começar a **Sprint 4** (`docs/sprints/sprint-04-grimorio-editor.md`): grimório que abre pausando o jogo, editor com realce de Python e lista de feitiços salva em disco. O console de feitiços (`src/nodes/dev/spell_console.gd`) é o ponto de partida do editor. Perguntar ao Victor se ele jogou a Sprint 3 e o que achou do checklist de sensação.
+Começar a **Sprint 5** (`docs/sprints/sprint-05-grimorio-slots.md`): 5 slots + conjurar por tecla (usando `PythonSpellExecutor` e `MagoState.to_spell_mago()`), painel de erros com a linha marcada, custo estimado (executar com mana alta e ler `custo_mana`), autocompletar das peças, e criar `FakeSpellExecutor` em `tests/support/`. Decidir com o Victor se a lista de peças desbloqueadas entra no protocolo. Perguntar se ele jogou as Sprints 3 e 4.

@@ -26,3 +26,8 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 
 - Mago com coyote time, jump buffer e esquiva; vida, espinhos, pontos seguros e renascimento; 3 salas em layout de texto com transições e câmera; HUD. Tileset provisório gerado por script. O teste MUN-027 achou um bug real (área disparando com a posição antiga). 65 GdUnit4 e 105 pytest verdes.
 - Próximo: Sprint 4 (grimório). Victor: jogar e avaliar a sensação do movimento; escolher assets.
+
+## 2026-10-25 (Sprint 4)
+
+- Grimório: Tab abre e pausa, lista de feitiços (novo, renomear, apagar), editor com realce de Python e das peças, gravação atômica em `user://grimorio.json` com backup se o arquivo estiver ilegível. A captura de tela pegou um bug no campo de nome. 96 GdUnit4 e 105 pytest verdes.
+- Próximo: Sprint 5 (slots, conjurar, erros, custo, autocompletar).

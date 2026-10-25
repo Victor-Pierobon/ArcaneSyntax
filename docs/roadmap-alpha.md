@@ -56,8 +56,8 @@ Os quatro marcos abaixo foram inferidos das fases, porque o diagrama de marcos d
 | 1 | [Executor: protocolo e peças](sprints/sprint-01-executor-protocolo.md) | 1 | 14–21 | M1 | Concluída |
 | 2 | [Executor: custo, limites e sandbox](sprints/sprint-02-executor-custo-sandbox.md) | 1 | 15–23 | M1 | Concluída (build de fumaça pendente) |
 | 3 | [Personagem e mundo](sprints/sprint-03-personagem-mundo.md) | 2 | 20–30 | M2 · Núcleo jogável | Concluída (arte provisória) |
-| 4 | [Grimório I: editor e feitiços salvos](sprints/sprint-04-grimorio-editor.md) | 3 | 12–16 | M2 | **Próxima** |
-| 5 | [Grimório II: slots, erros, custo e autocompletar](sprints/sprint-05-grimorio-slots.md) | 3 | 15–21 | M2 | Planejada |
+| 4 | [Grimório I: editor e feitiços salvos](sprints/sprint-04-grimorio-editor.md) | 3 | 12–16 | M2 | Concluída |
+| 5 | [Grimório II: slots, erros, custo e autocompletar](sprints/sprint-05-grimorio-slots.md) | 3 | 15–21 | M2 | **Próxima** |
 | 6 | [Magia no mundo I: ações, formas, elementos](sprints/sprint-06-magia-acoes.md) | 4 | 17–25 | M2 | Planejada |
 | 7 | [Magia no mundo II: mana viva](sprints/sprint-07-magia-mana.md) | 4 | 10–16 | M2 (playtest do núcleo) | Planejada |
 | 8 | [Puzzles I: validação e execução passo a passo](sprints/sprint-08-puzzles-validacao.md) | 5 | 14–20 | M3 · Conteúdo | Planejada |

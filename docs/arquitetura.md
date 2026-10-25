@@ -1,6 +1,6 @@
 # Arquitetura
 
-Estado em 2026-10-25, fim da Sprint 3. Atualizar ao fim de cada sprint que mudar a estrutura.
+Estado em 2026-10-25, fim da Sprint 4. Atualizar ao fim de cada sprint que mudar a estrutura.
 
 ## Visão geral
 
@@ -58,7 +58,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - Ações de input: `move_left` (A, ←), `move_right` (D, →), `jump` (Espaço, W, ↑).
 - Textos: `content/text/textos.csv` (coluna `pt_BR`) importado como tradução; nunca escrever texto visível direto no código, usar chaves (`PROTOTIPO_DICA`).
 - Plugin GdUnit4 habilitado.
-- Ações de input: também `dodge` (Shift, K).
+- Ações de input: também `dodge` (Shift, K) e `grimoire` (Tab).
 - Cor de fundo padrão escura (`default_clear_color`).
 - Cena principal: `res://src/nodes/world/world.tscn`.
 
@@ -76,6 +76,13 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `Room` (`src/nodes/world/room.gd`): cena com `room_id`, `layout` e `exits` (`{"b": "sala_02:A"}`). No `_ready` monta um `TileMapLayer` com `assets/placeholder/tiles.tres` e cria `Area2D` para saídas, espinhos e pontos seguros, que **só ligam depois do primeiro quadro de física**. Sinais: `exit_touched`, `hazard_touched`, `safe_point_touched`.
 - `World` (`src/nodes/world/world.gd` + `world.tscn`, cena principal): tem `Player` e `Hud`; `go_to(sala, entrada)` troca a sala (sempre adiado para fora do callback de física), põe o mago na entrada, ajusta os limites da câmera e o ponto seguro. Espinho: 1 de dano (ignora a esquiva) e volta ao ponto seguro. Morte: vida cheia e volta à entrada da sala atual. `rooms_dir` configurável (testes usam `res://tests/fixtures/rooms/`); `authoring_errors` junta erros de autoria.
 - `Hud` (`src/nodes/ui/hud.gd`, CanvasLayer montado em código): `life_label`, `mana_label`, `mana_bar`, dica de controles; `bind(state)`.
+### Grimório (specs GRI-feiticos, GRI-grimorio)
+
+- `Grimoire` (`src/core/grimoire/grimoire.gd`): lista ordenada de `{name, code}`; `create`, `rename`, `delete`, `set_code` devolvem `Grimoire.Problem`; nomes até 24 caracteres, únicos sem diferenciar maiúsculas; `next_default_name("Feitiço")`; sinais `spell_created/renamed/deleted/code_changed`; `to_dict()`/`from_dict()` (null se inválido).
+- `GrimoireStore` (`src/core/grimoire/grimoire_store.gd`): `user://grimorio.json` (`{"versao": 1, "feiticos": [{"nome", "codigo"}]}`); `save()` grava em `.tmp` e renomeia; `load_grimoire()` devolve vazio e preenche `last_problem` se o arquivo for ilegível, copiando o original para `.bak` antes.
+- `GrimoireUI` (`src/nodes/grimoire/grimoire_ui.gd`, CanvasLayer `layer = 10`, `process_mode = ALWAYS`): `open()` pausa a árvore, `close()` guarda a edição, salva e despausa; `new_spell()`, `rename_selected()`, `delete_selected()`, `select()`; `spell_list`, `name_field`, `editor` (CodeEdit com `PythonHighlighter.build()`), `status_label`; `load_problem` mostra o aviso de arquivo ilegível.
+- `World` cria `grimoire_store` em `grimoire_path` (padrão `user://grimorio.json`) e liga `grimoire_ui`. **Testes sempre trocam `grimoire_path`** para `user://tests/…`.
+
 - Salas do jogo: `content/rooms/sala_01..03.tscn` (40–60 × 23 tiles). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
 
 ### Cliente do executor (spec EXE-protocolo)
@@ -162,3 +169,5 @@ Convenções:
 | Mago posto dentro de um tile sólido é empurrado para fora (às vezes para cima do teto) | Em testes, soltar o mago em célula vazia |
 | `assert_*` do GdUnit4 não mostra o valor real em alguns casos | `override_failure_message("valor=%s" % ...)` temporário para diagnosticar |
 | Captura de tela por script (`-s`) | Esperar um `process_frame` no `_initialize` antes de adicionar cenas |
+| Testes e jogo compartilham `user://` | Testes usam `user://tests/…` e apagam os arquivos no `after_test` |
+| Teste que pausa a árvore | Despausar no `after_test` (`get_tree().paused = false`) |
