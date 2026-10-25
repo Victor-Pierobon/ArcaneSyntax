@@ -3,6 +3,9 @@ extends Node2D
 ## Boneco de treino: um "alvo" com elemento, até os inimigos chegarem (spec MUN-alvos).
 ## Mostra o efeito dos golpes (spec MAG-elementos). A origem fica nos pés, como a do mago.
 
+## Recebeu um golpe (o World toca o som; spec MAG-efeitos).
+signal was_hit(attack_element: String, effect: ElementTable.Effect)
+
 const GROUP := &"alvos"
 const ELEMENT_COLORS := {
 	"fogo": Color("ff7a3d"),
@@ -77,3 +80,5 @@ func hit(attack_element: String) -> void:
 	var flash := create_tween()
 	_body.modulate = ELEMENT_COLORS.get(attack_element, Color.WHITE).lightened(0.5)
 	flash.tween_property(_body, "modulate", Color.WHITE, 0.25)
+	Fx.burst(self, Vector2(0, -SIZE.y / 2), ELEMENT_COLORS.get(attack_element, Color.WHITE))
+	was_hit.emit(attack_element, last_effect)

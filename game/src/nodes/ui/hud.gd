@@ -7,6 +7,8 @@ var mana_label := Label.new()
 var mana_bar := ProgressBar.new()
 ## Os 5 slots e o feitiço de cada um (spec GRI-slots, GRI-034).
 var slots_label := Label.new()
+## Feitiço passivo e se está ligado (spec MAG-passivo, MAG-057).
+var passive_label := Label.new()
 
 var _grimoire: Grimoire
 
@@ -34,6 +36,10 @@ func _init() -> void:
 	slots_label.position = Vector2(8, 330)
 	slots_label.add_theme_font_size_override(&"font_size", 8)
 	add_child(slots_label)
+	# No bloco do topo: perto do chão o texto cobria o mago (regressão MAG-057).
+	passive_label.add_theme_font_size_override(&"font_size", 8)
+	passive_label.text = "HUD_PASSIVO_VAZIO"
+	box.add_child(passive_label)
 
 
 func bind(state: MagoState) -> void:
@@ -47,6 +53,15 @@ func bind_slots(grimoire: Grimoire) -> void:
 	_grimoire = grimoire
 	grimoire.slots_changed.connect(_on_slots_changed)
 	_on_slots_changed()
+
+
+func set_passive_status(spell_name: String, disabled: bool) -> void:
+	if spell_name.is_empty():
+		passive_label.text = tr("HUD_PASSIVO_VAZIO")
+	elif disabled:
+		passive_label.text = tr("HUD_PASSIVO_DESLIGADO") % spell_name
+	else:
+		passive_label.text = tr("HUD_PASSIVO") % spell_name
 
 
 func _on_slots_changed() -> void:

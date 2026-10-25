@@ -7,6 +7,7 @@ signal spell_renamed(old_name: String, new_name: String)
 signal spell_deleted(spell_name: String)
 signal spell_code_changed(spell_name: String)
 signal slots_changed
+signal passive_changed
 
 enum Problem { OK, EMPTY_NAME, NAME_TOO_LONG, DUPLICATE_NAME, NOT_FOUND, INVALID_SLOT }
 
@@ -17,6 +18,8 @@ const SLOT_COUNT := 5
 var _spells: Array[Dictionary] = []
 ## Nome do feitiço em cada slot ("" = vazio); índice 0 = slot 1 (spec GRI-slots).
 var _slots: Array[String] = ["", "", "", "", ""]
+## Feitiço do slot passivo ("" = vazio) (spec MAG-passivo).
+var _passive := ""
 
 
 func names() -> PackedStringArray:
@@ -56,6 +59,9 @@ func rename(old_name: String, new_name: String) -> Problem:
 	_spells[index]["name"] = clean
 	spell_renamed.emit(old_name, clean)
 	_replace_in_slots(old_name, clean)
+	if _passive == old_name:
+		_passive = clean
+		passive_changed.emit()
 	return Problem.OK
 
 
@@ -66,6 +72,9 @@ func delete(spell_name: String) -> Problem:
 	_spells.remove_at(index)
 	spell_deleted.emit(spell_name)
 	_replace_in_slots(spell_name, "")
+	if _passive == spell_name:
+		_passive = ""
+		passive_changed.emit()
 	return Problem.OK
 
 
@@ -108,6 +117,23 @@ func slots() -> Array[String]:
 	return _slots.duplicate()
 
 
+func set_passive(spell_name: String) -> Problem:
+	if not has_spell(spell_name):
+		return Problem.NOT_FOUND
+	_passive = spell_name
+	passive_changed.emit()
+	return Problem.OK
+
+
+func clear_passive() -> void:
+	_passive = ""
+	passive_changed.emit()
+
+
+func passive() -> String:
+	return _passive
+
+
 ## "Feitiço N" com o menor N livre (GRI-017).
 func next_default_name(prefix: String) -> String:
 	var n := 1
@@ -120,7 +146,7 @@ func to_dict() -> Dictionary:
 	var spells := []
 	for spell in _spells:
 		spells.append({"nome": spell["name"], "codigo": spell["code"]})
-	return {"versao": GrimoireStore.FORMAT_VERSION, "feiticos": spells, "slots": _slots.duplicate()}
+	return {"versao": GrimoireStore.FORMAT_VERSION, "feiticos": spells, "slots": _slots.duplicate(), "passivo": _passive}
 
 
 ## Monta a partir do formato do arquivo. Devolve null se qualquer coisa estiver errada.
@@ -145,6 +171,11 @@ static func from_dict(data: Variant) -> Grimoire:
 			# Nome que não existe mais vira slot vazio (GRI-032).
 			if grimoire.has_spell(slots_data[i]):
 				grimoire._slots[i] = slots_data[i]
+	if data.has("passivo"):
+		if not data["passivo"] is String:
+			return null
+		if grimoire.has_spell(data["passivo"]):
+			grimoire._passive = data["passivo"]
 	return grimoire
 
 

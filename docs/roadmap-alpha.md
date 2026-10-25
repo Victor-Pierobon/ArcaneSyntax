@@ -59,8 +59,8 @@ Os quatro marcos abaixo foram inferidos das fases, porque o diagrama de marcos d
 | 4 | [Grimório I: editor e feitiços salvos](sprints/sprint-04-grimorio-editor.md) | 3 | 12–16 | M2 | Concluída |
 | 5 | [Grimório II: slots, erros, custo e autocompletar](sprints/sprint-05-grimorio-slots.md) | 3 | 15–21 | M2 | Concluída |
 | 6 | [Magia no mundo I: ações, formas, elementos](sprints/sprint-06-magia-acoes.md) | 4 | 17–25 | M2 | Concluída |
-| 7 | [Magia no mundo II: mana viva](sprints/sprint-07-magia-mana.md) | 4 | 10–16 | M2 (playtest do núcleo) | **Próxima** |
-| 8 | [Puzzles I: validação e execução passo a passo](sprints/sprint-08-puzzles-validacao.md) | 5 | 14–20 | M3 · Conteúdo | Planejada |
+| 7 | [Magia no mundo II: mana viva](sprints/sprint-07-magia-mana.md) | 4 | 10–16 | M2 (playtest do núcleo) | Concluída (playtest pendente) |
+| 8 | [Puzzles I: validação e execução passo a passo](sprints/sprint-08-puzzles-validacao.md) | 5 | 14–20 | M3 · Conteúdo | **Próxima** |
 | 9 | [Puzzles II: os 5 puzzles restantes](sprints/sprint-09-puzzles-conteudo.md) | 5 | 16–25 | M3 | Planejada |
 | 10 | [Combate I: inimigos](sprints/sprint-10-combate-inimigos.md) | 6 | 18–26 | M3 | Planejada |
 | 11 | [Combate II: chefe e balanceamento](sprints/sprint-11-combate-chefe.md) | 6 | 12–19 | M3 | Planejada |

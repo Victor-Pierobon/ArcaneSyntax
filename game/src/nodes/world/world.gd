@@ -17,6 +17,7 @@ const TARGET_RANGE_TILES := 12.0
 @export var grimoire_path: String = GrimoireStore.DEFAULT_PATH
 
 var state := MagoState.new()
+var passive_scheduler := PassiveScheduler.new()
 var grimoire: Grimoire
 var grimoire_store: GrimoireStore
 var current_room: Room
@@ -39,6 +40,9 @@ var _changing_room := false
 @onready var cast_log: CastLog = $CastLog
 @onready var action_player: ActionPlayer = $ActionPlayer
 @onready var world_actions: WorldActions = $WorldActions
+## Toca as ações do slot passivo, sem atrasar as conjurações (MAG-056).
+@onready var passive_player: ActionPlayer = $PassivePlayer
+@onready var sfx: Sfx = $Sfx
 
 
 func _ready() -> void:
@@ -52,7 +56,14 @@ func _ready() -> void:
 	grimoire_ui.set_spell_runner(executor, spell_context)
 	world_actions.world = self
 	action_player.port = world_actions
+	passive_player.port = world_actions
 	state.health.attack_blocked.connect(world_actions.on_attack_blocked)
+	grimoire.passive_changed.connect(_on_passive_changed)
+	grimoire.spell_code_changed.connect(func(spell_name: String) -> void:
+		if spell_name == grimoire.passive():
+			_on_passive_changed()
+	)
+	_update_passive_hud()
 	grimoire_ui.load_problem = grimoire_store.last_problem
 	if not grimoire_store.last_problem.is_empty():
 		push_warning("%s; cópia guardada em %s" % [grimoire_store.last_problem, grimoire_store.backup_path()])
@@ -63,6 +74,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	state.health.tick(delta)
 	state.health.dodging = player.motor.is_dodging()
+	if grimoire.passive() != "" and passive_scheduler.tick(delta):
+		_run_passive()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -85,12 +98,7 @@ func cast(slot_number: int) -> void:
 	if spell_name.is_empty():
 		cast_log.add_lines(PackedStringArray([tr("CONJURAR_SLOT_VAZIO") % slot_number]))
 		return
-	var context := spell_context()
-	var request := SpellRequest.make(grimoire.code_of(spell_name), context["mago"], context["target"], {}, context["pieces"])
-	var result: SpellResult = await executor.execute(request)
-	if not result.mago.is_empty():
-		# Variação, não valor absoluto: outra coisa pode ter mudado a mana enquanto o feitiço rodava (GRI-041).
-		state.set_mana(state.mana + float(result.mago["mana"]) - float(request.mago["mana"]))
+	var result := await _execute(grimoire.code_of(spell_name))
 	cast_log.add_lines(SpellReport.cast_lines(slot_number, spell_name, result))
 	grimoire_ui.remember_result(spell_name, result)
 	var visions := PackedStringArray()
@@ -102,9 +110,52 @@ func cast(slot_number: int) -> void:
 	spell_cast.emit(slot_number, result)
 
 
+## Executa um código com o estado real e aplica a mana pela variação.
+func _execute(code: String) -> SpellResult:
+	var context := spell_context()
+	var request := SpellRequest.make(code, context["mago"], context["target"], {}, context["pieces"])
+	var result: SpellResult = await executor.execute(request)
+	if not result.mago.is_empty():
+		# Variação, não valor absoluto: outra coisa pode ter mudado a mana enquanto o feitiço rodava (GRI-041).
+		state.set_mana(state.mana + float(result.mago["mana"]) - float(request.mago["mana"]))
+	return result
+
+
+## Uma execução do slot passivo (spec MAG-passivo).
+func _run_passive() -> void:
+	var spell_name := grimoire.passive()
+	passive_scheduler.mark_started()
+	var result := await _execute(grimoire.code_of(spell_name))
+	if spell_name != grimoire.passive():
+		passive_scheduler.mark_finished(SpellResult.from_dict({"ok": true}))
+		return  # trocou de passivo enquanto rodava
+	passive_player.play(result.actions)
+	match passive_scheduler.mark_finished(result):
+		PassiveScheduler.Outcome.DISABLED:
+			cast_log.add_lines(PackedStringArray([tr("PASSIVO_DESLIGADO") % spell_name]))
+			cast_log.add_lines(SpellReport.describe_error(result.error).split("\n"))
+			grimoire_ui.remember_result(spell_name, result)
+		PassiveScheduler.Outcome.MANA_OUT_FIRST:
+			cast_log.add_lines(PackedStringArray([tr("PASSIVO_SEM_MANA") % spell_name]))
+	_update_passive_hud()
+
+
+func _on_passive_changed() -> void:
+	passive_scheduler.reset()
+	_update_passive_hud()
+
+
+func _update_passive_hud() -> void:
+	hud.set_passive_status(grimoire.passive(), passive_scheduler.is_disabled())
+
+
 ## Estado do mundo que vai para o executor: mago, alvo e peças desbloqueadas.
 func spell_context() -> Dictionary:
 	return {"mago": state.to_spell_mago(), "target": current_target(), "pieces": state.unlocked_pieces}
+
+
+func _on_target_hit(_attack_element: String, effect: ElementTable.Effect) -> void:
+	sfx.play("fraco" if effect == ElementTable.Effect.WEAK else "acerto")
 
 
 ## O boneco da sala atual com esse id, ou null.
@@ -151,6 +202,9 @@ func go_to(room_id: String, entry: String) -> void:
 	current_room.exit_touched.connect(_on_exit_touched)
 	current_room.hazard_touched.connect(_on_hazard_touched)
 	current_room.safe_point_touched.connect(func(feet: Vector2) -> void: safe_point = feet)
+	for node in current_room.get_children():
+		if node is TrainingTarget:
+			node.was_hit.connect(_on_target_hit)
 
 	if not current_room.has_entry(entry):
 		_report("entrada '%s' não existe na sala %s; usando a primeira" % [entry, room_id])

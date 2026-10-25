@@ -1,7 +1,7 @@
 # Handoff — ArcaneSyntax
 
 > Contexto para começar uma conversa nova sem reler toda a documentação.
-> **Atualizado em:** 2026-10-25, fim da Sprint 6.
+> **Atualizado em:** 2026-10-25, fim da Sprint 7.
 > **Atualizar** ao fim de cada sprint (ou quando algo aqui deixar de ser verdade).
 
 ## 1. O projeto em 30 segundos
@@ -14,11 +14,11 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 
 | | |
 | --- | --- |
-| Sprint atual | **Sprint 6 concluída** (as ações acontecem no mundo: projétil, escudo, mover, levitar, meditar, cajado, fraquezas elementais, visões); a próxima é a **Sprint 7** (mana viva: meditar/absorver no mundo, slot passivo, VFX e sons provisórios, playtest do núcleo) |
-| Commits | Sprints 0 a 5 commitadas (último: `11a544f`). **A Sprint 6 ainda não**; o Victor revisa e commita |
-| Testes | 114 pytest + 157 GdUnit4, todos verdes localmente |
+| Sprint atual | **Sprint 7 concluída** (slot passivo, sons e partículas provisórios, roteiro de playtest). **O marco M2 fecha quando o Victor fizer o playtest do núcleo** (`docs/playtest/roteiro-nucleo.md`). A próxima é a **Sprint 8** (puzzles: validação pelo estado do mundo, execução passo a passo, Puzzle 1) |
+| Commits | Sprints 0 a 6 commitadas (último: `22f970f`). **A Sprint 7 ainda não**; o Victor revisa e commita |
+| Testes | 114 pytest + 179 GdUnit4, todos verdes localmente |
 | CI | Configurado, **ainda não confirmado verde no GitHub** |
-| Pendências do Victor | Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); jogar e preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
+| Pendências do Victor | **Playtest do núcleo** (roteiro em `docs/playtest/roteiro-nucleo.md`); Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); jogar e preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
 
 ## 3. Regras de trabalho (combinadas com o Victor)
 
@@ -45,6 +45,7 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 | Histórico por sessão | `docs/diario.md` |
 | Arte: especificações, lista de assets, prompts para IA | `docs/arte/guia-de-arte.md` |
 | Feitiços prontos para testar (com resultado esperado; manter atualizado se as regras de custo/peças mudarem) | `docs/feiticos-exemplo.md` |
+| Roteiro e registros de playtest | `docs/playtest/` |
 
 ## 5. Arquitetura em uma tela
 
@@ -60,10 +61,11 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 - **Mundo**: cena principal `World` carrega salas de `content/rooms/` (layout em texto: `#` pedra, `=` plataforma, `^` espinhos, `*` ponto seguro, `A–Z` entradas, `a–z` saídas; `exits = {"b": "sala_02:A"}`). `MagoState` (vida 5, mana 0/10) é a mana **real**; `to_spell_mago()` alimenta o executor. Espinho: −1 e volta ao ponto seguro; morte: vida cheia na entrada da sala. `Hud` mostra vida e mana.
 - **Conjurar (Sprint 5)**: teclas 1–5 → `World.cast(n)` envia código + `MagoState.to_spell_mago()` + alvo (boneco mais perto em 12 tiles) + `unlocked_pieces`; aplica a **variação** de mana; resultado no `CastLog` (as ações ainda não acontecem no mundo). Grimório: botões 1–5 equipam, **Testar** roda sem gastar mana e marca a linha do erro, custo estimado com mana 1000 e alvo de fogo, autocompletar. Executor recusa peças fora de `pecas` (`PecaBloqueada`). Testes usam `FakeSpellExecutor`.
 - **Ações no mundo (Sprint 6)**: `World.cast` → `ActionPlayer.play(result.actions)` (sempre, inclusive com erro) → `WorldActions.act_<tipo>`. Projétil (220 px/s, mira o alvo pelo id), escudo (2 s, bloqueia um ataque), `mover`/`levitar`/`meditar` controlam o mago e devolvem o controle, cajado (J, sem mana). `ElementTable`: fogo > planta, gelo > fogo, raio > gelo; cada um resiste a si mesmo. Bonecos mostram `Fraco!/Resistiu/Acertou`. Tudo congela com o grimório aberto.
+- **Passivo (Sprint 7)**: botão **Passivo** no grimório; `World` roda o passivo a cada 1 s via `PassiveScheduler` (sem sobrepor, pausado não roda), aplica a variação de mana, toca as ações no `PassivePlayer`; erro desliga (menos `ManaEsgotada`/`ExecutorIndisponivel`), editar religa; HUD mostra o status. Sons (`Sfx`) e partículas (`Fx`) provisórios, gerados por código.
 - **Grimório**: Tab abre (pausa o mundo), Esc fecha. `Grimoire` (modelo; nomes até 24, únicos sem diferenciar maiúsculas; sinais de renomear/apagar para os slots), `GrimoireStore` (`user://grimorio.json`, gravação atômica, `.bak` se o arquivo estiver ilegível), `GrimoireUI` (lista + `CodeEdit` com realce de Python e das peças do jogo). Ainda não executa feitiços.
 - **Contrato**: `tests/contract/*.json` é verificado pelas duas suítes.
 
-Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `CastLog`, `TrainingTarget`, `ActionPlayer`, `WorldActions`, `Projectile`, `Shield`, `ElementTable`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellReport`, `CompletionProvider`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
+Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `CastLog`, `TrainingTarget`, `ActionPlayer`, `WorldActions`, `Projectile`, `Shield`, `ElementTable`, `PassiveScheduler`, `Sfx`, `Fx`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellReport`, `CompletionProvider`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
 
 ## 6. Comandos
 
@@ -104,6 +106,7 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 - `PackedStringArray([...])` não é constante em GDScript; corrotina não pode ser guardada para esperar depois (espere um sinal).
 - `physics_frame` da árvore chega mesmo pausado: para esperar em tempo de jogo use `create_timer(t, false, true)`.
 - O teste de mutação já pegou testes fracos em duas sprints seguidas (5 e 6); manter o hábito ao fim de cada sprint.
+- O grimório aberto pede estimativa de custo (mana 1000) mesmo pausado; testes que contam requisições filtram essas.
 - O `python` do PATH no Windows é o alias da Microsoft Store; usar `runtime/python`.
 - Python local do Victor é 3.15; o runtime e o CI usam 3.14. Rodar o pytest também com o 3.14 quando mexer em mensagens de erro ou custo.
 - **Para o assistente:** comandos Bash com heredoc contendo Python com barras invertidas ou caminhos do Windows já falharam duas vezes; prefira as ferramentas Write/Edit para criar e alterar arquivos.
@@ -120,4 +123,5 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 
 ## 9. Próximo passo
 
-Começar a **Sprint 7** (`docs/sprints/sprint-07-magia-mana.md`): slot passivo executado periodicamente (sem sobrepor execuções, parando quando a mana não cobre), `meditar` e `absorver_mana` com efeito melhor no mundo, VFX e sons provisórios, e o **playtest do núcleo** com alguém de fora (fecha o marco M2). A mana já é aplicada pela variação (feito na Sprint 5). Perguntar ao Victor se ele testou a Sprint 6 e preencheu os checklists de sensação das Sprints 3 e 6.
+1. Perguntar ao Victor se fez o **playtest do núcleo**; se sim, registrar os achados em `docs/playtest/` e transformar os problemas em tarefas antes de seguir (podem mudar prioridades).
+2. Começar a **Sprint 8** (`docs/sprints/sprint-08-puzzles-validacao.md`): condições declarativas de puzzle avaliadas pelo estado do mundo (`PuzzleValidator`), execução passo a passo com a linha destacada (as ações já trazem `linha`), e o Puzzle 1 (meditar para reunir a primeira mana e abrir o caminho), com teste de aceitação que roda o executor real com soluções que passam e que falham.

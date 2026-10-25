@@ -20,6 +20,7 @@ var status_label := Label.new()
 var result_label := Label.new()
 var estimate_label := Label.new()
 var slot_buttons: Array[Button] = []
+var passive_button := Button.new()
 ## Espera meio segundo sem digitar antes de recalcular a estimativa (GRI-062).
 var estimate_timer := Timer.new()
 ## Linha marcada no editor (1 = primeira), ou -1.
@@ -163,6 +164,18 @@ func toggle_slot(slot_number: int) -> void:
 	_save()
 
 
+## Equipa ou desequipa o selecionado no slot passivo (MAG-050).
+func toggle_passive() -> void:
+	if not _grimoire.has_spell(_selected):
+		return
+	if _grimoire.passive() == _selected:
+		_grimoire.clear_passive()
+	else:
+		_grimoire.set_passive(_selected)
+	_refresh_slot_buttons()
+	_save()
+
+
 ## Guarda o resultado de uma conjuração para mostrar quando o feitiço for aberto (GRI-053).
 func remember_result(spell_name: String, result: SpellResult) -> void:
 	_last_results[spell_name] = result
@@ -274,6 +287,7 @@ func _set_marked_line(line: int) -> void:
 func _refresh_slot_buttons() -> void:
 	for i in slot_buttons.size():
 		slot_buttons[i].set_pressed_no_signal(_selected != "" and _grimoire.slot(i + 1) == _selected)
+	passive_button.set_pressed_no_signal(_selected != "" and _grimoire.passive() == _selected)
 
 
 func _on_list_selected(index: int) -> void:
@@ -367,6 +381,11 @@ func _build() -> void:
 		slot_button.pressed.connect(toggle_slot.bind(i + 1))
 		toolbar.add_child(slot_button)
 		slot_buttons.append(slot_button)
+	passive_button.text = "GRIMORIO_PASSIVO"
+	passive_button.toggle_mode = true
+	passive_button.add_theme_font_size_override(&"font_size", 8)
+	passive_button.pressed.connect(toggle_passive)
+	toolbar.add_child(passive_button)
 	var test_button := Button.new()
 	test_button.text = "GRIMORIO_TESTAR"
 	test_button.add_theme_font_size_override(&"font_size", 8)

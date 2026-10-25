@@ -1,6 +1,6 @@
 # Arquitetura
 
-Estado em 2026-10-25, fim da Sprint 6. Atualizar ao fim de cada sprint que mudar a estrutura.
+Estado em 2026-10-25, fim da Sprint 7. Atualizar ao fim de cada sprint que mudar a estrutura.
 
 ## Visão geral
 
@@ -105,6 +105,14 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `World.cast` agora também toca as ações (inclusive as anteriores a um erro) e as visões; `World.find_target(id)`.
 - Motor: `PlayerIntent.fly_y` (NAN = sem voo) desliga a gravidade (MUN-015).
 
+### Passivo, sons e efeitos (specs MAG-passivo, MAG-efeitos)
+
+- `Grimoire`: slot passivo (`set_passive`, `clear_passive`, `passive`, `passive_changed`; campo `"passivo"` no arquivo).
+- `PassiveScheduler` (`src/core/magic/passive_scheduler.gd`): `tick(delta)` devolve true a cada 1 s (não enquanto ocupado ou desligado); `mark_started`, `mark_finished(resultado)` → `Outcome` (`OK`, `MANA_OUT_FIRST`, `MANA_OUT_REPEAT`, `DISABLED`, `TRANSIENT`); `reset()`.
+- `World._execute(codigo)`: execução comum (estado real + mana pela variação), usada por `cast` e `_run_passive`. O passivo toca as ações no `PassivePlayer` (outro `ActionPlayer`) e só escreve no registro quando desliga ou fica sem mana pela primeira vez. Editar o código do passivo ou trocá-lo chama `passive_scheduler.reset()`.
+- `Sfx` (`src/nodes/fx/sfx.gd`, nó `Sfx` no `World`): sons gerados por código para `conjurar` (timbre por elemento), `acerto`, `fraco`, `escudo`, `cajado`, `mana`; `played` guarda o histórico; barramento `SFX` (`default_bus_layout.tres`).
+- `Fx.burst(pai, posição, cor, quantidade, subindo)` (`src/nodes/fx/fx.gd`): partículas provisórias. `TrainingTarget` emite `was_hit` (o `World` toca o som).
+
 - Salas do jogo: `content/rooms/sala_01..03.tscn` (40–60 × 23 tiles). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
 
 ### Cliente do executor (spec EXE-protocolo)
@@ -199,3 +207,4 @@ Convenções:
 | Substituição de texto pega a primeira ocorrência, que pode estar em outro lugar (ex.: dentro de um setter) | Usar um trecho maior e único; conferir com `--check-only` se a classe não compilar |
 | `godot --check-only -s res://arquivo.gd` | Mostra o erro de compilação exato de um script |
 | `await get_tree().physics_frame` continua chegando com o jogo pausado | Para esperar em tempo de jogo: `create_timer(t, false, true)` ou pular quadros com `get_tree().paused` |
+| O grimório aberto faz uma estimativa de custo (requisição com mana 1000) mesmo com o jogo pausado | Em testes que contam requisições, filtrar as de estimativa (`GrimoireUI.ESTIMATE_MANA`) |

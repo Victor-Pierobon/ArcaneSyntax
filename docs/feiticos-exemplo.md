@@ -1,6 +1,6 @@
 # Feitiços de exemplo
 
-Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 6).
+Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 7).
 
 ## Onde testar
 
@@ -74,6 +74,8 @@ print("mana cheia:", mana)
 ```
 
 Esperado: 12 ações `absorver_mana` (cada volta rende +0,9), visão `mana cheia: 10`, mana final 9.9 (o `print` custou 0,1).
+
+**Como passivo (Sprint 7):** no grimório, selecione o feitiço e aperte **Passivo**. Ele roda sozinho a cada segundo e mantém a mana cheia. O HUD mostra `Passivo: <nome>`; se o feitiço der erro, o passivo é desligado e o registro explica por quê (edite o código para religar). Compare com um passivo ruim, `while True:` + `absorver_mana()`, que é desligado por `LimiteExcedido`.
 
 ### 2.2 Só medita quando precisa
 

@@ -225,6 +225,19 @@ func test_GRI_062_recalcula_depois_de_editar() -> void:
 	assert_bool(ui.estimate_timer.is_stopped()).is_false()
 
 
+func test_MAG_050_botao_passivo() -> void:
+	grimoire.create("Recarregar")
+	ui.open()
+	ui.select("Recarregar")
+	ui.toggle_passive()
+	assert_str(grimoire.passive()).is_equal("Recarregar")
+	assert_bool(ui.passive_button.button_pressed).is_true()
+	assert_str(GrimoireStore.new(PATH).load_grimoire().passive()).is_equal("Recarregar")
+	ui.toggle_passive()
+	assert_str(grimoire.passive()).is_empty()
+	assert_bool(ui.passive_button.button_pressed).is_false()
+
+
 func test_GRI_074_editor_com_autocompletar() -> void:
 	assert_bool(ui.editor.code_completion_enabled).is_true()
 

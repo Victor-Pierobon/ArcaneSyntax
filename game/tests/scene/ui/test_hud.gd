@@ -28,6 +28,14 @@ func test_GRI_034_hud_mostra_os_slots() -> void:
 	assert_str(hud.slots_label.text).contains("1 Chama")
 
 
+## Regressão (Sprint 7, achado em captura de tela): o status do passivo ficava em cima do mago,
+## perto do chão; ele fica no bloco do topo, junto da vida e da mana.
+func test_MAG_057_status_do_passivo_fica_no_topo() -> void:
+	hud.set_passive_status("Recarregar", false)
+	await get_tree().process_frame
+	assert_float(hud.passive_label.get_global_rect().end.y).is_less(80.0)
+
+
 func test_UI_002_acompanha_mudancas() -> void:
 	state.health.damage(2)
 	state.set_mana(4.9)

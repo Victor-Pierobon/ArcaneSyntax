@@ -41,3 +41,8 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 
 - As ações acontecem no mundo: projétil que mira o alvo, escudo, mover, levitar (voo no motor), meditar, cajado, fraquezas elementais com efeito nos bonecos, visões sobre o mago; tudo congela com o grimório aberto. Ações parciais acontecem (decisão do Victor). Mutação achou dois testes fracos, reforçados. 157 GdUnit4 e 114 pytest verdes.
 - Próximo: Sprint 7 (mana viva e slot passivo; fecha o M2 com playtest).
+
+## 2026-10-25 (Sprint 7)
+
+- Slot passivo (a cada 1 s, sem sobrepor, desliga com erro e religa ao editar), sons e partículas provisórios gerados por código, roteiro de playtest do núcleo. Captura de tela achou o status do passivo em cima do mago (teste de regressão criado). 179 GdUnit4 e 114 pytest verdes.
+- Próximo: Victor faz o playtest do núcleo (fecha o M2); depois Sprint 8 (puzzles).

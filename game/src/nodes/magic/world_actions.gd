@@ -26,8 +26,10 @@ func act_lancar(action: Dictionary) -> void:
 	var element := str(action.get("elemento", ""))
 	if action.get("forma") == "escudo":
 		_raise_shield(element)
+		world.sfx.play("escudo")
 	else:
 		_launch_projectile(element, action.get("alvo"))
+		world.sfx.play("conjurar", element)
 	await _wait(CAST_DELAY)
 
 
@@ -63,12 +65,16 @@ func act_meditar(_action: Dictionary) -> void:
 	var saved := player.intent_source
 	player.intent_source = func() -> PlayerIntent: return PlayerIntent.make()
 	_flash_player(Color("b8a8ff"), MEDITATE_TIME)
+	Fx.burst(player, Vector2(0, -2), Color("b8a8ff"), 18, true)
+	world.sfx.play("mana")
 	await _wait(MEDITATE_TIME)
 	player.intent_source = saved
 
 
 func act_absorver_mana(_action: Dictionary) -> void:
 	_flash_player(Color("8fd8ff"), ABSORB_TIME * 2)
+	Fx.burst(world.player, Vector2(0, -15), Color("8fd8ff"), 6)
+	world.sfx.play("mana")
 	await _wait(ABSORB_TIME)
 
 
@@ -78,6 +84,7 @@ func staff_attack() -> bool:
 	if now < _staff_ready_at:
 		return false
 	_staff_ready_at = now + STAFF_COOLDOWN
+	world.sfx.play("cajado")
 	var player := world.player
 	var swing := Area2D.new()
 	swing.collision_layer = 0
