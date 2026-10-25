@@ -1,0 +1,18 @@
+# Godot
+game/.godot/
+game/export_presets.cfg
+game/reports/
+*.translation.import.tmp
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+*.egg-info/
+
+# SO / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
