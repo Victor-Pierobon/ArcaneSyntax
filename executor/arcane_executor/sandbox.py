@@ -28,8 +28,9 @@ BUILTINS_PERMITIDOS = (
 
 
 class Violacao(Exception):
-    def __init__(self, mensagem, node):
+    def __init__(self, mensagem, node, tipo="FeiticoProibido"):
         super().__init__(mensagem)
+        self.tipo = tipo
         self.linha = node.lineno
         self.coluna = node.col_offset + 1
 
@@ -72,6 +73,18 @@ class _Verificador(ast.NodeVisitor):
 def verificar(arvore):
     """Levanta Violacao na primeira coisa proibida encontrada."""
     _Verificador().visit(arvore)
+
+
+def verificar_pecas(arvore, bloqueadas):
+    """Levanta Violacao(PecaBloqueada) no primeiro uso, em ordem de posição, de uma peça bloqueada."""
+    usos = [
+        node
+        for node in ast.walk(arvore)
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) and node.id in bloqueadas
+    ]
+    if usos:
+        primeiro = min(usos, key=lambda n: (n.lineno, n.col_offset))
+        raise Violacao(f"você ainda não conhece {primeiro.id}", primeiro, "PecaBloqueada")
 
 
 def _recusar_interno(funcao, nome):

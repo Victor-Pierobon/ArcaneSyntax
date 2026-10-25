@@ -123,6 +123,112 @@ func test_GRI_007_sem_selecao_abre_no_primeiro() -> void:
 	assert_bool(ui.editor.editable).is_true()
 
 
+func _use_fake_executor(mana: float = 5.0) -> FakeSpellExecutor:
+	var fake: FakeSpellExecutor = auto_free(FakeSpellExecutor.new())
+	add_child(fake)
+	var context := func() -> Dictionary:
+		return {"mago": {"vida": 5, "mana": mana, "mana_max": 10}, "target": null, "pieces": MagoState.ALL_PIECES}
+	ui.set_spell_runner(fake, context)
+	return fake
+
+
+func test_GRI_033_equipar_pelo_grimorio() -> void:
+	grimoire.create("Fogo")
+	ui.open()
+	ui.select("Fogo")
+	ui.toggle_slot(2)
+	assert_str(grimoire.slot(2)).is_equal("Fogo")
+	assert_bool(ui.slot_buttons[1].button_pressed).is_true()
+	assert_str(GrimoireStore.new(PATH).load_grimoire().slot(2)).is_equal("Fogo")
+	ui.toggle_slot(2)
+	assert_str(grimoire.slot(2)).is_empty()
+	assert_bool(ui.slot_buttons[1].button_pressed).is_false()
+
+
+func test_GRI_051_testar_mostra_o_resultado_sem_gastar_mana() -> void:
+	var fake := _use_fake_executor(5.0)
+	grimoire.create("Teste", "print(\"oi\")\nlancar(fogo, projetil)")
+	fake.queue_result({"ok": true, "custo_mana": 3.2, "mago": {"vida": 5, "mana": 1.8, "mana_max": 10},
+		"acoes": [{"tipo": "lancar", "linha": 2, "elemento": "fogo", "forma": "projetil", "alvo": null}],
+		"saidas": [{"linha": 1, "texto": "oi"}]})
+	ui.open()
+	ui.select("Teste")
+	await ui.test_selected()
+	assert_str(fake.requests[-1].code).is_equal("print(\"oi\")\nlancar(fogo, projetil)")
+	assert_float(float(fake.requests[-1].mago["mana"])).is_equal(5.0)
+	assert_str(ui.result_label.text).contains("oi").contains("lancar fogo projetil").contains("3.2")
+
+
+## Regressão (Sprint 5, achado em captura de tela): a linha do custo ficava cortada no painel.
+func test_GRI_051_painel_mostra_todas_as_linhas_do_resultado() -> void:
+	var fake := _use_fake_executor()
+	grimoire.create("Teste", "meditar()\nprint(\"olá\")\nlancar(agua, projetil)")
+	fake.queue_result({"ok": false, "custo_mana": 0.2, "mago": {"vida": 5, "mana": 9.8, "mana_max": 10},
+		"acoes": [{"tipo": "meditar", "linha": 1}], "saidas": [{"linha": 2, "texto": "olá"}],
+		"erro": {"tipo": "NameError", "mensagem": "name 'agua' is not defined", "linha": 3, "coluna": null}})
+	ui.open()
+	ui.select("Teste")
+	await ui.test_selected()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_int(ui.result_label.get_visible_line_count()).is_greater_equal(ui.result_label.get_line_count())
+
+
+func test_GRI_052_linha_marcada_e_desmarcada() -> void:
+	var fake := _use_fake_executor()
+	grimoire.create("Teste", "x = 1\nprint(y)")
+	fake.queue_result({"ok": false, "custo_mana": 0.1, "acoes": [], "saidas": [], "mago": {"vida": 5, "mana": 4.9, "mana_max": 10},
+		"erro": {"tipo": "NameError", "mensagem": "name 'y' is not defined", "linha": 2, "coluna": null}})
+	ui.open()
+	ui.select("Teste")
+	await ui.test_selected()
+	assert_int(ui.marked_line).is_equal(2)
+	assert_str(ui.result_label.text).contains("NameError")
+	ui.editor.text = "x = 1\nprint(x)"
+	ui.editor.text_changed.emit()
+	assert_int(ui.marked_line).is_equal(-1)
+
+
+func test_GRI_060_custo_estimado() -> void:
+	var fake := _use_fake_executor()
+	grimoire.create("Fogo", "lancar(fogo, projetil, alvo)")
+	fake.queue_result({"ok": true, "custo_mana": 3.1, "acoes": [], "saidas": [], "mago": {"vida": 5, "mana": 996.9, "mana_max": 1000}})
+	ui.open()
+	ui.select("Fogo")
+	await ui.estimate_now()
+	var request: SpellRequest = fake.requests[-1]
+	assert_float(float(request.mago["mana"])).is_equal(1000.0)
+	assert_float(float(request.mago["mana_max"])).is_equal(1000.0)
+	assert_str(request.target["elemento"]).is_equal("fogo")
+	assert_str(ui.estimate_label.text).contains("3.1")
+
+
+func test_GRI_061_estimativa_com_erro() -> void:
+	var fake := _use_fake_executor()
+	grimoire.create("Quebrado", "if mana < 5")
+	fake.queue_result({"ok": false, "custo_mana": 0, "acoes": [], "saidas": [], "mago": {"vida": 5, "mana": 1000, "mana_max": 1000},
+		"erro": {"tipo": "SyntaxError", "mensagem": "expected ':'", "linha": 1, "coluna": 12}})
+	ui.open()
+	ui.select("Quebrado")
+	await ui.estimate_now()
+	assert_str(ui.estimate_label.text).contains("—").contains("1")
+
+
+func test_GRI_062_recalcula_depois_de_editar() -> void:
+	_use_fake_executor()
+	grimoire.create("Fogo", "meditar()")
+	ui.open()
+	ui.select("Fogo")
+	ui.estimate_timer.stop()
+	ui.editor.text = "meditar()\nmeditar()"
+	ui.editor.text_changed.emit()
+	assert_bool(ui.estimate_timer.is_stopped()).is_false()
+
+
+func test_GRI_074_editor_com_autocompletar() -> void:
+	assert_bool(ui.editor.code_completion_enabled).is_true()
+
+
 func test_GRI_008_aviso_de_arquivo_ilegivel() -> void:
 	ui.load_problem = "o arquivo do grimório estava ilegível"
 	ui.open()

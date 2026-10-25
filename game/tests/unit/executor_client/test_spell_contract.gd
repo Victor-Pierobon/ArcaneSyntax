@@ -58,6 +58,13 @@ func test_resultado_de_erro_de_requisicao_tem_mago_vazio() -> void:
 	assert_int(result.error.line).is_equal(SpellError.NO_POSITION)
 
 
+func test_EXE_080_requisicao_leva_as_pecas_desbloqueadas() -> void:
+	var mago := {"vida": 10, "mana": 5, "mana_max": 20}
+	var request := SpellRequest.make("meditar()", mago, null, {}, PackedStringArray(["meditar", "fogo"]))
+	assert_array(request.to_dict(1)["pecas"]).is_equal(["meditar", "fogo"])
+	assert_bool(SpellRequest.make("meditar()", mago).to_dict(1).has("pecas")).is_false()
+
+
 func test_falha_local_do_cliente() -> void:
 	var result := SpellResult.failure("ExecutorIndisponivel", "sem Python")
 	assert_bool(result.ok).is_false()

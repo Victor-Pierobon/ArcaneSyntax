@@ -28,7 +28,7 @@ As regras de custo, limites e sandbox estão em EXE-custo, EXE-limites e EXE-san
      "regras": {"ganho_meditar": 5, "ganho_absorver": 1}
    }
    ```
-   `mundo.alvo` pode ser `null`. `regras` é opcional; cada valor ausente usa o padrão:
+   `mundo.alvo` pode ser `null`. `pecas` é opcional: a lista de peças desbloqueadas (sem o campo, todas; EXE-desbloqueio). `regras` é opcional; cada valor ausente usa o padrão:
 
    | Regra | Padrão | Spec |
    | --- | --- | --- |
@@ -52,7 +52,7 @@ As regras de custo, limites e sandbox estão em EXE-custo, EXE-limites e EXE-san
    }
    ```
    `mago` é o estado do mago simulado no fim da execução (ADR-001). `custo_mana` é o total gasto (EXE-custo); 0 numa requisição inválida.
-   Tipos de erro além das exceções do Python: `RequisicaoInvalida`, `ManaEsgotada`, `TempoEsgotado`, `LimiteExcedido`, `FeiticoProibido`. Do lado do Godot: `ExecutorIndisponivel`, `RespostaInvalida` e `TempoEsgotado` (watchdog).
+   Tipos de erro além das exceções do Python: `RequisicaoInvalida`, `ManaEsgotada`, `TempoEsgotado`, `LimiteExcedido`, `FeiticoProibido`, `PecaBloqueada`. Do lado do Godot: `ExecutorIndisponivel`, `RespostaInvalida` e `TempoEsgotado` (watchdog).
 4. Toda ação e toda saída carregam a `linha` do código do jogador que a gerou.
 5. Quando dá erro, `ok` é `false` e `erro` segue EXE-erros. As ações e saídas produzidas **antes** do erro continuam na resposta.
 6. Uma requisição inválida nunca derruba o worker: ele responde com erro e segue lendo.

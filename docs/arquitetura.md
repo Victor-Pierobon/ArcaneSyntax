@@ -1,6 +1,6 @@
 # Arquitetura
 
-Estado em 2026-10-25, fim da Sprint 4. Atualizar ao fim de cada sprint que mudar a estrutura.
+Estado em 2026-10-25, fim da Sprint 5. Atualizar ao fim de cada sprint que mudar a estrutura.
 
 ## Visão geral
 
@@ -58,7 +58,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - Ações de input: `move_left` (A, ←), `move_right` (D, →), `jump` (Espaço, W, ↑).
 - Textos: `content/text/textos.csv` (coluna `pt_BR`) importado como tradução; nunca escrever texto visível direto no código, usar chaves (`PROTOTIPO_DICA`).
 - Plugin GdUnit4 habilitado.
-- Ações de input: também `dodge` (Shift, K) e `grimoire` (Tab).
+- Ações de input: também `dodge` (Shift, K), `grimoire` (Tab) e `slot_1` … `slot_5` (teclas 1–5).
 - Cor de fundo padrão escura (`default_clear_color`).
 - Cena principal: `res://src/nodes/world/world.tscn`.
 
@@ -81,7 +81,19 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `Grimoire` (`src/core/grimoire/grimoire.gd`): lista ordenada de `{name, code}`; `create`, `rename`, `delete`, `set_code` devolvem `Grimoire.Problem`; nomes até 24 caracteres, únicos sem diferenciar maiúsculas; `next_default_name("Feitiço")`; sinais `spell_created/renamed/deleted/code_changed`; `to_dict()`/`from_dict()` (null se inválido).
 - `GrimoireStore` (`src/core/grimoire/grimoire_store.gd`): `user://grimorio.json` (`{"versao": 1, "feiticos": [{"nome", "codigo"}]}`); `save()` grava em `.tmp` e renomeia; `load_grimoire()` devolve vazio e preenche `last_problem` se o arquivo for ilegível, copiando o original para `.bak` antes.
 - `GrimoireUI` (`src/nodes/grimoire/grimoire_ui.gd`, CanvasLayer `layer = 10`, `process_mode = ALWAYS`): `open()` pausa a árvore, `close()` guarda a edição, salva e despausa; `new_spell()`, `rename_selected()`, `delete_selected()`, `select()`; `spell_list`, `name_field`, `editor` (CodeEdit com `PythonHighlighter.build()`), `status_label`; `load_problem` mostra o aviso de arquivo ilegível.
+- Slots no `Grimoire`: `equip(n, nome)`, `unequip(n)`, `slot(n)` (n de 1 a 5), `slots()`, sinal `slots_changed`; renomear/apagar atualizam os slots; salvos em `"slots"` no mesmo arquivo.
+- `SpellReport` (`src/core/grimoire/spell_report.gd`): `phrase_key(tipo, tem_linha)`, `describe_error(erro)` (frase no mundo + erro real), `action_text(acao)`, `cast_lines(slot, nome, resultado)`, `full_text(resultado)`.
+- `CompletionProvider` (`src/core/grimoire/completion_provider.gd`): `suggest(prefixo, desbloqueadas)` e `prefix_before_caret(linha)`.
+- `GrimoireUI` também tem: botões de slot (`toggle_slot`), **Testar** (`test_selected`, sem gastar mana), `result_label` com rolagem, `marked_line`, `remember_result` (erro da conjuração aparece ao abrir), custo estimado (`estimate_now`, `estimate_timer` de 0,5 s) e autocompletar. Precisa de `set_spell_runner(executor, contexto)`.
 - `World` cria `grimoire_store` em `grimoire_path` (padrão `user://grimorio.json`) e liga `grimoire_ui`. **Testes sempre trocam `grimoire_path`** para `user://tests/…`.
+
+### Conjuração e alvos (specs GRI-slots, MUN-alvos, EXE-desbloqueio)
+
+- `World.cast(n)`: se o jogo não está pausado e o slot tem feitiço, monta `SpellRequest` com `spell_context()` (`mago` de `MagoState`, `target` de `current_target()`, `pieces` de `MagoState.unlocked_pieces`), espera `executor.execute`, aplica a **variação** de mana, escreve no `CastLog`, avisa o grimório e emite `spell_cast`. Teclas 1–5 via `_unhandled_input`.
+- `World.executor`: nó `Executor` (`PythonSpellExecutor`) por padrão; o setter religa o grimório. Testes trocam por `FakeSpellExecutor` (`tests/support/`).
+- `TrainingTarget` (`src/nodes/world/training_target.gd`): boneco com `target_id` e `element`, no grupo `alvos`. Layout: dígitos `1`–`9`; `Room.targets = {"1": "fogo"}`. `World.current_target()`: o mais perto num raio de 12 tiles, distância em tiles.
+- `CastLog` (`src/nodes/ui/cast_log.gd`): últimas 6 linhas no canto superior direito. `Hud.bind_slots(grimoire)`: barra com os 5 slots.
+- `MagoState.ALL_PIECES` (constante `Array[String]`) e `unlocked_pieces` (hoje tudo desbloqueado).
 
 - Salas do jogo: `content/rooms/sala_01..03.tscn` (40–60 × 23 tiles). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
 
@@ -171,3 +183,6 @@ Convenções:
 | Captura de tela por script (`-s`) | Esperar um `process_frame` no `_initialize` antes de adicionar cenas |
 | Testes e jogo compartilham `user://` | Testes usam `user://tests/…` e apagam os arquivos no `after_test` |
 | Teste que pausa a árvore | Despausar no `after_test` (`get_tree().paused = false`) |
+| `PackedStringArray([...])` não é expressão constante em GDScript | Usar `const X: Array[String] = [...]` e converter onde precisar |
+| Guardar uma corrotina numa variável para esperar depois não funciona | Chamar sem `await` e esperar um sinal (ex.: `await world.spell_cast`) |
+| Heredoc no Bash com scripts grandes falha às vezes ("unexpected EOF") | Escrever o script num arquivo (scratchpad) e rodar com `python arquivo.py` |

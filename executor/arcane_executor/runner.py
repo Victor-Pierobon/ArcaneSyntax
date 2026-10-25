@@ -57,9 +57,12 @@ def instrumentar(arvore):
     return ast.fix_missing_locations(arvore)
 
 
-def run_spell(codigo, mago, alvo=None, regras=None):
-    """Roda o código do jogador. Devolve {acoes, saidas, mago, custo_mana, erro}."""
-    ctx = Contexto(mago, alvo, regras)
+def run_spell(codigo, mago, alvo=None, regras=None, pecas=None):
+    """Roda o código do jogador. Devolve {acoes, saidas, mago, custo_mana, erro}.
+
+    `pecas`: peças desbloqueadas; None libera todas (spec EXE-desbloqueio).
+    """
+    ctx = Contexto(mago, alvo, regras, pecas)
 
     def resultado(erro=None):
         ctx.fechar()
@@ -72,8 +75,9 @@ def run_spell(codigo, mago, alvo=None, regras=None):
 
     try:
         sandbox.verificar(arvore)
+        sandbox.verificar_pecas(arvore, ctx.bloqueadas)
     except sandbox.Violacao as e:
-        return resultado(_erro("FeiticoProibido", str(e), e.linha, e.coluna))
+        return resultado(_erro(e.tipo, str(e), e.linha, e.coluna))
 
     try:
         compilado = compile(instrumentar(arvore), ARQUIVO_FEITICO, "exec")

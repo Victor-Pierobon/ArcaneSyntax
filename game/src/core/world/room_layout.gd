@@ -14,6 +14,8 @@ var safe_points: Array[Vector2i] = []
 var entries: Dictionary = {}
 ## Letra minúscula → Array[Vector2i] com as células da saída.
 var exits: Dictionary = {}
+## Dígito → célula de um boneco de treino (spec MUN-alvos).
+var targets: Dictionary = {}
 var errors: Array[String] = []
 
 
@@ -62,6 +64,11 @@ func _read(c: String, cell: Vector2i) -> void:
 					errors.append("entrada %s repetida na linha %d, coluna %d" % [c, cell.y + 1, cell.x + 1])
 				else:
 					entries[c] = cell
+			elif c >= "1" and c <= "9":
+				if targets.has(c):
+					errors.append("boneco %s repetido na linha %d, coluna %d" % [c, cell.y + 1, cell.x + 1])
+				else:
+					targets[c] = cell
 			elif c >= "a" and c <= "z":
 				if not exits.has(c):
 					exits[c] = [] as Array[Vector2i]

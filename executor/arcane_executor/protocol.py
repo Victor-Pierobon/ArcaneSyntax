@@ -2,6 +2,7 @@
 
 import json
 
+from .pieces import PECAS_DESBLOQUEAVEIS
 from .runner import run_spell
 
 VERSAO = 1
@@ -38,6 +39,13 @@ def _validar(req):
         _exigir(alvo, "id", lambda v: isinstance(v, str), "texto", "mundo.alvo.")
         _exigir(alvo, "elemento", lambda v: isinstance(v, str), "texto", "mundo.alvo.")
         _exigir(alvo, "distancia", _numero, "um número", "mundo.alvo.")
+    pecas = req.get("pecas")
+    if pecas is not None:
+        if not isinstance(pecas, list) or not all(isinstance(p, str) for p in pecas):
+            raise RequisicaoInvalida("pecas precisa ser uma lista de nomes")
+        desconhecidas = [p for p in pecas if p not in PECAS_DESBLOQUEAVEIS]
+        if desconhecidas:
+            raise RequisicaoInvalida(f"peças desconhecidas em pecas: {', '.join(desconhecidas)}")
     regras = req.get("regras", {})
     if not isinstance(regras, dict) or not all(_numero(v) for v in regras.values()):
         raise RequisicaoInvalida("regras precisa ser um objeto com valores numéricos")
@@ -70,7 +78,7 @@ def handle_request(req):
     except RequisicaoInvalida as e:
         return _invalida(id, str(e))
     mundo = req["mundo"]
-    resultado = run_spell(req["codigo"], mundo["mago"], mundo.get("alvo"), req.get("regras"))
+    resultado = run_spell(req["codigo"], mundo["mago"], mundo.get("alvo"), req.get("regras"), req.get("pecas"))
     return _resposta(id, resultado)
 
 

@@ -5,6 +5,10 @@ extends CanvasLayer
 var life_label := Label.new()
 var mana_label := Label.new()
 var mana_bar := ProgressBar.new()
+## Os 5 slots e o feitiço de cada um (spec GRI-slots, GRI-034).
+var slots_label := Label.new()
+
+var _grimoire: Grimoire
 
 
 func _init() -> void:
@@ -27,6 +31,9 @@ func _init() -> void:
 	hint.add_theme_font_size_override(&"font_size", 8)
 	hint.modulate = Color(1, 1, 1, 0.6)
 	add_child(hint)
+	slots_label.position = Vector2(8, 330)
+	slots_label.add_theme_font_size_override(&"font_size", 8)
+	add_child(slots_label)
 
 
 func bind(state: MagoState) -> void:
@@ -34,6 +41,20 @@ func bind(state: MagoState) -> void:
 	state.mana_changed.connect(_on_mana_changed)
 	_on_life_changed(state.health.current, state.health.maximum)
 	_on_mana_changed(state.mana, state.mana_max)
+
+
+func bind_slots(grimoire: Grimoire) -> void:
+	_grimoire = grimoire
+	grimoire.slots_changed.connect(_on_slots_changed)
+	_on_slots_changed()
+
+
+func _on_slots_changed() -> void:
+	var parts := PackedStringArray()
+	var slots := _grimoire.slots()
+	for i in slots.size():
+		parts.append("%d %s" % [i + 1, slots[i] if slots[i] != "" else "—"])
+	slots_label.text = "   ".join(parts)
 
 
 func _on_life_changed(current: int, maximum: int) -> void:

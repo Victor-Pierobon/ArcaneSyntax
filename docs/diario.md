@@ -31,3 +31,8 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 
 - Grimório: Tab abre e pausa, lista de feitiços (novo, renomear, apagar), editor com realce de Python e das peças, gravação atômica em `user://grimorio.json` com backup se o arquivo estiver ilegível. A captura de tela pegou um bug no campo de nome. 96 GdUnit4 e 105 pytest verdes.
 - Próximo: Sprint 5 (slots, conjurar, erros, custo, autocompletar).
+
+## 2026-10-25 (Sprint 5)
+
+- Slots e conjuração por tecla com o Python de verdade, registro de conjuração, Testar com linha do erro marcada, custo estimado, autocompletar, peças bloqueadas no executor, bonecos de treino como alvo. Captura de tela achou a linha do custo cortada (teste de regressão criado). 114 pytest e 132 GdUnit4 verdes. Nova regra: todo bug vira teste de regressão.
+- Próximo: Sprint 6 (as ações acontecem no mundo).

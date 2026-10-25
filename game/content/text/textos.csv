@@ -1,5 +1,5 @@
 keys,pt_BR
-PROTOTIPO_DICA,"A/D ou setas para andar, Espaço ou W para pular, Shift para esquivar, Tab para abrir o grimório"
+PROTOTIPO_DICA,"A/D andar · Espaço pular · Shift esquivar · Tab grimório · 1-5 conjurar"
 HUD_VIDA,Vida %d/%d
 HUD_MANA,Mana %.1f/%.1f
 GRIMORIO_TITULO,Grimório
@@ -14,3 +14,32 @@ GRIMORIO_ERRO_NOME_REPETIDO,Já existe um feitiço com esse nome.
 GRIMORIO_ERRO_NAO_ENCONTRADO,Esse feitiço não existe mais.
 GRIMORIO_ERRO_SALVAR,Não foi possível salvar o grimório (%s).
 GRIMORIO_ARQUIVO_ILEGIVEL,"O grimório salvo estava ilegível e foi guardado em %s. Começando um grimório novo."
+GRIMORIO_EQUIPAR,Equipar no slot:
+GRIMORIO_TESTAR,Testar
+GRIMORIO_TESTANDO,Testando…
+GRIMORIO_CUSTO,"Custo estimado: %s (com alvo de fogo)"
+GRIMORIO_CUSTO_ERRO,"Custo estimado: — (erro na linha %s)"
+CONJURAR_SLOT_VAZIO,O slot %d está vazio. Equipe um feitiço no grimório (Tab).
+REGISTRO_VISAO,visão:
+REGISTRO_CUSTO,custo %s
+REGISTRO_SEM_ACOES,nenhuma ação
+ERRO_DETALHE_LINHA,%s (linha %d)
+ERRO_SINTAXE,A runa da linha %d está malformada.
+ERRO_SINTAXE_SL,Uma runa do feitiço está malformada.
+ERRO_NOME,A linha %d invoca algo que não existe.
+ERRO_NOME_SL,O feitiço invoca algo que não existe.
+ERRO_PECA,A linha %d usou uma peça do jeito errado.
+ERRO_PECA_SL,O feitiço usou uma peça do jeito errado.
+ERRO_DIVISAO,A linha %d tentou dividir por zero.
+ERRO_DIVISAO_SL,O feitiço tentou dividir por zero.
+ERRO_MANA,A mana acabou na linha %d.
+ERRO_MANA_SL,A mana acabou.
+ERRO_PROIBIDO,A linha %d usa uma magia proibida.
+ERRO_PROIBIDO_SL,O feitiço usa uma magia proibida.
+ERRO_BLOQUEADA,Você ainda não conhece essa magia (linha %d).
+ERRO_BLOQUEADA_SL,Você ainda não conhece essa magia.
+ERRO_OUTRO,Algo deu errado na linha %d.
+ERRO_OUTRO_SL,Algo deu errado no feitiço.
+ERRO_TEMPO,O feitiço demorou demais e se desfez.
+ERRO_LIMITE,O feitiço tentou fazer coisas demais de uma vez.
+ERRO_EXECUTOR,O grimório não respondeu. Tente de novo.

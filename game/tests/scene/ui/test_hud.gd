@@ -18,6 +18,16 @@ func test_UI_001_mostra_o_estado_inicial() -> void:
 	assert_float(hud.mana_bar.value).is_equal(0.0)
 
 
+func test_GRI_034_hud_mostra_os_slots() -> void:
+	var grimoire := Grimoire.new()
+	grimoire.create("Fogo")
+	hud.bind_slots(grimoire)
+	grimoire.equip(1, "Fogo")
+	assert_str(hud.slots_label.text).contains("1 Fogo").contains("2 —").contains("5 —")
+	grimoire.rename("Fogo", "Chama")
+	assert_str(hud.slots_label.text).contains("1 Chama")
+
+
 func test_UI_002_acompanha_mudancas() -> void:
 	state.health.damage(2)
 	state.set_mana(4.9)

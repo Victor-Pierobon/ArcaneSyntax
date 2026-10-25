@@ -16,6 +16,8 @@ const TILE := RoomLayout.TILE
 @export_multiline var layout: String = ""
 ## Letra da saída → "sala:Entrada", ex.: {"b": "sala_02:A"}.
 @export var exits: Dictionary = {}
+## Dígito do boneco de treino → elemento, ex.: {"1": "fogo"} (spec MUN-alvos).
+@export var targets: Dictionary = {}
 
 var data: RoomLayout
 var tiles: TileMapLayer
@@ -29,6 +31,7 @@ func _ready() -> void:
 	errors.append_array(data.errors)
 	_build_tiles()
 	_build_exits()
+	_build_targets()
 	for cell in data.spikes:
 		_add_area(Rect2(cell.x * TILE + 2, cell.y * TILE + TILE / 2.0, TILE - 4, TILE / 2.0), hazard_touched.emit)
 	for cell in data.safe_points:
@@ -86,6 +89,16 @@ func _build_exits() -> void:
 			continue
 		for cell: Vector2i in data.exits[letter]:
 			_add_area(Rect2(Vector2(cell * TILE), Vector2(TILE, TILE)), exit_touched.emit.bind(parts[0], parts[1]))
+
+
+func _build_targets() -> void:
+	for digit: String in data.targets:
+		if not targets.has(digit):
+			errors.append("boneco '%s' sem elemento (use targets = {\"%s\": \"fogo\"})" % [digit, digit])
+			continue
+		var target := TrainingTarget.make("%s_alvo_%s" % [room_id, digit], str(targets[digit]))
+		target.position = RoomLayout.cell_feet(data.targets[digit])
+		add_child(target)
 
 
 func _add_area(rect: Rect2, on_player_enter: Callable) -> void:

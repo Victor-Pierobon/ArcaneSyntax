@@ -1,17 +1,25 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://src/nodes/world/world.gd" id="1_world"]
 [ext_resource type="PackedScene" path="res://src/nodes/player/player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://src/nodes/ui/hud.gd" id="3_hud"]
 [ext_resource type="Script" path="res://src/nodes/grimoire/grimoire_ui.gd" id="4_grimoire"]
+[ext_resource type="Script" path="res://src/executor_client/python_spell_executor.gd" id="5_executor"]
+[ext_resource type="Script" path="res://src/nodes/ui/cast_log.gd" id="6_cast_log"]
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_world")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 
+[node name="Executor" type="Node" parent="."]
+script = ExtResource("5_executor")
+
 [node name="Hud" type="CanvasLayer" parent="."]
 script = ExtResource("3_hud")
+
+[node name="CastLog" type="CanvasLayer" parent="."]
+script = ExtResource("6_cast_log")
 
 [node name="GrimoireUI" type="CanvasLayer" parent="."]
 script = ExtResource("4_grimoire")

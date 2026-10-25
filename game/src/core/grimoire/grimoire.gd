@@ -6,13 +6,17 @@ signal spell_created(spell_name: String)
 signal spell_renamed(old_name: String, new_name: String)
 signal spell_deleted(spell_name: String)
 signal spell_code_changed(spell_name: String)
+signal slots_changed
 
-enum Problem { OK, EMPTY_NAME, NAME_TOO_LONG, DUPLICATE_NAME, NOT_FOUND }
+enum Problem { OK, EMPTY_NAME, NAME_TOO_LONG, DUPLICATE_NAME, NOT_FOUND, INVALID_SLOT }
 
 const MAX_NAME_LENGTH := 24
+const SLOT_COUNT := 5
 
 ## [{"name": String, "code": String}], na ordem de criação.
 var _spells: Array[Dictionary] = []
+## Nome do feitiço em cada slot ("" = vazio); índice 0 = slot 1 (spec GRI-slots).
+var _slots: Array[String] = ["", "", "", "", ""]
 
 
 func names() -> PackedStringArray:
@@ -51,6 +55,7 @@ func rename(old_name: String, new_name: String) -> Problem:
 		return problem
 	_spells[index]["name"] = clean
 	spell_renamed.emit(old_name, clean)
+	_replace_in_slots(old_name, clean)
 	return Problem.OK
 
 
@@ -60,6 +65,7 @@ func delete(spell_name: String) -> Problem:
 		return Problem.NOT_FOUND
 	_spells.remove_at(index)
 	spell_deleted.emit(spell_name)
+	_replace_in_slots(spell_name, "")
 	return Problem.OK
 
 
@@ -71,6 +77,35 @@ func set_code(spell_name: String, code: String) -> Problem:
 		_spells[index]["code"] = code
 		spell_code_changed.emit(spell_name)
 	return Problem.OK
+
+
+## Slots numerados de 1 a 5.
+func equip(slot_number: int, spell_name: String) -> Problem:
+	if slot_number < 1 or slot_number > SLOT_COUNT:
+		return Problem.INVALID_SLOT
+	if not has_spell(spell_name):
+		return Problem.NOT_FOUND
+	_slots[slot_number - 1] = spell_name
+	slots_changed.emit()
+	return Problem.OK
+
+
+func unequip(slot_number: int) -> Problem:
+	if slot_number < 1 or slot_number > SLOT_COUNT:
+		return Problem.INVALID_SLOT
+	_slots[slot_number - 1] = ""
+	slots_changed.emit()
+	return Problem.OK
+
+
+func slot(slot_number: int) -> String:
+	if slot_number < 1 or slot_number > SLOT_COUNT:
+		return ""
+	return _slots[slot_number - 1]
+
+
+func slots() -> Array[String]:
+	return _slots.duplicate()
 
 
 ## "Feitiço N" com o menor N livre (GRI-017).
@@ -85,7 +120,7 @@ func to_dict() -> Dictionary:
 	var spells := []
 	for spell in _spells:
 		spells.append({"nome": spell["name"], "codigo": spell["code"]})
-	return {"versao": GrimoireStore.FORMAT_VERSION, "feiticos": spells}
+	return {"versao": GrimoireStore.FORMAT_VERSION, "feiticos": spells, "slots": _slots.duplicate()}
 
 
 ## Monta a partir do formato do arquivo. Devolve null se qualquer coisa estiver errada.
@@ -100,7 +135,27 @@ static func from_dict(data: Variant) -> Grimoire:
 			return null
 		if grimoire.create(entry["nome"], entry["codigo"]) != Problem.OK:
 			return null
+	if data.has("slots"):
+		var slots_data: Variant = data["slots"]
+		if not slots_data is Array or slots_data.size() != SLOT_COUNT:
+			return null
+		for i in SLOT_COUNT:
+			if not slots_data[i] is String:
+				return null
+			# Nome que não existe mais vira slot vazio (GRI-032).
+			if grimoire.has_spell(slots_data[i]):
+				grimoire._slots[i] = slots_data[i]
 	return grimoire
+
+
+func _replace_in_slots(old_name: String, new_name: String) -> void:
+	var changed := false
+	for i in SLOT_COUNT:
+		if _slots[i] == old_name:
+			_slots[i] = new_name
+			changed = true
+	if changed:
+		slots_changed.emit()
 
 
 func _check_name(clean: String, ignore_index: int) -> Problem:

@@ -1,0 +1,41 @@
+{
+  "descricao": "Peça ainda não desbloqueada: nada roda e o erro aponta linha e coluna",
+  "requisicao": {
+    "versao": 1,
+    "id": 9,
+    "codigo": "meditar()\nlancar(raio, projetil)",
+    "mundo": {
+      "mago": {
+        "vida": 10,
+        "mana": 5,
+        "mana_max": 20
+      },
+      "alvo": null
+    },
+    "pecas": [
+      "lancar",
+      "meditar",
+      "fogo",
+      "projetil"
+    ]
+  },
+  "resposta": {
+    "versao": 1,
+    "id": 9,
+    "ok": false,
+    "acoes": [],
+    "saidas": [],
+    "mago": {
+      "vida": 10,
+      "mana": 5,
+      "mana_max": 20
+    },
+    "custo_mana": 0,
+    "erro": {
+      "tipo": "PecaBloqueada",
+      "mensagem": "você ainda não conhece raio",
+      "linha": 2,
+      "coluna": 8
+    }
+  }
+}

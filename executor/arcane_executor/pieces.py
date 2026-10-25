@@ -11,6 +11,9 @@ ARQUIVO_FEITICO = "<feitico>"
 
 ELEMENTOS = ("fogo", "gelo", "raio")
 FORMAS = ("projetil", "escudo")
+ACOES = ("lancar", "mover", "levitar", "meditar", "absorver_mana")
+# Peças sujeitas a desbloqueio (spec EXE-desbloqueio); os sentidos ficam sempre disponíveis.
+PECAS_DESBLOQUEAVEIS = ACOES + ELEMENTOS + FORMAS
 
 REGRAS_PADRAO = {
     "ganho_meditar": 5,
@@ -64,6 +67,10 @@ class FeiticoProibido(Exception):
     """Uso de algo que o sandbox não permite, detectado durante a execução."""
 
 
+class PecaBloqueada(Exception):
+    """Peça que o jogador ainda não desbloqueou, detectada durante a execução (EXE-083)."""
+
+
 def linha_do_jogador():
     """Linha do código do jogador mais próxima na pilha de chamadas."""
     frame = sys._getframe(1)
@@ -107,8 +114,9 @@ class Alvo:
 class Contexto:
     """Estado de uma execução: fila de ações, saídas, mago simulado e mana gasta."""
 
-    def __init__(self, mago, alvo, regras=None):
+    def __init__(self, mago, alvo, regras=None, pecas=None):
         regras = {**REGRAS_PADRAO, **(regras or {})}
+        self.bloqueadas = set() if pecas is None else set(PECAS_DESBLOQUEAVEIS) - set(pecas)
         self.vida = mago["vida"]
         self.gotas = para_gotas(mago["mana"])
         self.gotas_max = para_gotas(mago["mana_max"])
@@ -231,6 +239,9 @@ class Contexto:
             raise ValueError(f"lancar(): {forma!r} não é uma forma conhecida; use uma destas: {', '.join(FORMAS)}")
         if alvo is not None and not isinstance(alvo, Alvo):
             raise TypeError(f"lancar(): o alvo precisa ser 'alvo' ou None, recebeu {alvo!r}")
+        for peca in (elemento, forma):
+            if peca in self.bloqueadas:
+                raise PecaBloqueada(f"você ainda não conhece {peca}")
         self._cobrar_peca("lancar")
         self.registrar("lancar", elemento=elemento, forma=forma, alvo=alvo._id if alvo else None)
 
