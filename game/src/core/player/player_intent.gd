@@ -6,6 +6,8 @@ var move_x: float = 0.0
 var jump_pressed: bool = false
 var jump_held: bool = false
 var dodge_pressed: bool = false
+## Velocidade vertical fixa, sem gravidade (voo de levitar, MUN-015); NAN = sem voo.
+var fly_y: float = NAN
 
 
 static func make(p_move_x: float = 0.0, p_jump_pressed: bool = false, p_jump_held: bool = false) -> PlayerIntent:

@@ -1,6 +1,6 @@
 # Arquitetura
 
-Estado em 2026-10-25, fim da Sprint 5. Atualizar ao fim de cada sprint que mudar a estrutura.
+Estado em 2026-10-25, fim da Sprint 6. Atualizar ao fim de cada sprint que mudar a estrutura.
 
 ## Visão geral
 
@@ -58,7 +58,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - Ações de input: `move_left` (A, ←), `move_right` (D, →), `jump` (Espaço, W, ↑).
 - Textos: `content/text/textos.csv` (coluna `pt_BR`) importado como tradução; nunca escrever texto visível direto no código, usar chaves (`PROTOTIPO_DICA`).
 - Plugin GdUnit4 habilitado.
-- Ações de input: também `dodge` (Shift, K), `grimoire` (Tab) e `slot_1` … `slot_5` (teclas 1–5).
+- Ações de input: também `dodge` (Shift, K), `grimoire` (Tab), `slot_1` … `slot_5` (teclas 1–5) e `attack` (J, cajado).
 - Cor de fundo padrão escura (`default_clear_color`).
 - Cena principal: `res://src/nodes/world/world.tscn`.
 
@@ -94,6 +94,16 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `TrainingTarget` (`src/nodes/world/training_target.gd`): boneco com `target_id` e `element`, no grupo `alvos`. Layout: dígitos `1`–`9`; `Room.targets = {"1": "fogo"}`. `World.current_target()`: o mais perto num raio de 12 tiles, distância em tiles.
 - `CastLog` (`src/nodes/ui/cast_log.gd`): últimas 6 linhas no canto superior direito. `Hud.bind_slots(grimoire)`: barra com os 5 slots.
 - `MagoState.ALL_PIECES` (constante `Array[String]`) e `unlocked_pieces` (hoje tudo desbloqueado).
+
+### Ações no mundo (specs MAG-acoes, MAG-formas, MAG-elementos)
+
+- `ActionPlayer` (`src/nodes/magic/action_player.gd`): `play(acoes)` enfileira e toca em ordem; `is_playing()`, sinal `finished`; chama `port.act_<tipo>(acao)`. No jogo o `port` é o `WorldActions`; nos testes, `FakeWorldPort` (`tests/support/`).
+- `WorldActions` (`src/nodes/magic/world_actions.gd`): `act_lancar` (projétil ou escudo, espera 0,15 s), `act_mover` e `act_levitar` (controlam o mago pela `intent_source` e devolvem o controle; param ao chegar, ao ficar 0,3 s sem avançar ou em 3 s), `act_meditar` (0,5 s parado), `act_absorver_mana` (0,08 s), `staff_attack()` (cajado, recarga 0,35 s), `show_visions(textos)`, `on_attack_blocked()`. Esperas em tempo de jogo, congelam com o grimório aberto.
+- `Projectile` (Area2D, grupo `projeteis`): 220 px/s, alcance 12 tiles, mira o `center()` do alvo pelo id ou vai reto; some em parede ou ao acertar. `Shield` (filho `Shield` do `Player`): 2 s ou até bloquear um ataque; liga `Health.shielded`.
+- Camada de colisão **4** = hurtboxes (bonecos; no futuro, inimigos). Projétil detecta 1 (mundo) + 4; cajado detecta 4.
+- `ElementTable` (`src/core/magic/element_table.gd`): `effect(ataque, alvo)` → `NORMAL`/`WEAK`/`RESIST`; `multiplier()`. `TrainingTarget.hit(elemento)` guarda `last_hit_element`/`last_effect` e mostra o texto.
+- `World.cast` agora também toca as ações (inclusive as anteriores a um erro) e as visões; `World.find_target(id)`.
+- Motor: `PlayerIntent.fly_y` (NAN = sem voo) desliga a gravidade (MUN-015).
 
 - Salas do jogo: `content/rooms/sala_01..03.tscn` (40–60 × 23 tiles). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
 
@@ -186,3 +196,6 @@ Convenções:
 | `PackedStringArray([...])` não é expressão constante em GDScript | Usar `const X: Array[String] = [...]` e converter onde precisar |
 | Guardar uma corrotina numa variável para esperar depois não funciona | Chamar sem `await` e esperar um sinal (ex.: `await world.spell_cast`) |
 | Heredoc no Bash com scripts grandes falha às vezes ("unexpected EOF") | Escrever o script num arquivo (scratchpad) e rodar com `python arquivo.py` |
+| Substituição de texto pega a primeira ocorrência, que pode estar em outro lugar (ex.: dentro de um setter) | Usar um trecho maior e único; conferir com `--check-only` se a classe não compilar |
+| `godot --check-only -s res://arquivo.gd` | Mostra o erro de compilação exato de um script |
+| `await get_tree().physics_frame` continua chegando com o jogo pausado | Para esperar em tempo de jogo: `create_timer(t, false, true)` ou pular quadros com `get_tree().paused` |

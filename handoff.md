@@ -1,7 +1,7 @@
 # Handoff — ArcaneSyntax
 
 > Contexto para começar uma conversa nova sem reler toda a documentação.
-> **Atualizado em:** 2026-10-25, fim da Sprint 5.
+> **Atualizado em:** 2026-10-25, fim da Sprint 6.
 > **Atualizar** ao fim de cada sprint (ou quando algo aqui deixar de ser verdade).
 
 ## 1. O projeto em 30 segundos
@@ -14,9 +14,9 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 
 | | |
 | --- | --- |
-| Sprint atual | **Sprint 5 concluída** (slots, conjurar com teclas 1–5, Testar, erros com linha marcada, custo estimado, autocompletar, peças bloqueadas, bonecos de treino); a próxima é a **Sprint 6** (ações acontecem no mundo: projétil, escudo, mover, levitar, elementos, cajado) |
-| Commits | Sprints 0 a 4 commitadas (último: `c0a0892`). **A Sprint 5 ainda não**; o Victor revisa e commita |
-| Testes | 114 pytest + 132 GdUnit4, todos verdes localmente |
+| Sprint atual | **Sprint 6 concluída** (as ações acontecem no mundo: projétil, escudo, mover, levitar, meditar, cajado, fraquezas elementais, visões); a próxima é a **Sprint 7** (mana viva: meditar/absorver no mundo, slot passivo, VFX e sons provisórios, playtest do núcleo) |
+| Commits | Sprints 0 a 5 commitadas (último: `11a544f`). **A Sprint 6 ainda não**; o Victor revisa e commita |
+| Testes | 114 pytest + 157 GdUnit4, todos verdes localmente |
 | CI | Configurado, **ainda não confirmado verde no GitHub** |
 | Pendências do Victor | Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); jogar e preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
 
@@ -59,10 +59,11 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 - **Movimento**: `Player` (CharacterBody2D) chama `PlayerMotor.step(velocity, intent, on_floor, delta)`; a intenção vem de `Player.intent_source` (teclado por padrão; testes injetam). Pulo de 3 tiles, coyote/buffer 0,1 s, esquiva (Shift) de 3 tiles com invulnerabilidade a ataques.
 - **Mundo**: cena principal `World` carrega salas de `content/rooms/` (layout em texto: `#` pedra, `=` plataforma, `^` espinhos, `*` ponto seguro, `A–Z` entradas, `a–z` saídas; `exits = {"b": "sala_02:A"}`). `MagoState` (vida 5, mana 0/10) é a mana **real**; `to_spell_mago()` alimenta o executor. Espinho: −1 e volta ao ponto seguro; morte: vida cheia na entrada da sala. `Hud` mostra vida e mana.
 - **Conjurar (Sprint 5)**: teclas 1–5 → `World.cast(n)` envia código + `MagoState.to_spell_mago()` + alvo (boneco mais perto em 12 tiles) + `unlocked_pieces`; aplica a **variação** de mana; resultado no `CastLog` (as ações ainda não acontecem no mundo). Grimório: botões 1–5 equipam, **Testar** roda sem gastar mana e marca a linha do erro, custo estimado com mana 1000 e alvo de fogo, autocompletar. Executor recusa peças fora de `pecas` (`PecaBloqueada`). Testes usam `FakeSpellExecutor`.
+- **Ações no mundo (Sprint 6)**: `World.cast` → `ActionPlayer.play(result.actions)` (sempre, inclusive com erro) → `WorldActions.act_<tipo>`. Projétil (220 px/s, mira o alvo pelo id), escudo (2 s, bloqueia um ataque), `mover`/`levitar`/`meditar` controlam o mago e devolvem o controle, cajado (J, sem mana). `ElementTable`: fogo > planta, gelo > fogo, raio > gelo; cada um resiste a si mesmo. Bonecos mostram `Fraco!/Resistiu/Acertou`. Tudo congela com o grimório aberto.
 - **Grimório**: Tab abre (pausa o mundo), Esc fecha. `Grimoire` (modelo; nomes até 24, únicos sem diferenciar maiúsculas; sinais de renomear/apagar para os slots), `GrimoireStore` (`user://grimorio.json`, gravação atômica, `.bak` se o arquivo estiver ilegível), `GrimoireUI` (lista + `CodeEdit` com realce de Python e das peças do jogo). Ainda não executa feitiços.
 - **Contrato**: `tests/contract/*.json` é verificado pelas duas suítes.
 
-Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `CastLog`, `TrainingTarget`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellReport`, `CompletionProvider`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
+Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `CastLog`, `TrainingTarget`, `ActionPlayer`, `WorldActions`, `Projectile`, `Shield`, `ElementTable`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellReport`, `CompletionProvider`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
 
 ## 6. Comandos
 
@@ -101,6 +102,8 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 - **Testes e jogo compartilham `user://`**: todo teste que cria `World` ou mexe no grimório usa `user://tests/…` (`world.grimoire_path`) e apaga no `after_test`. Teste que pausa a árvore despausa no `after_test`.
 - Captura de tela por script (`godot --path game -s script.gd`) já pegou bugs visuais que os testes não pegam (Sprints 4 e 5); vale repetir ao mexer em interface.
 - `PackedStringArray([...])` não é constante em GDScript; corrotina não pode ser guardada para esperar depois (espere um sinal).
+- `physics_frame` da árvore chega mesmo pausado: para esperar em tempo de jogo use `create_timer(t, false, true)`.
+- O teste de mutação já pegou testes fracos em duas sprints seguidas (5 e 6); manter o hábito ao fim de cada sprint.
 - O `python` do PATH no Windows é o alias da Microsoft Store; usar `runtime/python`.
 - Python local do Victor é 3.15; o runtime e o CI usam 3.14. Rodar o pytest também com o 3.14 quando mexer em mensagens de erro ou custo.
 - **Para o assistente:** comandos Bash com heredoc contendo Python com barras invertidas ou caminhos do Windows já falharam duas vezes; prefira as ferramentas Write/Edit para criar e alterar arquivos.
@@ -109,7 +112,7 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 
 | Decisão | Onde está a proposta |
 | --- | --- |
-| Ações anteriores a um erro acontecem no mundo? | Sprint 6 |
+| ~~Ações anteriores a um erro acontecem no mundo?~~ | **Decidido pelo Victor (2026-10-25): sim**, as ações parciais acontecem |
 | Build de fumaça completo (exportar e conjurar no `.exe`) | Passos em `docs/sprints/sprint-02-executor-custo-sandbox.md`; depende dos templates de exportação |
 | ~~Lista de peças desbloqueadas entra no protocolo?~~ | **Decidido (2026-10-25):** sim, o executor recusa peças bloqueadas (opção recomendada; o Victor não se opôs) |
 | Peças novas para puzzles (runas, símbolo da porta, blocos) e combate (`inimigos`, `alvo.escudo`) | Sprints 9 e 10 |
@@ -117,4 +120,4 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 
 ## 9. Próximo passo
 
-Começar a **Sprint 6** (`docs/sprints/sprint-06-magia-acoes.md`): `ActionPlayer` que toca a fila de ações no mundo (projétil e escudo nos três elementos, `mover` e `levitar` via `Player.intent_source` ou tween, cajado sem custo). Antes, decidir com o Victor se as ações anteriores a um erro acontecem no mundo. Os alvos já existem (`TrainingTarget`, ids no formato `<sala>_alvo_<n>`). Perguntar se ele testou a Sprint 5 seguindo `docs/feiticos-exemplo.md`.
+Começar a **Sprint 7** (`docs/sprints/sprint-07-magia-mana.md`): slot passivo executado periodicamente (sem sobrepor execuções, parando quando a mana não cobre), `meditar` e `absorver_mana` com efeito melhor no mundo, VFX e sons provisórios, e o **playtest do núcleo** com alguém de fora (fecha o marco M2). A mana já é aplicada pela variação (feito na Sprint 5). Perguntar ao Victor se ele testou a Sprint 6 e preencheu os checklists de sensação das Sprints 3 e 6.

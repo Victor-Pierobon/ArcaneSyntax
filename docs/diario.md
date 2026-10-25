@@ -36,3 +36,8 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 
 - Slots e conjuração por tecla com o Python de verdade, registro de conjuração, Testar com linha do erro marcada, custo estimado, autocompletar, peças bloqueadas no executor, bonecos de treino como alvo. Captura de tela achou a linha do custo cortada (teste de regressão criado). 114 pytest e 132 GdUnit4 verdes. Nova regra: todo bug vira teste de regressão.
 - Próximo: Sprint 6 (as ações acontecem no mundo).
+
+## 2026-10-25 (Sprint 6)
+
+- As ações acontecem no mundo: projétil que mira o alvo, escudo, mover, levitar (voo no motor), meditar, cajado, fraquezas elementais com efeito nos bonecos, visões sobre o mago; tudo congela com o grimório aberto. Ações parciais acontecem (decisão do Victor). Mutação achou dois testes fracos, reforçados. 157 GdUnit4 e 114 pytest verdes.
+- Próximo: Sprint 7 (mana viva e slot passivo; fecha o M2 com playtest).

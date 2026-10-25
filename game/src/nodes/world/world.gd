@@ -37,6 +37,8 @@ var _changing_room := false
 @onready var hud: Hud = $Hud
 @onready var grimoire_ui: GrimoireUI = $GrimoireUI
 @onready var cast_log: CastLog = $CastLog
+@onready var action_player: ActionPlayer = $ActionPlayer
+@onready var world_actions: WorldActions = $WorldActions
 
 
 func _ready() -> void:
@@ -48,6 +50,9 @@ func _ready() -> void:
 	if executor == null:
 		executor = $Executor
 	grimoire_ui.set_spell_runner(executor, spell_context)
+	world_actions.world = self
+	action_player.port = world_actions
+	state.health.attack_blocked.connect(world_actions.on_attack_blocked)
 	grimoire_ui.load_problem = grimoire_store.last_problem
 	if not grimoire_store.last_problem.is_empty():
 		push_warning("%s; cópia guardada em %s" % [grimoire_store.last_problem, grimoire_store.backup_path()])
@@ -61,6 +66,10 @@ func _physics_process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"attack"):
+		world_actions.staff_attack()
+		get_viewport().set_input_as_handled()
+		return
 	for slot_number in range(1, Grimoire.SLOT_COUNT + 1):
 		if event.is_action_pressed(StringName("slot_%d" % slot_number)):
 			cast(slot_number)
@@ -84,12 +93,29 @@ func cast(slot_number: int) -> void:
 		state.set_mana(state.mana + float(result.mago["mana"]) - float(request.mago["mana"]))
 	cast_log.add_lines(SpellReport.cast_lines(slot_number, spell_name, result))
 	grimoire_ui.remember_result(spell_name, result)
+	var visions := PackedStringArray()
+	for output in result.outputs:
+		visions.append(output["texto"])
+	world_actions.show_visions(visions)
+	# Mesmo com erro, o que rodou antes acontece no mundo (decisão do Victor, MAG-acoes regra 5).
+	action_player.play(result.actions)
 	spell_cast.emit(slot_number, result)
 
 
 ## Estado do mundo que vai para o executor: mago, alvo e peças desbloqueadas.
 func spell_context() -> Dictionary:
 	return {"mago": state.to_spell_mago(), "target": current_target(), "pieces": state.unlocked_pieces}
+
+
+## O boneco da sala atual com esse id, ou null.
+func find_target(target_id: String) -> TrainingTarget:
+	if current_room == null:
+		return null
+	for node in get_tree().get_nodes_in_group(TrainingTarget.GROUP):
+		var target := node as TrainingTarget
+		if target and target.target_id == target_id and current_room.is_ancestor_of(target):
+			return target
+	return null
 
 
 ## O boneco (ou, no futuro, inimigo) mais perto do mago no alcance; null se nenhum (spec MUN-alvos).

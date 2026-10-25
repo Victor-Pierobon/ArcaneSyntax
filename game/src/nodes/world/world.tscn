@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://src/nodes/world/world.gd" id="1_world"]
 [ext_resource type="PackedScene" path="res://src/nodes/player/player.tscn" id="2_player"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://src/nodes/grimoire/grimoire_ui.gd" id="4_grimoire"]
 [ext_resource type="Script" path="res://src/executor_client/python_spell_executor.gd" id="5_executor"]
 [ext_resource type="Script" path="res://src/nodes/ui/cast_log.gd" id="6_cast_log"]
+[ext_resource type="Script" path="res://src/nodes/magic/action_player.gd" id="7_action_player"]
+[ext_resource type="Script" path="res://src/nodes/magic/world_actions.gd" id="8_world_actions"]
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_world")
@@ -14,6 +16,12 @@ script = ExtResource("1_world")
 
 [node name="Executor" type="Node" parent="."]
 script = ExtResource("5_executor")
+
+[node name="ActionPlayer" type="Node" parent="."]
+script = ExtResource("7_action_player")
+
+[node name="WorldActions" type="Node" parent="."]
+script = ExtResource("8_world_actions")
 
 [node name="Hud" type="CanvasLayer" parent="."]
 script = ExtResource("3_hud")

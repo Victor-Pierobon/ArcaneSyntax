@@ -1,10 +1,10 @@
 # Feitiços de exemplo
 
-Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 5).
+Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 6).
 
 ## Onde testar
 
-- **No jogo (Sprint 5):** **Tab** abre o grimório → **Novo** → cole o código → botões **1–5** equipam no slot → **Esc** fecha → teclas **1–5** conjuram. O resultado aparece no registro, no canto superior direito; a mana do HUD muda de verdade. **Testar** no grimório executa sem gastar mana e marca a linha do erro. As ações ainda não acontecem no mundo (isso chega na Sprint 6).
+- **No jogo (Sprint 5):** **Tab** abre o grimório → **Novo** → cole o código → botões **1–5** equipam no slot → **Esc** fecha → teclas **1–5** conjuram. O resultado aparece no registro, no canto superior direito; a mana do HUD muda de verdade. **Testar** no grimório executa sem gastar mana e marca a linha do erro. Desde a Sprint 6 as ações **acontecem no mundo**: o projétil voa até o alvo (o boneco mostra `Fraco!`, `Resistiu` ou `Acertou`), o escudo aparece em volta do mago, `mover` e `levitar` movem o mago e as visões (`print`) flutuam sobre ele. **J** dá um golpe de cajado, sem mana.
   - **Alvos na sala_01:** um boneco de **fogo** perto do início, um de **planta** um pouco à frente e um de **raio** depois dos espinhos. O alvo do feitiço é o boneco mais próximo num raio de 12 tiles; ande até um deles para mudar o alvo.
   - O jogo começa com **mana 0**: conjure primeiro um feitiço de recarga (1.1 ou 2.1).
 - **Console de feitiços** (mana e alvo escolhidos à mão): `godot --path game res://src/nodes/dev/spell_console.tscn`, ou abra `src/nodes/dev/spell_console.tscn` no editor e aperte **F6**. Cole o código, escolha a mana inicial e o alvo no topo, e aperte **Ctrl+Enter**. O console usa `mana_max` 10 e um alvo a 3 tiles de distância.

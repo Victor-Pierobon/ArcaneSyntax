@@ -1,5 +1,5 @@
 keys,pt_BR
-PROTOTIPO_DICA,"A/D andar · Espaço pular · Shift esquivar · Tab grimório · 1-5 conjurar"
+PROTOTIPO_DICA,"A/D andar · Espaço pular · Shift esquivar · J cajado · Tab grimório · 1-5 conjurar"
 HUD_VIDA,Vida %d/%d
 HUD_MANA,Mana %.1f/%.1f
 GRIMORIO_TITULO,Grimório
@@ -43,3 +43,6 @@ ERRO_OUTRO_SL,Algo deu errado no feitiço.
 ERRO_TEMPO,O feitiço demorou demais e se desfez.
 ERRO_LIMITE,O feitiço tentou fazer coisas demais de uma vez.
 ERRO_EXECUTOR,O grimório não respondeu. Tente de novo.
+ALVO_FRACO,Fraco!
+ALVO_RESISTIU,Resistiu
+ALVO_ACERTOU,Acertou

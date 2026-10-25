@@ -53,6 +53,11 @@ func step(velocity: Vector2, intent: PlayerIntent, on_floor: bool, delta: float)
 	var v := velocity
 	v.x = intent.move_x * walk_speed
 
+	if not is_nan(intent.fly_y):
+		v.y = intent.fly_y
+		_jump_cut_available = false
+		return v
+
 	if _buffer_left > 0.0 and _coyote_left > 0.0:
 		v.y = -jump_velocity()
 		_buffer_left = 0.0

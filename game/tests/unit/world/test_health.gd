@@ -48,6 +48,20 @@ func test_MUN_023_esquiva_protege_de_ataque_mas_nao_de_espinho() -> void:
 	assert_int(health.current).is_equal(4)
 
 
+func test_MAG_013_escudo_bloqueia_um_ataque_mas_nao_espinho() -> void:
+	var blocked := [0]
+	health.attack_blocked.connect(func() -> void: blocked[0] += 1)
+	health.shielded = true
+	assert_bool(health.damage(1, Health.Source.HAZARD)).is_true()
+	health.tick(2.0)
+	assert_bool(health.shielded).is_true()
+	assert_bool(health.damage(1)).is_false()
+	assert_bool(health.shielded).is_false()
+	assert_int(blocked[0]).is_equal(1)
+	assert_int(health.current).is_equal(4)
+	assert_bool(health.damage(1)).is_true()
+
+
 func test_sinal_changed_avisa_vida_atual_e_maxima() -> void:
 	var seen := []
 	health.changed.connect(func(current: int, maximum: int) -> void: seen.append([current, maximum]))

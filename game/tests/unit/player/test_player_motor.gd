@@ -138,6 +138,17 @@ func test_MUN_012_uma_esquiva_por_salto() -> void:
 	assert_float(_dodge(false).x).is_equal(280.0)
 
 
+func test_MUN_015_voo_controlado() -> void:
+	var up := PlayerIntent.make()
+	up.fly_y = -96.0
+	assert_float(motor.step(Vector2(0, 50), up, false, DT).y).is_equal(-96.0)
+	var hover := PlayerIntent.make()
+	hover.fly_y = 0.0
+	assert_float(motor.step(Vector2(0, -96), hover, false, DT).y).is_equal(0.0)
+	var normal := motor.step(Vector2(0, 0), PlayerIntent.make(), false, DT)
+	assert_float(normal.y).is_equal_approx(980.0 * DT, 0.001)
+
+
 func test_MUN_013_invulneravel_so_durante_a_esquiva() -> void:
 	assert_bool(motor.is_invulnerable()).is_false()
 	_dodge()

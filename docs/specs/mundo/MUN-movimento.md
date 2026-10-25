@@ -22,6 +22,7 @@ Aceleração gradual e animações (decidir jogando). Movimento causado por feit
 6. **Jump buffer** 0,1 s: o pulo apertado pouco antes de tocar o chão acontece ao tocar.
 7. **Esquiva** (tecla Shift): arrancada horizontal a 280 px/s por 0,16 s (cerca de 3 tiles) na direção para onde o mago olha, sem gravidade. Recarga de 0,35 s depois de terminar. No ar, uma esquiva por salto (recarrega ao tocar o chão). Durante a esquiva o mago fica **invulnerável a ataques** (não a espinhos; ver MUN-vida).
 8. O mago olha para a última direção horizontal pedida (começa olhando para a direita).
+9. **Voo controlado** (Sprint 6, usado por `levitar`): a intenção pode trazer uma velocidade vertical fixa (`fly_y`). Com ela, a gravidade não age e a velocidade vertical é exatamente `fly_y` (negativo sobe, 0 paira).
 
 ## Critérios de aceite
 
@@ -107,6 +108,11 @@ Aceleração gradual e animações (decidir jogando). Movimento causado por feit
 - **Dado** o mago parado no chão
 - **Quando** esquiva
 - **Então** percorre 3 tiles (48 px) com tolerância de 5 px
+
+### MUN-015 — Voo controlado
+
+- **Dado** o mago no ar com `fly_y = -96`
+- **Então** a velocidade vertical é −96, sem gravidade; com `fly_y = 0`, ele paira; sem `fly_y`, a gravidade volta
 
 ## Perguntas em aberto
 

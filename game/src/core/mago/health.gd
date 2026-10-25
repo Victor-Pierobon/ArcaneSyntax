@@ -4,6 +4,8 @@ extends RefCounted
 
 signal changed(current: int, maximum: int)
 signal died
+## Um escudo bloqueou um ataque e se desfez (MAG-013).
+signal attack_blocked
 
 enum Source { ATTACK, HAZARD }
 
@@ -13,6 +15,8 @@ var current: int
 var invulnerable_time: float = 1.0
 ## Ligado enquanto o mago esquiva: protege de ataques, não de espinhos (MUN-023).
 var dodging: bool = false
+## Escudo ativo: bloqueia o próximo ataque (não espinhos) e se desfaz (MAG-013).
+var shielded: bool = false
 
 var _invulnerable_left := 0.0
 
@@ -27,6 +31,10 @@ func damage(amount: int, source: Source = Source.ATTACK) -> bool:
 	if is_dead() or _invulnerable_left > 0.0:
 		return false
 	if dodging and source == Source.ATTACK:
+		return false
+	if shielded and source == Source.ATTACK:
+		shielded = false
+		attack_blocked.emit()
 		return false
 	current = maxi(current - amount, 0)
 	_invulnerable_left = invulnerable_time
