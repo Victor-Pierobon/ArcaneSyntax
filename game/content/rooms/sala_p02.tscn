@@ -15,4 +15,4 @@ a.A.9.1...2...3.....7...|..B.b
 ##############################"
 exits = {"a": "sala_03:B", "b": "sala_p03:A"}
 targets = {"9": "serpente:ensino_variaveis", "1": "runa:?", "2": "runa:?", "3": "runa:?", "7": "cadeado:soma"}
-puzzle = {"id": "p02_runas", "condicoes": [{"tipo": "cadeados_abertos"}]}
+puzzle = {"id": "p02_runas", "condicoes": [{"tipo": "cadeados_abertos"}], "licoes": ["ensino_variaveis"]}

@@ -1,5 +1,6 @@
 extends GdUnitTestSuite
 ## Spec: docs/specs/save/SAV-progresso.md (regras 1, 2 e 5, SAV-006): a cena principal e o perfil.
+## O menu está em tests/scene/ui/test_menus.gd (UI-menus).
 
 const MAIN := "res://src/nodes/main/main.tscn"
 const ROOT := "user://tests/perfis"
@@ -31,6 +32,8 @@ func _main() -> Main:
 	main.profile_root = ROOT
 	main.legacy_grimoire = LEGACY
 	add_child(main)
+	# Desde a Sprint 14 a cena abre no menu (UI-menus); Continuar sobe o mundo.
+	main.continue_game()
 	main.world.player.intent_source = func() -> PlayerIntent: return PlayerIntent.make()
 	for i in 3:
 		await get_tree().physics_frame

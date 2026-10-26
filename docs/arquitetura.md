@@ -35,7 +35,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 | `docs/specs/<area>/` | Specs com critérios de aceite (IDs `AREA-NNN`) |
 | `docs/adr/` | Decisões de arquitetura |
 | `game/` | Projeto Godot (`res://` aponta para cá) |
-| `game/src/core/` | Regras puras, sem Node |
+| `game/src/core/` | Regras puras, sem Node (`AreaMap.load_dir` é a exceção: instancia as cenas das salas só para ler os campos) |
 | `game/src/nodes/` | Cenas e scripts de cena (`player/`, `world/`, `ui/`, `magic/`, `puzzles/`, `combat/`, `grimoire/`, `fx/`, `dev/`) |
 | `game/content/rooms/` | Salas do jogo (cenas `Room` com layout em texto) |
 | `game/assets/placeholder/` | Arte provisória (tileset de 3 tiles) |
@@ -72,9 +72,9 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 
 - `Health` (`src/core/mago/health.gd`): vida inteira, `damage(amount, source)` devolve se contou, `Source.ATTACK`/`HAZARD`, 1 s de invencibilidade pós-dano (`tick(delta)`), `dodging` protege só de `ATTACK`, sinais `changed(current, maximum)` e `died`.
 - `MagoState` (`src/core/mago/mago_state.gd`): `health` (5), `mana` (0) e `mana_max` (a do nível; 10 no nível 1) com resolução 0,1; `xp`, `level`, `gain_xp(n)` (sobe níveis, aumenta e enche a mana); sinais `mana_changed`, `xp_changed`, `leveled_up`; `to_spell_mago()` gera o `mago` do protocolo. **A mana real mora aqui**; o executor só simula.
-- `RoomLayout` (`src/core/world/room_layout.gd`): lê o layout em texto (`#` pedra, `=` plataforma, `^` espinhos, `*` ponto seguro, `A–Z` entradas, `a–z` saídas); `cell_feet(cell)`, `size_px()`, `errors`.
+- `RoomLayout` (`src/core/world/room_layout.gd`): lê o layout em texto (`#` pedra, `=` plataforma, `^` espinhos, `*` ponto seguro, `A–Z` entradas, `a–z` saídas, `|` porta de runas, `%` porta de atalho); `cell_feet(cell)`, `size_px()`, `errors`.
 - `Room` (`src/nodes/world/room.gd`): cena com `room_id`, `layout` e `exits` (`{"b": "sala_02:A"}`). No `_ready` monta um `TileMapLayer` com `assets/placeholder/tiles.tres` e cria `Area2D` para saídas, espinhos e pontos seguros, que **só ligam depois do primeiro quadro de física**. Sinais: `exit_touched`, `hazard_touched`, `safe_point_touched`.
-- `World` (`src/nodes/world/world.gd` + `world.tscn`; desde a Sprint 13 quem o sobe é a cena principal `Main`): tem `Player` e `Hud`; `go_to(sala, entrada)` troca a sala (sempre adiado para fora do callback de física), põe o mago na entrada, ajusta os limites da câmera e o ponto seguro. Espinho: 1 de dano (ignora a esquiva) e volta ao ponto seguro. Morte: vida cheia e volta à entrada da sala atual. `rooms_dir` configurável (testes usam `res://tests/fixtures/rooms/`); `authoring_errors` junta erros de autoria.
+- `World` (`src/nodes/world/world.gd` + `world.tscn`; desde a Sprint 13 quem o sobe é a cena principal `Main`, desde a Sprint 14 pelo menu inicial): tem `Player` e `Hud`; `go_to(sala, entrada)` troca a sala (sempre adiado para fora do callback de física), põe o mago na entrada, ajusta os limites da câmera e o ponto seguro. Espinho: 1 de dano (ignora a esquiva) e volta ao ponto seguro. Morte: vida cheia e volta à entrada da sala atual. `rooms_dir` configurável (testes usam `res://tests/fixtures/rooms/`); `authoring_errors` junta erros de autoria.
 - `Hud` (`src/nodes/ui/hud.gd`, CanvasLayer montado em código): `life_label`, `mana_label`, `mana_bar`, `level_label` (nível e XP), dica de controles; `bind(state)`.
 ### Grimório (specs GRI-feiticos, GRI-grimorio)
 
@@ -173,10 +173,24 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 
 ### Save (spec SAV-progresso)
 
-- `Main` (`src/nodes/main/main.gd` + `main.tscn`, **cena principal**): perfil `user://perfis/padrao/`, copia `user://grimorio.json` antigo se o perfil não tem grimório, sobe o `World` com `grimoire_path` e `save_path` do perfil. Exports `profile_root`, `profile`, `legacy_grimoire` (os testes trocam).
+- `Main` (`src/nodes/main/main.gd` + `main.tscn`, **cena principal**): perfil `user://perfis/padrao/`, copia `user://grimorio.json` antigo se o perfil não tem grimório e, pelo menu inicial (Sprint 14), sobe o `World` com `grimoire_path` e `save_path` do perfil. Exports `profile_root`, `profile`, `legacy_grimoire` (os testes trocam).
 - `ProgressStore` (`src/core/save/progress_store.gd`): `save(dados)` atômico com `versao`; `load_data()` devolve vazio sem arquivo, e com arquivo ilegível ou versão desconhecida também, preenchendo `last_problem` e copiando para `.bak`. Migrações de versão entram em `load_data`.
-- `World`: `save_path` vazio = sem save (todos os testes antigos). `_load_progress()` no `_ready`, antes da primeira sala; `apply_progress(dados)` aceita campo ruim (usa o padrão); `progress_snapshot()`; `save_progress()` em `go_to`, puzzle resolvido, chefe derrotado, subida de nível, fim de diálogo e `NOTIFICATION_WM_CLOSE_REQUEST`.
+- `World`: `save_path` vazio = sem save (todos os testes antigos). `_load_progress()` no `_ready`, antes da primeira sala; `apply_progress(dados)` aceita campo ruim (usa o padrão); `progress_snapshot()`; `save_progress()` em `go_to`, puzzle resolvido, chefe derrotado, subida de nível, fim de diálogo, baú, fonte, Voltar ao menu e `NOTIFICATION_WM_CLOSE_REQUEST`. Desde a Sprint 14 o save tem `segredos` e `atalhos`.
 - `MagoState.restore_progress(xp, mana)`: nível e mana máxima vêm da XP, sem `leveled_up`.
+
+### Mapa, segredos e fonte (specs MUN-mapa, MUN-segredos, MUN-vida regra 9)
+
+- 13 salas em `content/rooms/`; o caminho e os bloqueios estão em `docs/mapa-area.md`. Cada puzzle declara `licoes` (cenas da serpente que ensinam o que ele cobra).
+- `AreaMap` (`src/core/world/area_map.gd`): `load_dir`, `add_room`; `reach(sala, entrada, abertas)` faz um flood fill de células (pedra e porta fechada bloqueiam, sem gravidade: o máximo que o mago alcança voando) e devolve salas, células, entradas e portas encostadas; `walkthrough` abre cada porta quando pode (puzzle: serpentes das lições alcançadas; chefe: ao chegar; atalho: ao chegar na entrada do atalho) e devolve a ordem dos puzzles. `puzzles()`, `secret_ids()`, `lesson_ids()` alimentam o resumo do fim.
+- Porta de atalho (`%`): `Room.atalho_entrada`; `World.go_to` marca `opened_shortcuts[sala]` quando o mago entra por ela e chama `Room.open_shortcut()` sempre que a sala já tem o atalho aberto.
+- `Chest` (`src/nodes/world/chest.gd`): `segredo` em `targets`; a `Room` cria a área do baú e emite `secret_found("<sala>_<dígito>")` só na primeira vez; `World._on_secret_found` dá `xp.segredo` e salva. `Room.found_secrets` (passado antes do `_ready`) faz o baú nascer aberto.
+- `Fountain` (`src/nodes/world/fountain.gd`): `fonte` em `targets`; `World.talk()` sem serpente perto chama `drink()` (vida e mana cheias, salva).
+
+### Menus e opções (spec UI-menus)
+
+- `Main` abre no `TitleMenu`; `continue_game()` sobe o `World` com o save, `new_game()` pergunta se há save e apaga só o `save.json`; `return_to_menu()` salva e libera o mundo. Ela liga `PauseMenu` (Esc, `handle_cancel()`; só abre com o jogo correndo, e bloqueia o grimório), `OptionsMenu` e `EndScreen` (sinal `World.demo_finished` → `World.summary()`).
+- `MenuPanel` (`src/nodes/ui/menu_panel.gd`): base dos menus, `CanvasLayer` com `PROCESS_MODE_ALWAYS`, foco no primeiro botão. As opções ficam depois da pausa na árvore para receber o Esc primeiro.
+- `Settings` (`src/core/settings/settings.gd`): `TextSize` (Normal/Grande/Muito grande = +0/+2/+3), `volume` de 10 em 10, `<perfil>/opcoes.json` com gravação atômica. `FontScale.apply(nó, pontos)` soma pontos a todo `font_size` sobrescrito, guardando o original em metadado; `GrimoireUI.set_text_delta` e `DialogueBox.set_text_delta` (que sobe a caixa para `TOP_LARGE_TEXT` com texto maior).
 
 ### Referência (spec GRI-referencia)
 
@@ -281,3 +295,5 @@ Convenções:
 | `godot --check-only -s res://arquivo.gd` | Mostra o erro de compilação exato de um script |
 | `await get_tree().physics_frame` continua chegando com o jogo pausado | Para esperar em tempo de jogo: `create_timer(t, false, true)` ou pular quadros com `get_tree().paused` |
 | O grimório aberto faz uma estimativa de custo (requisição com mana 1000) mesmo com o jogo pausado | Em testes que contam requisições, filtrar as de estimativa (`GrimoireUI.ESTIMATE_MANA`) |
+| Porta baixa numa sala alta | Com `levitar` o mago voa por cima; toda porta vai do chão ao teto, e `test_area_map.gd` confere (Sprint 14) |
+| Menus em teste | Teclas não chegam em headless: apertar com `botão.pressed.emit()` e chamar `PauseMenu.handle_cancel()` no lugar do Esc |

@@ -112,6 +112,29 @@ func test_NAR_005_caixa_no_alto_sem_cobrir_o_hud() -> void:
 
 ## Conteúdo (Sprint 13): toda fala de lição e toda dica cabe na caixa sem passar da metade da tela.
 func test_NAR_005_toda_fala_cabe_na_caixa() -> void:
+	await _assert_every_line_fits()
+
+
+## UI-menus, regra 6: com o maior tamanho de texto, a caixa continua acima da metade da tela.
+func test_UI_016_toda_fala_cabe_com_texto_muito_grande() -> void:
+	box.set_text_delta(Settings.new().delta_for(Settings.TextSize.HUGE))
+	await _assert_every_line_fits()
+	box.set_text_delta(0)
+
+
+func test_UI_016_texto_da_caixa_cresce_e_volta() -> void:
+	var base := box.text_label.get_theme_font_size(&"font_size")
+	box.set_text_delta(2)
+	assert_int(box.text_label.get_theme_font_size(&"font_size")).is_equal(base + 2)
+	assert_int(box.speaker_label.get_theme_font_size(&"font_size")).is_equal(base + 2)
+	# Com texto maior, a caixa sobe e cobre o HUD enquanto está aberta (UI-menus, regra 6).
+	assert_float(box.panel_rect().position.y).is_equal(DialogueBox.TOP_LARGE_TEXT)
+	box.set_text_delta(0)
+	assert_int(box.text_label.get_theme_font_size(&"font_size")).is_equal(base)
+	assert_float(box.panel_rect().position.y).is_equal(DialogueBox.TOP)
+
+
+func _assert_every_line_fits() -> void:
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(DialogueBook.DEFAULT_PATH))
 	var scenes: Array[Dictionary] = []
 	for scene_id: String in data:

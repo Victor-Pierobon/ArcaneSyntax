@@ -66,8 +66,8 @@ Os quatro marcos abaixo foram inferidos das fases, porque o diagrama de marcos d
 | 11 | [Combate II: chefe e balanceamento](sprints/sprint-11-combate-chefe.md) | 6 | 12–19 | M3 | Concluída |
 | 12 | [Progressão e sistemas da serpente](sprints/sprint-12-progressao.md) | 7 | 12–18 | M3 | Concluída |
 | 13 | [Conteúdo da serpente e save](sprints/sprint-13-serpente-save.md) | 7, 8 | 14–21 | M4 · Alpha | Concluída |
-| 14 | [Montagem da área](sprints/sprint-14-montagem-area.md) | 8 | 14–21 | M4 | **Próxima** |
-| 15 | [Testes com iniciantes e build](sprints/sprint-15-testes-build.md) | 9 | 15–25 | M4 | Planejada |
+| 14 | [Montagem da área](sprints/sprint-14-montagem-area.md) | 8 | 14–21 | M4 | Concluída |
+| 15 | [Testes com iniciantes e build](sprints/sprint-15-testes-build.md) | 9 | 15–25 | M4 | **Próxima** |
 | | **Total** | | **~238–359** | | |
 
 O total sobe um pouco em relação ao plano (226–344 h) pela esteira de testes e pelas specs. Parte disso volta na Fase 9, com menos bugs para caçar no fim.

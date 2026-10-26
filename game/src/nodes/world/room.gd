@@ -11,6 +11,8 @@ signal puzzle_solved(puzzle_id: String)
 signal player_attacked(from: Vector2, amount: int)
 ## O chefe da sala foi derrotado (spec COM-chefe, regra 7).
 signal boss_defeated(room_id: String)
+## O mago abriu um baú (spec MUN-segredos).
+signal secret_found(secret_id: String)
 
 const TILESET := preload("res://assets/placeholder/tiles.tres")
 const ATLAS_STONE := Vector2i(0, 0)
@@ -25,10 +27,13 @@ const TILE := RoomLayout.TILE
 ## Dígito → o que ele é: elemento de boneco ({"1": "fogo"}, spec MUN-alvos), "cristal[:...]",
 ## "runa:<n>" ou "runa:?", "cadeado:soma", "gravura:<texto>" (spec PUZ-validacao) ou
 ## "inimigo:elemental[:<elemento>]", "inimigo:enxame[:<n>]", "inimigo:guardiao" (spec COM-dano) ou
-## "inimigo:chefe" (spec COM-chefe) ou "serpente:<cena>" (spec NAR-dialogo).
+## "inimigo:chefe" (spec COM-chefe) ou "serpente:<cena>" (spec NAR-dialogo) ou "segredo" (MUN-segredos) ou
+## "fonte" (MUN-vida).
 @export var targets: Dictionary = {}
 ## {"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]} ou vazio (spec PUZ-validacao).
 @export var puzzle: Dictionary = {}
+## Entrada pela qual o mago abre a porta de atalho (`%`) por trás, ex.: "C" (spec MUN-mapa, regra 5).
+@export var atalho_entrada: String = ""
 
 var data: RoomLayout
 var tiles: TileMapLayer
@@ -40,10 +45,13 @@ var bridge: Bridge
 var player: Node2D
 ## Chefe já derrotado: a sala nasce sem ele e com a porta aberta; o World passa antes de pôr a sala na árvore.
 var boss_beaten := false
+## Baús já abertos (id → true): nascem abertos; o World passa antes de pôr a sala na árvore.
+var found_secrets: Dictionary = {}
 
 var _areas: Array[Area2D] = []
 var _crystals: Dictionary = {}
 var _door: RuneDoor
+var _shortcut_door: RuneDoor
 var _solved := false
 ## Runas da esquerda para a direita (empate: de cima para baixo), como `ler_runa` as numera.
 var _runes: Array[Rune] = []
@@ -53,6 +61,8 @@ var _plates: Array[PressurePlate] = []
 var _engravings: Array[Label] = []
 var _enemies: Array[Enemy] = []
 var _serpents: Array[Serpent] = []
+var _chests: Array[Chest] = []
+var _fountains: Array[Fountain] = []
 
 
 func _ready() -> void:
@@ -134,6 +144,24 @@ func enemies() -> Array[Enemy]:
 
 func serpents() -> Array[Serpent]:
 	return _serpents
+
+
+func chests() -> Array[Chest]:
+	return _chests
+
+
+func fountains() -> Array[Fountain]:
+	return _fountains
+
+
+## A porta de atalho (`%`) está aberta; true se a sala não tem uma.
+func shortcut_open() -> bool:
+	return _shortcut_door == null or _shortcut_door.is_open
+
+
+func open_shortcut() -> void:
+	if _shortcut_door:
+		_shortcut_door.open()
 
 
 func runes() -> Array[Rune]:
@@ -263,6 +291,16 @@ func _build_targets() -> void:
 			_serpents.append(serpent)
 			add_child(serpent)
 			continue
+		if spec == "segredo":
+			_add_chest(digit, cell)
+			continue
+		if spec == "fonte":
+			var fountain := Fountain.new()
+			fountain.position = RoomLayout.cell_feet(cell)
+			fountain.player = player
+			_fountains.append(fountain)
+			add_child(fountain)
+			continue
 		if spec.begins_with("cadeado"):
 			var lock := RuneLock.make()
 			lock.position = RoomLayout.cell_feet(cell)
@@ -341,6 +379,19 @@ func _on_boss_defeated() -> void:
 	boss_defeated.emit(room_id)
 
 
+## Encostar no baú fechado abre e avisa o World uma vez (MUN-segredos, regras 1 e 2).
+func _add_chest(digit: String, cell: Vector2i) -> void:
+	var secret_id := "%s_%s" % [room_id, digit]
+	var chest := Chest.make(secret_id, found_secrets.has(secret_id))
+	chest.position = RoomLayout.cell_feet(cell)
+	_chests.append(chest)
+	add_child(chest)
+	_add_area(Rect2(Vector2(cell * TILE), Vector2(TILE, TILE)), func() -> void:
+		if chest.open():
+			secret_found.emit(secret_id)
+	)
+
+
 func _add_engraving(text: String, cell: Vector2i) -> void:
 	var label := Label.new()
 	label.text = text
@@ -368,6 +419,10 @@ func _build_puzzle() -> void:
 	if not data.doors.is_empty():
 		_door = RuneDoor.make(data.doors)
 		add_child(_door)
+	if not data.shortcut_doors.is_empty():
+		_shortcut_door = RuneDoor.make(data.shortcut_doors, RuneDoor.COLOR_SHORTCUT)
+		_shortcut_door.name = "ShortcutDoor"
+		add_child(_shortcut_door)
 	if not data.bridge_cells.is_empty():
 		bridge = Bridge.make(data.bridge_cells)
 		bridge.changed.connect(_check_puzzle)

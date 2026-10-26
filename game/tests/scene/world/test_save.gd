@@ -63,6 +63,8 @@ func test_SAV_001_ida_e_volta_preserva_tudo() -> void:
 	first.defeated_bosses = {"sala_c04": true}
 	first.seen_lessons = {"ensino_sequencia": true, "ensino_loops": true}
 	first.hints_used = {"p02_runas": 2}
+	first.found_secrets = {"sala_02_8": true}
+	first.opened_shortcuts = {"sala_01": true}
 	first.go_to("sala_p03", "A")
 	await _frames(2)
 	assert_bool(first.save_progress()).is_true()
@@ -80,6 +82,8 @@ func test_SAV_001_ida_e_volta_preserva_tudo() -> void:
 	assert_dict(second.defeated_bosses).is_equal({"sala_c04": true})
 	assert_dict(second.seen_lessons).is_equal({"ensino_sequencia": true, "ensino_loops": true})
 	assert_dict(second.hints_used).is_equal({"p02_runas": 2})
+	assert_dict(second.found_secrets).is_equal({"sala_02_8": true})
+	assert_dict(second.opened_shortcuts).is_equal({"sala_01": true})
 
 
 func test_SAV_002_grava_ao_entrar_na_sala_e_ao_subir_de_nivel() -> void:
@@ -137,6 +141,8 @@ func test_SAV_005_campos_ruins_usam_o_padrao() -> void:
 	assert_bool(world.is_puzzle_solved("p01_meditar")).is_true()
 	assert_dict(world.seen_lessons).is_equal({"ensino_sequencia": true})
 	assert_dict(world.hints_used).is_empty()
+	assert_dict(world.found_secrets).is_empty()
+	assert_dict(world.opened_shortcuts).is_empty()
 
 
 func test_SAV_005_entrada_que_nao_existe_usa_a_primeira() -> void:

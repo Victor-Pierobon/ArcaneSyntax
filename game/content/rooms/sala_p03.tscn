@@ -15,4 +15,4 @@ a.A.9...........5.......|..B.b
 ##############################"
 exits = {"a": "sala_p02:B", "b": "sala_p04:A"}
 targets = {"9": "serpente:ensino_condicionais", "5": "cristal:mutavel"}
-puzzle = {"id": "p03_simbolo", "condicoes": [{"tipo": "cristais_acesos"}]}
+puzzle = {"id": "p03_simbolo", "condicoes": [{"tipo": "cristais_acesos"}], "licoes": ["ensino_condicionais"]}

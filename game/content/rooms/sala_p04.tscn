@@ -16,4 +16,4 @@ a.A.9*......................|..B...b
 ####################################"
 exits = {"a": "sala_p03:B", "b": "sala_p05:A"}
 targets = {"9": "serpente:ensino_loops"}
-puzzle = {"id": "p04_ponte", "condicoes": [{"tipo": "ponte_completa"}], "estrelas": [7.5, 9.0]}
+puzzle = {"id": "p04_ponte", "condicoes": [{"tipo": "ponte_completa"}], "estrelas": [7.5, 9.0], "licoes": ["ensino_loops"]}

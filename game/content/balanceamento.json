@@ -67,7 +67,8 @@
     "guardiao": 15,
     "chefe": 50,
     "puzzle": 20,
-    "bonus_estrela": 5
+    "bonus_estrela": 5,
+    "segredo": 10
   },
   "niveis": {
     "xp": [0, 30, 70, 130, 210],

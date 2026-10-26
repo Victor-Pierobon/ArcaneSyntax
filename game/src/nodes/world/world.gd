@@ -6,6 +6,8 @@ extends Node2D
 signal room_changed(room_id: String)
 ## Emitido quando uma conjuração termina (spec GRI-slots).
 signal spell_cast(slot_number: int, result: SpellResult)
+## A conversa do fim da demonstração terminou (spec UI-menus, regra 7); a cena principal mostra o resumo.
+signal demo_finished
 
 ## Raio em que um boneco ou inimigo vira o "alvo" dos feitiços (spec MUN-alvos).
 const TARGET_RANGE_TILES := 12.0
@@ -14,6 +16,9 @@ const STEP_DELAY := 0.3
 const STEP_SPEEDS := [1.0, 2.0, 0.5]
 ## A fala que faz a lição contar como vista (spec NAR-serpente, regra 2).
 const LESSON_LINE := "licao"
+## A cena da serpente na `sala_fim` e a fala que encerra a demonstração (UI-menus, regra 7).
+const END_SCENE := "fim_demo"
+const END_LINE := "fim"
 
 @export var rooms_dir: String = "res://content/rooms/"
 @export var start_room: String = "sala_01"
@@ -32,6 +37,9 @@ var defeated_bosses: Dictionary = {}
 ## Lições da serpente já vistas (cena → true) e dicas usadas por puzzle (NAR-serpente, NAR-dicas).
 var seen_lessons: Dictionary = {}
 var hints_used: Dictionary = {}
+## Baús abertos (id → true, MUN-segredos) e salas com a porta de atalho aberta (MUN-mapa). Vão para o save.
+var found_secrets: Dictionary = {}
+var opened_shortcuts: Dictionary = {}
 var hints := HintBook.load_file(HintBook.DEFAULT_PATH)
 ## Mana gasta na sala atual pelos feitiços que agem, até o puzzle ser resolvido (PUZ-validacao, regra 14).
 var room_mana_spent := 0.0
@@ -125,6 +133,8 @@ func progress_snapshot() -> Dictionary:
 		"chefes": defeated_bosses.keys(),
 		"licoes": seen_lessons.keys(),
 		"dicas": hints_used,
+		"segredos": found_secrets.keys(),
+		"atalhos": opened_shortcuts.keys(),
 	}
 
 
@@ -162,6 +172,8 @@ func apply_progress(data: Dictionary) -> void:
 				solved_puzzles[puzzle_id] = {"estrelas": int(stars) if _is_number(stars) else 0}
 	defeated_bosses = _string_set(data.get("chefes"))
 	seen_lessons = _string_set(data.get("licoes"))
+	found_secrets = _string_set(data.get("segredos"))
+	opened_shortcuts = _string_set(data.get("atalhos"))
 	var used: Variant = data.get("dicas")
 	if used is Dictionary:
 		for puzzle_id: String in used:
@@ -237,9 +249,14 @@ func cast(slot_number: int) -> void:
 
 
 ## Tecla E: abre a cena da serpente ao alcance; cena com erro só é registrada (NAR-dialogo, regras 3 e 5).
+## Sem serpente perto, bebe da fonte ao alcance (MUN-vida, regra 9).
 func talk() -> void:
+	if dialogue_box.is_open():
+		return
 	var serpent := serpent_in_reach()
-	if serpent == null or dialogue_box.is_open():
+	if serpent == null:
+		if fountain_in_reach():
+			drink()
 		return
 	if not dialogues.can_play(serpent.scene_id):
 		_report(tr("DIALOGO_CENA_COM_ERRO") % serpent.scene_id)
@@ -267,8 +284,45 @@ func _on_dialogue_finished() -> void:
 		seen_lessons[_talk_lesson] = true
 	if not _talk_hint_puzzle.is_empty() and _talk_run.has_seen(HintBook.HINT_LINE):
 		hints_used[_talk_hint_puzzle] = mini(int(hints_used.get(_talk_hint_puzzle, 0)) + 1, HintBook.LEVELS)
+	var demo_over := _talk_lesson == END_SCENE and _talk_run.has_seen(END_LINE)
 	_talk_run = null
 	save_progress()
+	if demo_over:
+		demo_finished.emit()
+
+
+## A fonte enche vida e mana e salva (MUN-vida, regra 9).
+func drink() -> void:
+	state.health.restore_full()
+	state.set_mana(state.mana_max)
+	sfx.play("mana")
+	Fx.burst(player, Vector2(0, -15), Color("8fd8ff"), 14, true)
+	cast_log.add_lines(PackedStringArray([tr("FONTE_BEBEU")]))
+	save_progress()
+
+
+## A fonte da sala atual ao alcance do mago, ou null.
+func fountain_in_reach() -> Fountain:
+	if current_room == null:
+		return null
+	for fountain in current_room.fountains():
+		if is_instance_valid(fountain) and fountain.in_reach():
+			return fountain
+	return null
+
+
+## Resumo da tela de fim (UI-menus, regra 7); os totais vêm do mapa da área.
+func summary() -> Dictionary:
+	var area := AreaMap.load_dir(rooms_dir)
+	var stars := 0
+	for puzzle_id: String in solved_puzzles:
+		stars += puzzle_stars(puzzle_id)
+	return {
+		"nivel": state.level, "xp": state.xp,
+		"puzzles": solved_puzzles.size(), "puzzles_total": area.puzzles().size(), "estrelas": stars,
+		"licoes": seen_lessons.size(), "licoes_total": area.lesson_ids().size(),
+		"segredos": found_secrets.size(), "segredos_total": area.secret_ids().size(),
+	}
 
 
 ## A serpente da sala atual ao alcance do mago, ou null.
@@ -417,6 +471,15 @@ func _on_leveled_up(level: int) -> void:
 	save_progress()
 
 
+## Baú aberto: XP do segredo, uma vez por jogo (MUN-segredos, regras 1 e 2).
+func _on_secret_found(secret_id: String) -> void:
+	found_secrets[secret_id] = true
+	sfx.play("fraco")
+	var xp := Balance.integer("xp", "segredo")
+	_gain_xp(xp, tr("SEGREDO_ACHADO") % xp)
+	save_progress()
+
+
 func _on_boss_defeated(room_id: String) -> void:
 	defeated_bosses[room_id] = true
 	cast_log.add_lines(PackedStringArray([tr("CHEFE_DERROTADO")]))
@@ -490,6 +553,7 @@ func go_to(room_id: String, entry: String) -> void:
 	current_room.rng = rng
 	current_room.player = player
 	current_room.boss_beaten = defeated_bosses.has(room_id)
+	current_room.found_secrets = found_secrets
 	room_mana_spent = 0.0
 	add_child(current_room)
 	move_child(current_room, 0)
@@ -500,6 +564,7 @@ func go_to(room_id: String, entry: String) -> void:
 	current_room.puzzle_solved.connect(_on_puzzle_solved)
 	current_room.player_attacked.connect(_on_player_attacked)
 	current_room.boss_defeated.connect(_on_boss_defeated)
+	current_room.secret_found.connect(_on_secret_found)
 	if current_room.has_puzzle() and solved_puzzles.has(current_room.puzzle_id()):
 		current_room.apply_solved()
 	_apply_step_mode()
@@ -513,6 +578,11 @@ func go_to(room_id: String, entry: String) -> void:
 		_report("entrada '%s' não existe na sala %s; usando a primeira" % [entry, room_id])
 		entry = current_room.first_entry()
 	current_entry = entry
+	# Chegar pela entrada do atalho abre a porta por trás, para sempre (MUN-mapa, regra 5).
+	if not current_room.atalho_entrada.is_empty() and entry == current_room.atalho_entrada:
+		opened_shortcuts[room_id] = true
+	if opened_shortcuts.has(room_id):
+		current_room.open_shortcut()
 	_place_player(current_room.entry_feet(entry))
 	safe_point = player.global_position
 	_apply_camera_limits(current_room.bounds())

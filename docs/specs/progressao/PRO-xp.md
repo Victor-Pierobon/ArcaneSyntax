@@ -14,7 +14,7 @@ Gravar a XP em disco (save, Sprint 13). XP por descobrir salas ou por conceitos 
 
 ## Regras
 
-1. Os valores ficam no balanceamento, seção `xp`: `elemental` **10**, `enxame` **2** (por bicho), `guardiao` **15**, `chefe` **50**, `puzzle` **20** e `bonus_estrela` **5**.
+1. Os valores ficam no balanceamento, seção `xp`: `elemental` **10**, `enxame` **2** (por bicho), `guardiao` **15**, `chefe` **50**, `puzzle` **20**, `bonus_estrela` **5** e, desde a Sprint 14, `segredo` **10** (baú, uma vez por jogo; MUN-segredos).
 2. **Inimigo derrotado** dá a XP do seu tipo, seja qual for o golpe (feitiço ou cajado). Os inimigos reaparecem (COM-dano, regra 5) e dão XP de novo; o teto de nível (PRO-niveis) limita o ganho. O chefe não reaparece, então dá XP uma vez.
 3. **Puzzle resolvido** dá `puzzle` só na primeira vez (resolvido, ele continua resolvido). Nos puzzles com estrelas, a economia dá **`bonus_estrela` por estrela acima de uma**: 3 estrelas dão +10, 2 dão +5 e 1 não dá bônus.
 4. A XP é inteira e só cresce. Ela é do mago (`MagoState`), não da sala.

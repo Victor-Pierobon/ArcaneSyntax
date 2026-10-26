@@ -1,5 +1,5 @@
 keys,pt_BR
-PROTOTIPO_DICA,"A/D andar · Espaço pular · Shift esquivar · J cajado · E falar · Tab grimório · 1-5 conjurar"
+PROTOTIPO_DICA,"A/D andar · Espaço pular · Shift esquivar · J cajado · E falar · Tab grimório · 1-5 conjurar · Esc pausa"
 HUD_VIDA,Vida %d/%d
 HUD_MANA,Mana %.1f/%.1f
 GRIMORIO_TITULO,Grimório
@@ -162,3 +162,38 @@ REF_FUNCOES_TEXTO,"[b]Uma receita com nome[/b]\n\n[code]def subir(altura):\n    
 SAVE_PROBLEMA,"Não deu para carregar o progresso (%s). Começando do zero; cópia guardada em %s"
 SAVE_ILEGIVEL,o arquivo está ilegível
 SAVE_VERSAO_NOVA,o save é da versão %d, mais nova que este jogo
+FONTE_BEBER,E: beber
+FONTE_BEBEU,A fonte renova sua vida e sua mana.
+SEGREDO_ACHADO,Segredo encontrado! +%d XP
+MENU_TITULO,ArcaneSyntax
+MENU_SUBTITULO,Ato I: a Masmorra (demonstração)
+MENU_CONTINUAR,Continuar
+MENU_NOVO_JOGO,Novo jogo
+MENU_OPCOES,Opções
+MENU_SAIR,Sair
+MENU_CONFIRMA_NOVO,"O progresso salvo será apagado. O grimório fica.\nComeçar de novo?"
+MENU_SIM,"Sim, começar de novo"
+MENU_NAO,Não
+MENU_DICA_TECLAS,Setas escolhem · Enter confirma
+PAUSA_TITULO,Pausa
+PAUSA_CONTINUAR,Continuar
+PAUSA_OPCOES,Opções
+PAUSA_MENU,Salvar e voltar ao menu
+OPCOES_TITULO,Opções
+OPCOES_TEXTO,Tamanho do texto: %s
+OPCOES_TEXTO_NORMAL,Normal
+OPCOES_TEXTO_GRANDE,Grande
+OPCOES_TEXTO_MUITO_GRANDE,Muito grande
+OPCOES_VOLUME,Volume: %d%%
+OPCOES_VOLTAR,Voltar
+FIM_TITULO,Fim da demonstração
+FIM_NIVEL,Nível %d · %d XP
+FIM_PUZZLES,Puzzles resolvidos: %d de %d
+FIM_ESTRELAS,Estrelas: %d
+FIM_LICOES,Lições da serpente: %d de %d
+FIM_SEGREDOS,Segredos encontrados: %d de %d
+FIM_VOLTAR,Enter: voltar ao menu
+FIM_DEMO_1,Você passou pelo guardião da Masmorra. Eu sabia que você conseguiria.
+FIM_DEMO_2,"Repare: tudo o que você escreveu aqui é Python de verdade. Sequência, variáveis, condicionais, loops e funções."
+FIM_DEMO_3,E o que tem lá em cima?
+FIM_DEMO_FIM,"Listas, dicionários, classes... Mas essa parte da torre ainda está sendo escrita. Obrigada por jogar a demonstração!"

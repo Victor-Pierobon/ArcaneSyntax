@@ -21,11 +21,13 @@ Tela de perfis e de "novo jogo / continuar". Vários slots de save. Nuvem. Salva
    {"versao": 1, "sala": "sala_p03", "entrada": "A",
     "mago": {"xp": 85, "mana": 4.0},
     "puzzles": {"p01_meditar": {"estrelas": 0}},
-    "chefes": ["sala_c04"], "licoes": ["ensino_sequencia"], "dicas": {"p02_runas": 2}}
+    "chefes": ["sala_c04"], "licoes": ["ensino_sequencia"], "dicas": {"p02_runas": 2},
+    "segredos": ["sala_02_8"], "atalhos": ["sala_01"]}
    ```
+   `segredos` e `atalhos` entraram na Sprint 14 (MUN-segredos, MUN-mapa); um save sem eles vale, com a lista vazia.
    O nível e a mana máxima não são guardados: vêm da XP (PRO-niveis). A vida volta cheia ao carregar.
-4. **Quando grava:** ao entrar numa sala, ao resolver um puzzle, ao derrotar o chefe, ao subir de nível, ao terminar um diálogo e ao fechar o jogo. A gravação é atômica (escreve `.tmp` e renomeia), como o grimório.
-5. **Quando carrega:** ao abrir o jogo pela cena principal (`main.tscn`), antes de montar a primeira sala. Com save, o mago começa na sala e na entrada salvas; sem save, no começo (`sala_01`, entrada `A`).
+4. **Quando grava:** ao entrar numa sala, ao resolver um puzzle, ao derrotar o chefe, ao subir de nível, ao terminar um diálogo, ao abrir um baú, ao beber na fonte, ao voltar ao menu e ao fechar o jogo. A gravação é atômica (escreve `.tmp` e renomeia), como o grimório.
+5. **Quando carrega:** ao escolher Continuar no menu inicial (UI-menus), antes de montar a primeira sala. Novo jogo apaga o `save.json` do perfil (o grimório fica). Com save, o mago começa na sala e na entrada salvas; sem save, no começo (`sala_01`, entrada `A`).
 6. **Save com problema não quebra o jogo:**
    - arquivo ilegível ou que não é um objeto → copia para `save.json.bak`, começa do zero e avisa no registro;
    - `versao` maior que a do jogo → mesma coisa, com aviso de versão;

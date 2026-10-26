@@ -1,10 +1,12 @@
 class_name RuneDoor
 extends StaticBody2D
-## Porta de runas: sólida até o puzzle da sala ser resolvido (spec PUZ-validacao).
+## Porta de runas: sólida até o puzzle da sala ser resolvido (spec PUZ-validacao). Também é a porta de
+## atalho (`%`, MUN-mapa), com outra cor.
 
 signal opened
 
 const COLOR_CLOSED := Color("6a4fb8")
+const COLOR_SHORTCUT := Color("3f8f7a")
 
 var is_open := false
 
@@ -13,7 +15,7 @@ var _shapes: Array[CollisionShape2D] = []
 
 
 ## Uma porta cobrindo as células do layout (`|`).
-static func make(cells: Array[Vector2i]) -> RuneDoor:
+static func make(cells: Array[Vector2i], color := COLOR_CLOSED) -> RuneDoor:
 	var door := RuneDoor.new()
 	door.name = "RuneDoor"
 	for cell in cells:
@@ -25,7 +27,7 @@ static func make(cells: Array[Vector2i]) -> RuneDoor:
 		door.add_child(shape)
 		door._shapes.append(shape)
 		var visual := ColorRect.new()
-		visual.color = COLOR_CLOSED
+		visual.color = color
 		visual.position = Vector2(cell * RoomLayout.TILE) + Vector2(3, 0)
 		visual.size = Vector2(RoomLayout.TILE - 6, RoomLayout.TILE)
 		door.add_child(visual)

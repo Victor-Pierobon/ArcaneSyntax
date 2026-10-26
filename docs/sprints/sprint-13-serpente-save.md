@@ -1,6 +1,6 @@
 # Sprint 13 — Conteúdo da serpente e save
 
-- **Status:** Concluída em 2026-10-26 · aguardando revisão e commit do Victor
+- **Status:** Concluída em 2026-10-26 · commitada (`99628d4`)
 - **Fases do plano:** 7 e 8 · **Marco:** M4 · **Estimativa:** 14–21 h
 - **Depende de:** Sprint 12
 

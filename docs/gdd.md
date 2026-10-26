@@ -171,6 +171,8 @@ A torre é um mapa contínuo em que áreas se abrem por conceitos dominados, e o
 
 Voltar a áreas antigas com conceitos novos revela segredos, que é o prazer central do gênero.
 
+**Segredos com mais de um caminho** (Victor, Sprint 14). O jogador é recompensado por resolver o problema de várias formas, não de uma forma específica: um baú só confere se o mago chegou até ele, seja com um feitiço, seja só com pulo e esquiva (MUN-segredos). Ideia para depois da Alpha: um baú que guarda uma página extra da Referência, com uma curiosidade de Python.
+
 **Validação pelo estado do mundo.** O jogo nunca compara o código com um gabarito. Ele só verifica o resultado: todos os cristais estão acesos? A porta abriu? Assim, um jogador acende cristal por cristal, outro usa um loop, outro escreve uma função genérica e a reaproveita em três salas. Todos passam, e o orçamento de mana separa o "passou" do "passou bonito".
 
 **Tipos de puzzle**

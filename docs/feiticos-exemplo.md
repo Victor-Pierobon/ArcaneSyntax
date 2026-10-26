@@ -1,6 +1,6 @@
 # Feitiços de exemplo
 
-Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 13). Os custos de mana vêm de `game/content/balanceamento.json`. Os custos já contam o custo de inscrição da Sprint 9.
+Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 14). Os custos de mana vêm de `game/content/balanceamento.json`. Os custos já contam o custo de inscrição da Sprint 9.
 
 ## Onde testar
 
@@ -411,6 +411,34 @@ Os números de XP e da curva de níveis estão nas seções `xp` e `niveis` de `
 **Save:** jogue um pouco (resolva o P1, ouça a lição, use uma dica, mude de sala) e feche a janela. Ao abrir de novo, você está na última sala em que entrou, com a mesma XP e o mesmo nível, os puzzles resolvidos (portas abertas), o chefe derrotado se for o caso e as dicas já usadas. A vida volta cheia. Os arquivos ficam em `%APPDATA%\Godot\app_userdata\ArcaneSyntax\perfis\padrao\` (`save.json` e `grimorio.json`); o grimório antigo foi copiado para lá na primeira abertura. Para recomeçar, apague o `save.json`.
 
 Para testar o save quebrado: escreva qualquer texto no `save.json` e abra o jogo. Ele começa do zero, avisa no registro e guarda o arquivo como `save.json.bak`.
+
+## 4h. A área inteira, menus e fim da demo (Sprint 14)
+
+**Abra o jogo pelo F5.** Agora ele abre no **menu inicial**: **Novo jogo**, **Opções**, **Sair** e, se já existe um save, **Continuar** (com o foco). Setas escolhem e Enter confirma. Com save, Novo jogo pergunta antes de apagar o progresso; **o grimório nunca é apagado**.
+
+**Pausa e opções:** **Esc** durante o jogo abre a pausa (Continuar, Opções, Salvar e voltar ao menu). Com o grimório aberto, Esc continua fechando o grimório. Em **Opções**: *Tamanho do texto* (Normal, Grande, Muito grande) vale na hora para o grimório e para a caixa de diálogo; com texto maior, a caixa sobe para o alto da tela e cobre o HUD enquanto está aberta. *Volume* vai de 0% a 100%. As opções ficam em `perfis\padrao\opcoes.json`.
+
+**O caminho completo:** `sala_01` → `sala_02` → `sala_03` → `sala_p02` a `sala_p06` → `sala_c01` a `sala_c04` (chefe) → `sala_fim`. Cada porta de puzzle agora vai **do chão ao teto**: antes, dava para passar voando por cima da porta do P1 com `levitar` (bug, com teste de regressão).
+
+**Segredos:** um baú em cada corredor, e cada um tem pelo menos dois caminhos. O baú não olha como você chegou: encostou, ganhou **+10 XP** (uma vez por jogo).
+
+- `sala_02`, nicho alto na parede da esquerda. **Com feitiço:** fique no chão logo à direita do nicho (embaixo da plataforma mais baixa da escada) e conjure (mana 4, custo 3,4):
+
+  ```python
+  levitar(11)
+  mover(-4)
+  ```
+
+  **Sem feitiço:** suba a escada de plataformas até a mais alta da esquerda, corra para a esquerda, pule na beirada e aperte **Shift** (esquiva) no alto do pulo.
+- `sala_03`, nicho à direita da borda da entrada. **Sem feitiço:** da entrada, corra para a direita, pule na beirada e esquive no ar. **Com feitiço:** desça até o chão, fique uns 3 tiles à direita do nicho e conjure `levitar(13)` e `mover(-3)`.
+
+Outros caminhos também valem (por exemplo, levitar a partir de uma plataforma mais alta).
+
+**Fonte:** na `sala_c03`, logo na entrada, antes do guardião e do chefe. **E** perto dela enche a vida e a mana.
+
+**Atalho:** na `sala_c01`, depois do P6, suba a escadinha de plataformas à direita até a abertura alta na parede. Ela leva à `sala_01`, atrás de uma porta verde-escura que você viu ao lado da entrada desde o começo. Chegando por trás, a porta abre e fica aberta para sempre.
+
+**Fim da demo:** derrote o chefe, passe pela porta e siga para a direita até a `sala_fim`. Fale com a serpente: ela se despede e aparece o resumo (nível, XP, puzzles, estrelas, lições e segredos). Enter volta ao menu; Continuar leva de volta à `sala_fim`.
 
 ## 5. Erros de propósito (para ver as mensagens)
 

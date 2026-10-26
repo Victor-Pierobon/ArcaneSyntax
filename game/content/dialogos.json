@@ -54,5 +54,14 @@
       "licao": {"quem": "serpente", "texto": "ENSINO_REVISAO_LICAO", "proxima": "b"},
       "b": {"quem": "serpente", "texto": "ENSINO_REVISAO_2"}
     }
+  },
+  "fim_demo": {
+    "inicio": "a",
+    "falas": {
+      "a": {"quem": "serpente", "texto": "FIM_DEMO_1", "proxima": "b"},
+      "b": {"quem": "serpente", "texto": "FIM_DEMO_2", "proxima": "c"},
+      "c": {"quem": "mago", "texto": "FIM_DEMO_3", "proxima": "fim"},
+      "fim": {"quem": "serpente", "texto": "FIM_DEMO_FIM"}
+    }
   }
 }

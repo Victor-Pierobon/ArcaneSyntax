@@ -31,4 +31,4 @@ a.A.9..#################
 ########################"
 exits = {"a": "sala_p04:B", "b": "sala_p06:A"}
 targets = {"9": "serpente:ensino_funcoes", "1": "gravura:5", "2": "gravura:7", "3": "gravura:6"}
-puzzle = {"id": "p05_elevador", "condicoes": [{"tipo": "placas_pisadas"}]}
+puzzle = {"id": "p05_elevador", "condicoes": [{"tipo": "placas_pisadas"}], "licoes": ["ensino_funcoes"]}

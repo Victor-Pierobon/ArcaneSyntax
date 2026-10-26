@@ -22,6 +22,7 @@ Dano de inimigos (COM-dano), recuperação de mana por feitiços no mundo (Sprin
 6. **Espinhos:** tocar tira 1 de vida e leva o mago ao último ponto seguro, parado.
 7. **Ponto seguro:** é a entrada pela qual o mago chegou na sala, ou o último marcador de ponto seguro (`*` no layout, MUN-salas) que ele tocou.
 8. **Morte:** vida cheia e volta à entrada pela qual chegou na sala atual. A mana é mantida.
+9. **Fonte** (Sprint 14, MUN-mapa): `fonte` em `targets` põe uma fonte na sala. Com o mago a até 2 tiles aparece `E: beber`; a tecla E enche a vida e a mana, avisa no registro e salva. Pode ser usada quantas vezes quiser. Se a serpente também estiver ao alcance, E fala com a serpente. Na Masmorra, há uma fonte na `sala_c03`, antes do chefe.
 
 ## Critérios de aceite
 
@@ -72,3 +73,9 @@ Dano de inimigos (COM-dano), recuperação de mana por feitiços no mundo (Sprin
 - **Dado** o mago com 1 de vida e mana 3
 - **Quando** toca nos espinhos
 - **Então** renasce na entrada da sala com vida 5/5 e mana 3
+
+### MUN-028 — Fonte enche vida e mana (cena)
+
+- **Dado** o mago com vida 2 e mana 1, perto de uma fonte
+- **Quando** aperta E
+- **Então** fica com vida e mana cheias e o registro avisa; longe da fonte, E não faz nada

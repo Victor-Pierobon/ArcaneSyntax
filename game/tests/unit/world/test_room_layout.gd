@@ -35,6 +35,13 @@ func test_MUN_031_caractere_desconhecido() -> void:
 	assert_int(layout.solids.size()).is_equal(5)
 
 
+func test_MUN_084_porta_de_atalho_no_layout() -> void:
+	var layout := RoomLayout.parse("C%.\n.%A")
+	assert_array(layout.shortcut_doors).contains_exactly([Vector2i(1, 0), Vector2i(1, 1)])
+	assert_array(layout.doors).is_empty()
+	assert_array(layout.errors).is_empty()
+
+
 func test_PUZ_005_porta_no_layout() -> void:
 	var layout := RoomLayout.parse("..|\n..|")
 	assert_array(layout.doors).contains_exactly([Vector2i(2, 0), Vector2i(2, 1)])

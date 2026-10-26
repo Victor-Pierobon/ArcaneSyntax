@@ -89,3 +89,12 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 - Bug com regressão: duas dicas com 5 linhas passavam da metade da tela (teste novo que abre todo o conteúdo). Mutação: 8 de 8. 417 GdUnit4 e 145 pytest verdes.
 - Decisões tomadas por recomendação (o Victor pediu para seguir); registradas no relatório.
 - Próximo: Victor revisa e commita, confere o mapa no papel; depois Sprint 14 (montagem da área, menus).
+
+## 2026-10-26 (Sprint 14)
+
+- O Victor jogou a Sprint 13 e está funcionando. Sprint 13 commitada (`99628d4`).
+- O Victor respondeu às quatro perguntas do mapa: segredos que recompensam **resolver de várias formas, não de uma forma específica**; atalho de mão única depois do P6; fonte antes do chefe; tela de fim da demo.
+- Área montada: 13 salas (a `sala_fim` é nova). Baús na `sala_02` e na `sala_03`, cada um com um caminho com feitiço e um só com pulo e esquiva, os dois com teste de aceitação. Fonte na `sala_c03`. Atalho da `sala_c01` para a `sala_01`, que abre por trás e fica no save. `AreaMap` confere o mapa: toda saída tem volta, as portas seguram o mago mesmo voando, e os puzzles abrem na ordem dos conceitos (cada puzzle declara as lições que exige).
+- Menu inicial (Continuar, Novo jogo que pergunta antes e não apaga o grimório, Opções, Sair), pausa com Esc, opções de tamanho do texto e volume por perfil, tela de fim com resumo.
+- Bugs com regressão: dava para voar com `levitar` por cima da porta do P1 (as portas agora vão do chão ao teto); com texto grande, as lições passavam da metade da tela (a caixa sobe e cobre o HUD enquanto está aberta). Mutação: 10 de 10. 458 GdUnit4 e 145 pytest verdes.
+- Próximo: Victor revisa e commita, joga a seção 4h do começo ao fim; depois Sprint 15 (testes com iniciantes e build).

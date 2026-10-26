@@ -6,6 +6,11 @@ extends CanvasLayer
 signal finished
 
 const SPEAKER_KEYS := {"serpente": "DIALOGO_SERPENTE", "mago": "DIALOGO_MAGO"}
+## Topo da caixa: abaixo do HUD com o texto Normal; no alto da tela com texto maior, cobrindo o HUD
+## enquanto está aberta (o jogo está pausado), para continuar acima da metade da tela (UI-menus, regra 6).
+const TOP := 72.0
+const TOP_LARGE_TEXT := 8.0
+const HEIGHT := 76.0
 
 var speaker_label := Label.new()
 var text_label := Label.new()
@@ -21,6 +26,13 @@ func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build()
 	_root.visible = false
+
+
+## Tamanho do texto das opções (UI-menus, regras 5 e 6); a caixa cresce para baixo com o texto.
+func set_text_delta(delta: int) -> void:
+	FontScale.apply(self, delta)
+	_root.offset_top = TOP if delta == 0 else TOP_LARGE_TEXT
+	_root.offset_bottom = _root.offset_top + HEIGHT
 
 
 func is_open() -> bool:
@@ -98,8 +110,8 @@ func _build() -> void:
 	_root.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_root.offset_left = 40
 	_root.offset_right = -40
-	_root.offset_top = 72
-	_root.offset_bottom = 148
+	_root.offset_top = TOP
+	_root.offset_bottom = TOP + HEIGHT
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color("1d1a26f2")
 	style.border_color = Color("6fcf5a")

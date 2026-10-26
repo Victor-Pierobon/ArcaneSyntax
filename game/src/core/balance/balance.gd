@@ -23,7 +23,7 @@ const KEYS := {
 		"vida", "elementos", "troca_vida", "transicao_s", "ataque_fase1_s", "ataque_fase2_s",
 		"ataque_alcance_tiles", "orbe_velocidade", "orbe_alcance_tiles", "orbe_dano",
 	],
-	"xp": ["elemental", "enxame", "guardiao", "chefe", "puzzle", "bonus_estrela"],
+	"xp": ["elemental", "enxame", "guardiao", "chefe", "puzzle", "bonus_estrela", "segredo"],
 	"niveis": ["xp", "mana_max"],
 }
 ## Chave → o que a lista tem.

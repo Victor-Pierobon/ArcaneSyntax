@@ -28,7 +28,8 @@ var estimate_timer := Timer.new()
 var marked_line := -1
 ## Motivo, se o arquivo do grimório estava ilegível; mostrado na primeira abertura (GRI-008).
 var load_problem := ""
-## Ligado enquanto um diálogo está aberto: o grimório não abre (NAR-dialogo, regra 6).
+## Ligado enquanto um diálogo ou a pausa está aberto: o grimório não abre (NAR-dialogo, regra 6;
+## UI-menus, regra 3).
 var blocked := false
 var tabs := TabContainer.new()
 var reference_list := ItemList.new()
@@ -53,6 +54,11 @@ func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build()
 	_root.visible = false
+
+
+## Tamanho do texto das opções (UI-menus, regra 5).
+func set_text_delta(delta: int) -> void:
+	FontScale.apply(self, delta)
 
 
 func bind(grimoire: Grimoire, store: GrimoireStore) -> void:

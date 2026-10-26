@@ -1,0 +1,84 @@
+class_name OptionsMenu
+extends MenuPanel
+## Opções (spec UI-menus, regra 5): tamanho do texto e volume. Cada mudança grava e avisa na hora;
+## o mesmo painel serve ao menu inicial e à pausa. Esc ou Voltar fecha.
+
+signal changed
+signal closed
+
+var text_button: Button
+var volume_label: Label
+var volume_slider := HSlider.new()
+var back_button: Button
+
+var _settings: Settings
+
+
+func _init() -> void:
+	super._init()
+	layer = 21
+	title_label.text = "OPCOES_TITULO"
+	text_button = add_button("")
+	volume_label = add_label("")
+	volume_slider.min_value = 0
+	volume_slider.max_value = 100
+	volume_slider.step = Settings.VOLUME_STEP
+	volume_slider.custom_minimum_size = Vector2(160, 12)
+	column.add_child(volume_slider)
+	back_button = add_button("OPCOES_VOLTAR")
+	text_button.pressed.connect(_on_text_pressed)
+	volume_slider.value_changed.connect(_on_volume_changed)
+	back_button.pressed.connect(close)
+
+
+func bind(settings: Settings) -> void:
+	_settings = settings
+	_refresh()
+
+
+func is_open() -> bool:
+	return is_showing()
+
+
+func open() -> void:
+	_refresh()
+	show_panel()
+
+
+func close() -> void:
+	if not is_open():
+		return
+	hide_panel()
+	closed.emit()
+
+
+func _on_text_pressed() -> void:
+	_settings.next_text_size()
+	_commit()
+
+
+func _on_volume_changed(value: float) -> void:
+	if _settings == null or int(value) == _settings.volume:
+		return
+	_settings.set_volume(int(value))
+	_commit()
+
+
+func _commit() -> void:
+	_settings.save()
+	_refresh()
+	changed.emit()
+
+
+func _refresh() -> void:
+	if _settings == null:
+		return
+	text_button.text = tr("OPCOES_TEXTO") % tr(Settings.LABELS[_settings.text_size])
+	volume_label.text = tr("OPCOES_VOLUME") % _settings.volume
+	volume_slider.set_value_no_signal(_settings.volume)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if is_open() and event.is_action_pressed(&"ui_cancel"):
+		close()
+		get_viewport().set_input_as_handled()
