@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="ArcaneSyntax"
-run/main_scene="res://src/nodes/world/world.tscn"
+run/main_scene="res://src/nodes/main/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [display]

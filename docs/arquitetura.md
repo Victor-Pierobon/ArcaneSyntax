@@ -74,7 +74,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `MagoState` (`src/core/mago/mago_state.gd`): `health` (5), `mana` (0) e `mana_max` (a do nível; 10 no nível 1) com resolução 0,1; `xp`, `level`, `gain_xp(n)` (sobe níveis, aumenta e enche a mana); sinais `mana_changed`, `xp_changed`, `leveled_up`; `to_spell_mago()` gera o `mago` do protocolo. **A mana real mora aqui**; o executor só simula.
 - `RoomLayout` (`src/core/world/room_layout.gd`): lê o layout em texto (`#` pedra, `=` plataforma, `^` espinhos, `*` ponto seguro, `A–Z` entradas, `a–z` saídas); `cell_feet(cell)`, `size_px()`, `errors`.
 - `Room` (`src/nodes/world/room.gd`): cena com `room_id`, `layout` e `exits` (`{"b": "sala_02:A"}`). No `_ready` monta um `TileMapLayer` com `assets/placeholder/tiles.tres` e cria `Area2D` para saídas, espinhos e pontos seguros, que **só ligam depois do primeiro quadro de física**. Sinais: `exit_touched`, `hazard_touched`, `safe_point_touched`.
-- `World` (`src/nodes/world/world.gd` + `world.tscn`, cena principal): tem `Player` e `Hud`; `go_to(sala, entrada)` troca a sala (sempre adiado para fora do callback de física), põe o mago na entrada, ajusta os limites da câmera e o ponto seguro. Espinho: 1 de dano (ignora a esquiva) e volta ao ponto seguro. Morte: vida cheia e volta à entrada da sala atual. `rooms_dir` configurável (testes usam `res://tests/fixtures/rooms/`); `authoring_errors` junta erros de autoria.
+- `World` (`src/nodes/world/world.gd` + `world.tscn`; desde a Sprint 13 quem o sobe é a cena principal `Main`): tem `Player` e `Hud`; `go_to(sala, entrada)` troca a sala (sempre adiado para fora do callback de física), põe o mago na entrada, ajusta os limites da câmera e o ponto seguro. Espinho: 1 de dano (ignora a esquiva) e volta ao ponto seguro. Morte: vida cheia e volta à entrada da sala atual. `rooms_dir` configurável (testes usam `res://tests/fixtures/rooms/`); `authoring_errors` junta erros de autoria.
 - `Hud` (`src/nodes/ui/hud.gd`, CanvasLayer montado em código): `life_label`, `mana_label`, `mana_bar`, `level_label` (nível e XP), dica de controles; `bind(state)`.
 ### Grimório (specs GRI-feiticos, GRI-grimorio)
 
@@ -164,9 +164,23 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `DialogueBox` (`src/nodes/narrative/`, CanvasLayer `layer = 11`, `PROCESS_MODE_ALWAYS`): no alto da tela, pausa a árvore enquanto aberta, consome toda a entrada; `open(run)`, `advance()`, `choose(n)`, `panel_rect()`, sinal `finished`.
 - `Serpent` (`src/nodes/narrative/`): `serpente:<cena>` em `targets`; `in_reach()` (2 tiles), aviso `E: falar`, `prompt_rect()`. `World.talk()` (ação `talk`, tecla E) abre a cena da serpente ao alcance e liga `GrimoireUI.blocked` até o fim; cena com erro vai para `authoring_errors`.
 
+### Lições e dicas da serpente (specs NAR-serpente, NAR-dicas)
+
+- `content/dialogos.json`: uma cena `ensino_<conceito>` por sala de puzzle, cada uma com a fala `licao` (`World.LESSON_LINE`). `content/dicas.json`: `{"<puzzle>": [3 chaves]}`.
+- `HintBook` (`src/core/narrative/hint_book.gd`): `load_file`, `validate`, `hints(puzzle)`, `has_hints`, `scene(puzzle, nível)` monta a cena `pergunta` → `dica` | `nao` (`HINT_LINE = "dica"`).
+- `DialogueRun.has_seen(fala)`: a lição e a dica contam pela fala que apareceu.
+- `World.talk()`: lição não vista → lição; vista e puzzle aberto com dicas → `hints.scene(puzzle, usadas + 1)`; senão, a lição. `_on_dialogue_finished` atualiza `seen_lessons` e `hints_used` (teto 3) e salva.
+
+### Save (spec SAV-progresso)
+
+- `Main` (`src/nodes/main/main.gd` + `main.tscn`, **cena principal**): perfil `user://perfis/padrao/`, copia `user://grimorio.json` antigo se o perfil não tem grimório, sobe o `World` com `grimoire_path` e `save_path` do perfil. Exports `profile_root`, `profile`, `legacy_grimoire` (os testes trocam).
+- `ProgressStore` (`src/core/save/progress_store.gd`): `save(dados)` atômico com `versao`; `load_data()` devolve vazio sem arquivo, e com arquivo ilegível ou versão desconhecida também, preenchendo `last_problem` e copiando para `.bak`. Migrações de versão entram em `load_data`.
+- `World`: `save_path` vazio = sem save (todos os testes antigos). `_load_progress()` no `_ready`, antes da primeira sala; `apply_progress(dados)` aceita campo ruim (usa o padrão); `progress_snapshot()`; `save_progress()` em `go_to`, puzzle resolvido, chefe derrotado, subida de nível, fim de diálogo e `NOTIFICATION_WM_CLOSE_REQUEST`.
+- `MagoState.restore_progress(xp, mana)`: nível e mana máxima vêm da XP, sem `leveled_up`.
+
 ### Referência (spec GRI-referencia)
 
-- `content/referencia.json`: lista `[{"id", "requer": [peças]}]`; título e texto são `REF_<ID>_TITULO`/`REF_<ID>_TEXTO` (BBCode, `\n` no CSV vira quebra de linha).
+- `content/referencia.json`: lista `[{"id", "requer": [peças]}]` (13 páginas de peças e, desde a Sprint 13, 5 de conceito); título e texto são `REF_<ID>_TITULO`/`REF_<ID>_TEXTO` (BBCode, `\n` no CSV vira quebra de linha).
 - `ReferenceBook` (`src/core/grimoire/reference_book.gd`): `load_file`, `from_data`, `validate`, `visible_pages(desbloqueadas)`, `title(id)`, `text(id)`.
 - `GrimoireUI`: `tabs` (Feitiços | Referência), `show_reference()`, `show_spells()`, `select_page(id)`, `reference_list`, `reference_text`; as peças desbloqueadas vêm do contexto (`pieces`).
 

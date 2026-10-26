@@ -11,4 +11,4 @@ layout = "##############################
 #............................#
 #.A........7.........8.......#
 ##############################"
-targets = {"7": "serpente:serpente_ola", "8": "serpente:nao_existe"}
+targets = {"7": "serpente:ensino_sequencia", "8": "serpente:nao_existe"}

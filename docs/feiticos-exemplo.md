@@ -1,6 +1,6 @@
 # Feitiços de exemplo
 
-Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 12). Os custos de mana vêm de `game/content/balanceamento.json`. Os custos já contam o custo de inscrição da Sprint 9.
+Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 13). Os custos de mana vêm de `game/content/balanceamento.json`. Os custos já contam o custo de inscrição da Sprint 9.
 
 ## Onde testar
 
@@ -393,6 +393,24 @@ Ao subir de nível aparece `Nível 2! Mana máxima 12` e a mana enche. Teste rá
 **Referência:** abra o grimório (Tab) e clique na aba **Referência**. São 13 páginas (lancar, elementos, formas, mover, levitar, meditar, absorver_mana, inscrever, construir_bloco, sentidos, alvo e inimigos, ler_runa, print). A aba Feitiços continua com o feitiço em edição como você deixou.
 
 Os números de XP e da curva de níveis estão nas seções `xp` e `niveis` de `game/content/balanceamento.json`.
+
+## 4g. Lições, dicas e save (Sprint 13)
+
+**Abra o jogo pelo F5 do editor** (cena principal `main.tscn`). Abrir o `world.tscn` direto continua funcionando, mas **sem save**.
+
+**Atenção às seções anteriores:** para ir direto a uma sala mudando **Start Room**, abra o `world.tscn` e aperte **F6** (roda a cena aberta, sem save). Com F5, se já existe um save, você começa na sala salva.
+
+**Lições:** cada sala de puzzle tem uma serpente perto da entrada (na `sala_01`, logo depois de você). Aperte **E** perto dela:
+- `sala_01`: apresentação e **sequência**. Responda "Agora não" e fale de novo: ela recomeça, porque a lição ainda não foi vista.
+- `sala_p02` **variáveis**, `sala_p03` **condicionais** (ela explica que é um acerto por conjuração), `sala_p04` **loops**, `sala_p05` **funções**, `sala_p06` **revisão**.
+
+**Dicas:** depois da lição, com o puzzle ainda aberto, fale de novo: "Quer uma dica? Esta é a primeira de três." Responda **2** ("Agora não") e nada é gasto. Responda **1** e veja a dica; as próximas conversas trazem a 2 e a 3 (a 3 já mostra boa parte do feitiço). Resolvido o puzzle, ela repete a lição.
+
+**Referência:** a aba ganhou 5 páginas de conceito no fim: Sequência, Variáveis, Condicionais, Loops e Funções.
+
+**Save:** jogue um pouco (resolva o P1, ouça a lição, use uma dica, mude de sala) e feche a janela. Ao abrir de novo, você está na última sala em que entrou, com a mesma XP e o mesmo nível, os puzzles resolvidos (portas abertas), o chefe derrotado se for o caso e as dicas já usadas. A vida volta cheia. Os arquivos ficam em `%APPDATA%\Godot\app_userdata\ArcaneSyntax\perfis\padrao\` (`save.json` e `grimorio.json`); o grimório antigo foi copiado para lá na primeira abertura. Para recomeçar, apague o `save.json`.
+
+Para testar o save quebrado: escreva qualquer texto no `save.json` e abra o jogo. Ele começa do zero, avisa no registro e guarda o arquivo como `save.json.bak`.
 
 ## 5. Erros de propósito (para ver as mensagens)
 

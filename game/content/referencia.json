@@ -11,5 +11,10 @@
   {"id": "sentidos", "requer": []},
   {"id": "alvo", "requer": []},
   {"id": "ler_runa", "requer": []},
-  {"id": "print", "requer": []}
+  {"id": "print", "requer": []},
+  {"id": "sequencia", "requer": []},
+  {"id": "variaveis", "requer": []},
+  {"id": "condicionais", "requer": []},
+  {"id": "loops", "requer": []},
+  {"id": "funcoes", "requer": []}
 ]

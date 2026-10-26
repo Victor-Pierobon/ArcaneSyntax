@@ -2,7 +2,8 @@ extends GdUnitTestSuite
 ## Spec: docs/specs/grimorio/GRI-referencia.md (GRI-080 a GRI-082)
 
 const PAGES := ["lancar", "elementos", "formas", "mover", "levitar", "meditar", "absorver_mana", "inscrever",
-		"construir_bloco", "sentidos", "alvo", "ler_runa", "print"]
+		"construir_bloco", "sentidos", "alvo", "ler_runa", "print", "sequencia", "variaveis", "condicionais", "loops",
+		"funcoes"]
 
 
 func test_GRI_080_paginas_visiveis_pelo_desbloqueio() -> void:

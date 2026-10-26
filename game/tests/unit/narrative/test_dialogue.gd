@@ -122,4 +122,4 @@ func test_NAR_003_arquivo_ilegivel_e_cena_com_erro_nao_toca() -> void:
 func test_NAR_004_conteudo_do_jogo_e_valido() -> void:
 	var book := DialogueBook.load_file(DialogueBook.DEFAULT_PATH)
 	assert_array(book.errors).is_empty()
-	assert_bool(book.can_play("serpente_ola")).is_true()
+	assert_bool(book.can_play("ensino_sequencia")).is_true()

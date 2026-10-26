@@ -1,7 +1,7 @@
 # GRI-referencia — Páginas de referência
 
 - **Status:** Implementada
-- **Sprint:** 12
+- **Sprint:** 12, 13
 - **Relacionadas:** GRI-grimorio, EXE-desbloqueio, EXE-pecas, NAR-dialogo, GDD (Interface e feedback)
 
 ## Contexto
@@ -20,6 +20,7 @@ Páginas de conceito (Sprint 13). Busca, favoritos e links entre páginas. Abrir
 4. **Erros de autoria** (`ReferenceBook.validate`): arquivo ilegível, página sem `id`, id repetido, chave de título ou texto ausente no `textos.csv`, peça de `requer` que não existe. O arquivo do jogo não tem erros.
 5. O grimório tem duas abas: **Feitiços** (o que já existia) e **Referência**: lista de páginas à esquerda e o texto da selecionada à direita. Abre na primeira página visível. Trocar de aba não perde o feitiço em edição.
 6. Páginas desta sprint: `lancar`, `elementos`, `formas`, `mover`, `levitar`, `meditar`, `absorver_mana`, `inscrever`, `construir_bloco`, `sentidos` (`mana`, `mana_max`, `vida_atual`), `alvo` (`alvo` e `inimigos`), `ler_runa` e `print`.
+7. Desde a Sprint 13, cinco páginas de **conceito**, sem requisito, depois das peças: `sequencia`, `variaveis`, `condicionais`, `loops` e `funcoes` (NAR-serpente, regra 5).
 
 ## Critérios de aceite
 
@@ -36,7 +37,7 @@ Páginas de conceito (Sprint 13). Busca, favoritos e links entre páginas. Abrir
 
 ### GRI-082 — O conteúdo do jogo é válido
 
-- **Então** `res://content/referencia.json` não tem erros, tem as 13 páginas da regra 6, e o texto da página `lancar` tem quebra de linha e cita `lancar(`
+- **Então** `res://content/referencia.json` não tem erros, tem as 18 páginas das regras 6 e 7, na ordem, e o texto da página `lancar` tem quebra de linha e cita `lancar(`
 
 ### GRI-083 — Aba de referência (cena)
 

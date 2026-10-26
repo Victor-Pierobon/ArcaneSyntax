@@ -1,0 +1,8 @@
+{
+  "p01_meditar": ["DICA_P01_1", "DICA_P01_2", "DICA_P01_3"],
+  "p02_runas": ["DICA_P02_1", "DICA_P02_2", "DICA_P02_3"],
+  "p03_simbolo": ["DICA_P03_1", "DICA_P03_2", "DICA_P03_3"],
+  "p04_ponte": ["DICA_P04_1", "DICA_P04_2", "DICA_P04_3"],
+  "p05_elevador": ["DICA_P05_1", "DICA_P05_2", "DICA_P05_3"],
+  "p06_revisao": ["DICA_P06_1", "DICA_P06_2", "DICA_P06_3"]
+}

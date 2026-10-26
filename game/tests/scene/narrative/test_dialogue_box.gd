@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
 ## Spec: docs/specs/narrativa/NAR-dialogo.md (regras 5 e 6, NAR-005, NAR-006).
-## sala_serpente: chão com topo em y = 80; entrada na coluna 2; serpente_ola na coluna 11;
+## sala_serpente: chão com topo em y = 80; entrada na coluna 2; ensino_sequencia na coluna 11;
 ## serpente com cena inexistente na coluna 21. Teclas não chegam em headless: os testes chamam `talk()`.
 
 const WORLD := "res://src/nodes/world/world.tscn"
@@ -108,6 +108,29 @@ func test_NAR_005_caixa_no_alto_sem_cobrir_o_hud() -> void:
 	var hud_bottom := world.hud.passive_label.get_global_rect().end.y
 	assert_float(rect.position.y).override_failure_message("caixa em %s, HUD até %s" % [rect.position.y, hud_bottom]) \
 			.is_greater_equal(hud_bottom)
+
+
+## Conteúdo (Sprint 13): toda fala de lição e toda dica cabe na caixa sem passar da metade da tela.
+func test_NAR_005_toda_fala_cabe_na_caixa() -> void:
+	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(DialogueBook.DEFAULT_PATH))
+	var scenes: Array[Dictionary] = []
+	for scene_id: String in data:
+		for line_id: String in data[scene_id]["falas"]:
+			scenes.append({"inicio": line_id, "falas": data[scene_id]["falas"]})
+	for puzzle_id: String in JSON.parse_string(FileAccess.get_file_as_string(HintBook.DEFAULT_PATH)):
+		for level in range(1, HintBook.LEVELS + 1):
+			var hint := world.hints.scene(puzzle_id, level)
+			scenes.append({"inicio": HintBook.HINT_LINE, "falas": hint["falas"]})
+	var limit := box.get_viewport().get_visible_rect().size.y / 2
+	for scene in scenes:
+		box.open(DialogueRun.new(scene))
+		await get_tree().process_frame
+		var label: String = box.text_label.text.substr(0, 30)
+		assert_float(box.panel_rect().end.y).override_failure_message("\"%s…\" passa de %s" % [label, limit]) \
+				.is_less_equal(limit)
+		while box.is_open():
+			box.choose(1)
+			box.advance()
 
 
 func test_NAR_006_cena_com_erro_nao_trava() -> void:

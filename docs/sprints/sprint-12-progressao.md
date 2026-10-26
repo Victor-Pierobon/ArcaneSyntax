@@ -1,6 +1,6 @@
 # Sprint 12 — Progressão e sistemas da serpente
 
-- **Status:** Concluída em 2026-10-26 · aguardando revisão e commit do Victor
+- **Status:** Concluída em 2026-10-26 · commitada (`3e3e0a9`)
 - **Fase do plano:** 7 · **Marco:** M3 · **Estimativa:** 12–18 h
 - **Depende de:** Sprints 9 e 11 (XP vem de puzzles e monstros)
 

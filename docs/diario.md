@@ -79,3 +79,13 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 - Bugs com regressão (captura de tela): o mago cobria o `E: falar`; a caixa de diálogo embaixo cobria o mago e a serpente e foi para o alto. Mutação: 7 de 7. 387 GdUnit4 e 145 pytest verdes.
 - Decisões tomadas por recomendação (o Victor pediu para seguir); registradas no relatório para revisão.
 - Próximo: Victor revisa e commita; depois Sprint 13 (falas da serpente, dicas e save).
+
+## 2026-10-26 (Sprint 13)
+
+- O Victor jogou a Sprint 12 e está funcionando. Sprint 12 commitada (`3e3e0a9`).
+- A serpente ensina: uma lição por sala de puzzle (apresentação e sequência, variáveis, condicionais, loops, funções, revisão). A lição conta quando aparece a fala `licao`. Depois dela, falar de novo oferece dicas em três níveis (conceito → estrutura → exemplo parcial), sempre com a pergunta "Quer uma dica?". Resolvido o puzzle, ela repete a lição. Páginas de conceito na Referência.
+- Save por perfil (`user://perfis/padrao/`): grimório (copiado do arquivo antigo) e `save.json` com versão. Grava ao entrar numa sala, resolver um puzzle, vencer o chefe, subir de nível, terminar um diálogo e fechar o jogo. Save ilegível ou de versão nova vira `.bak` e o jogo começa do zero; campo ruim usa o padrão. Cena principal nova `main.tscn`; o `World` sozinho não salva (testes seguros).
+- Rascunho do mapa da área em `docs/mapa-area.md`, para o Victor conferir no papel.
+- Bug com regressão: duas dicas com 5 linhas passavam da metade da tela (teste novo que abre todo o conteúdo). Mutação: 8 de 8. 417 GdUnit4 e 145 pytest verdes.
+- Decisões tomadas por recomendação (o Victor pediu para seguir); registradas no relatório.
+- Próximo: Victor revisa e commita, confere o mapa no papel; depois Sprint 14 (montagem da área, menus).

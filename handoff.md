@@ -1,7 +1,7 @@
 # Handoff — ArcaneSyntax
 
 > Contexto para começar uma conversa nova sem reler toda a documentação.
-> **Atualizado em:** 2026-10-26, fim da Sprint 12.
+> **Atualizado em:** 2026-10-26, fim da Sprint 13.
 > **Atualizar** ao fim de cada sprint (ou quando algo aqui deixar de ser verdade).
 
 ## 1. O projeto em 30 segundos
@@ -14,11 +14,11 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 
 | | |
 | --- | --- |
-| Sprint atual | **Sprint 12 concluída**: XP (inimigos e puzzles, com bônus de economia), níveis 1 a 5 que aumentam a mana, sistema de diálogo (serpente na `sala_01`, tecla E) e aba Referência no grimório (13 páginas). A próxima é a **Sprint 13** (falas da serpente, dicas, save). M2 fechado; o Victor jogou o chefe e está funcionando |
-| Commits | Sprints 0 a 11 commitadas (último: `e3a7f22`). **A Sprint 12 ainda não**; o Victor revisa e commita |
-| Testes | 145 pytest + 387 GdUnit4 (inclui aceitação dos 6 puzzles, dos 3 inimigos e do chefe com Python real), todos verdes localmente |
+| Sprint atual | **Sprint 13 concluída**: a serpente ensina (uma lição por sala de puzzle, dicas em três níveis), páginas de conceito na Referência, save por perfil com versão (cena principal nova `main.tscn`), rascunho do mapa em `docs/mapa-area.md`. A próxima é a **Sprint 14** (montagem da área e menus). O Victor jogou até a Sprint 12 e está funcionando |
+| Commits | Sprints 0 a 12 commitadas (último: `3e3e0a9`). **A Sprint 13 ainda não**; o Victor revisa e commita |
+| Testes | 145 pytest + 417 GdUnit4 (inclui aceitação dos 6 puzzles, dos 3 inimigos e do chefe com Python real), todos verdes localmente |
 | CI | Configurado, **ainda não confirmado verde no GitHub** |
-| Pendências do Victor | Revisar as decisões da Sprint 12, tomadas por recomendação (valores de XP e níveis, formato dos diálogos, serpente só com E, caixa no alto; ver o relatório da sprint); jogar a seção 4f de `docs/feiticos-exemplo.md`; calibrar valores no `balanceamento.json` se quiser (estrelas do Puzzle 6 continuam na cena da sala); Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
+| Pendências do Victor | **Conferir no papel o rascunho do mapa** (`docs/mapa-area.md`, com 4 perguntas) antes da Sprint 14; revisar as decisões das Sprints 12 e 13, tomadas por recomendação (ver os relatórios); jogar a seção 4g de `docs/feiticos-exemplo.md`; calibrar valores no `balanceamento.json` se quiser (estrelas do Puzzle 6 continuam na cena da sala); Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
 
 ## 3. Regras de trabalho (combinadas com o Victor)
 
@@ -69,10 +69,12 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 - **Progressão (Sprint 12, PRO-xp, PRO-niveis)**: `MagoState.xp`/`level`/`gain_xp` (sinais `xp_changed`, `leveled_up`); `Progression` (estática) com a curva e a XP do puzzle. Inimigo derrotado dá `Enemy.xp` (também os que reaparecem); puzzle dá 20 + 5 por estrela acima de uma, só na primeira vez. Subir de nível aumenta e enche a mana. `Enemy.setup(id, elemento, tipo, tamanho)`: o tipo é a seção do balanceamento. HUD: `Nível 2 · XP 45/70`.
 - **Diálogo (Sprint 12, NAR-dialogo)**: `content/dialogos.json` (falas com `proxima` ou `opcoes`, textos como chaves do `textos.csv`); `DialogueBook` valida e aponta cena e fala; `DialogueRun` lê; `DialogueBox` no alto da tela pausa o jogo. `serpente:<cena>` em `targets`; `World.talk()` (E) com a serpente a até 2 tiles; o grimório não abre durante o diálogo (`GrimoireUI.blocked`). Cena de teste `serpente_ola` na `sala_01`.
 - **Referência (Sprint 12, GRI-referencia)**: `content/referencia.json` (ordem e peças exigidas); textos `REF_<ID>_TITULO/_TEXTO` com BBCode e `\n`; `ReferenceBook`; aba Referência no `GrimoireUI` (`show_reference`, `select_page`).
+- **Lições e dicas (Sprint 13, NAR-serpente, NAR-dicas)**: uma serpente `ensino_<conceito>` em cada sala de puzzle; a lição conta quando aparece a fala `licao`. Depois dela, com o puzzle aberto, `World.talk()` oferece a próxima dica (`HintBook.scene`, de `content/dicas.json`, 3 por puzzle, com a pergunta "Quer uma dica?"); resolvido, repete a lição. `World.seen_lessons`, `World.hints_used`.
+- **Save (Sprint 13, SAV-progresso)**: cena principal `Main` (`main.tscn`) usa `user://perfis/padrao/` (`grimorio.json`, copiado do antigo, e `save.json` com `versao` 1). `World.save_path` vazio = sem save (os testes sobem o `World` direto e nunca tocam no progresso). `ProgressStore` grava de forma atômica; ilegível ou versão nova → `.bak` e jogo do zero. Grava ao entrar em sala, resolver puzzle, vencer chefe, subir de nível, terminar diálogo e fechar. Para ir direto a uma sala no editor: **F6 no `world.tscn`** (F5 usa o save).
 - **Grimório**: Tab abre (pausa o mundo), Esc fecha. `Grimoire` (modelo; nomes até 24, únicos sem diferenciar maiúsculas; sinais de renomear/apagar para os slots), `GrimoireStore` (`user://grimorio.json`, gravação atômica, `.bak` se o arquivo estiver ilegível), `GrimoireUI` (lista + `CodeEdit` com realce de Python e das peças do jogo). Ainda não executa feitiços.
 - **Contrato**: `tests/contract/*.json` é verificado pelas duas suítes.
 
-Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `CastLog`, `TrainingTarget`, `ActionPlayer`, `WorldActions`, `Projectile`, `Shield`, `ElementTable`, `PassiveScheduler`, `Sfx`, `Fx`, `PuzzleValidator`, `MutableCrystalRule`, `Damage`, `ElementalBrain`, `SwarmBugBrain`, `GuardianShield`, `BossPhases`, `Balance`, `Progression`, `Enemy`, `Elemental`, `SwarmBug`, `Guardian`, `Boss`, `BossBolt`, `DialogueBook`, `DialogueRun`, `DialogueBox`, `Serpent`, `ReferenceBook`, `Crystal`, `Rune`, `RuneLock`, `Bridge`, `PressurePlate`, `RuneDoor`, `StepView`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellReport`, `CompletionProvider`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` e `PuzzleDriver` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
+Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `CastLog`, `TrainingTarget`, `ActionPlayer`, `WorldActions`, `Projectile`, `Shield`, `ElementTable`, `PassiveScheduler`, `Sfx`, `Fx`, `PuzzleValidator`, `MutableCrystalRule`, `Damage`, `ElementalBrain`, `SwarmBugBrain`, `GuardianShield`, `BossPhases`, `Balance`, `Progression`, `Enemy`, `Elemental`, `SwarmBug`, `Guardian`, `Boss`, `BossBolt`, `DialogueBook`, `DialogueRun`, `DialogueBox`, `Serpent`, `ReferenceBook`, `HintBook`, `ProgressStore`, `Main`, `Crystal`, `Rune`, `RuneLock`, `Bridge`, `PressurePlate`, `RuneDoor`, `StepView`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellReport`, `CompletionProvider`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` e `PuzzleDriver` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
 
 ## 6. Comandos
 
@@ -125,9 +127,11 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 - `Balance` é estático e guarda o arquivo: teste que usa `Balance.use_file` chama `Balance.reset()` no `after_test`, senão os números trocados vazam para as suítes seguintes. Mudar um custo do executor exige mudar o `balanceamento.json` **e** o `REGRAS_PADRAO` (o pytest avisa).
 - Teste de aceitação longo com inimigo que ataca à distância: dê vida de sobra ao mago (`health.maximum = 99; restore_full()`) e reponha a posição antes de cada conjuração (o empurrão tira o alvo do alcance).
 - **Para o assistente:** não deixe `python -` (ou outro comando que lê a entrada) solto num comando Bash: ele espera para sempre e o comando estoura o tempo (Sprint 11).
-- **Para o assistente (Sprint 12):** o Bash da ferramenta às vezes sobe com caminhos `/cygdrive/c/...` e **não enxerga a pasta Downloads** (onde está o Godot). Nesse caso, rode o Godot e o GdUnit4 pelo PowerShell (`$env:GODOT_BIN = "C:\...\Godot_v4.7.2-stable_win64_console.exe"; .\addons\gdUnit4\runtest.cmd ...` dentro de `game/`) e use caminhos relativos no Bash.
+- **Para o assistente (Sprint 12):** o Bash da ferramenta às vezes sobe com caminhos `/cygdrive/c/...` e **não enxerga a pasta Downloads** (onde está o Godot). Nesse caso, rode o Godot e o GdUnit4 pelo PowerShell (`$env:GODOT_BIN = "C:\...\Godot_v4.7.2-stable_win64_console.exe"; .\addons\gdUnit4\runtest.cmd ...` dentro de `game/`) e use caminhos relativos no Bash. Nesse Bash (cygwin), `grep -c $'\r'` acusa CR em arquivos que são LF: confira fins de linha com `git ls-files --eol <arquivo>`.
 - Os `ERROR: Parse JSON failed` na saída dos testes vêm dos testes de arquivo ilegível (balanceamento, diálogos, referência) e são esperados.
 - Teste novo de cena com texto na tela: compare com `tr("CHAVE")` (o `textos.csv` é carregado nos testes). Chave nova no CSV pede `--import` antes de rodar.
+- **Conteúdo novo de fala ou dica:** `test_NAR_005_toda_fala_cabe_na_caixa` abre todas e confere que a caixa não passa da metade da tela; no máximo ~4 linhas por fala. As páginas e dicas citam custos como texto: revise-as se o balanceamento mudar.
+- Teste que precisa do save cria o `World` com `save_path = "user://tests/…"` e apaga o arquivo (e o `.bak`) no `after_test`; nunca use o caminho do perfil.
 
 ## 8. Decisões em aberto
 
@@ -141,12 +145,14 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 | ~~Chefe e arquivo de balanceamento~~ | **Feito na Sprint 11** (regra própria `BossPhases`, orbe à distância; `content/balanceamento.json`), recomendações aprovadas pelo Victor |
 | Vida e tempos do chefe (30, transição 1,5 s, orbe 3 s/2 s), aviso antes do orbe | `COM-chefe.md`, perguntas em aberto; calibrar jogando |
 | Decisões da Sprint 12 tomadas por recomendação (valores de XP e níveis; inimigos que reaparecem dão XP; diálogo só com E; caixa no alto) | `docs/sprints/sprint-12-progressao.md`, Decisões; o Victor revisa |
-| A serpente puxa conversa sozinha em momentos-chave? | `NAR-dialogo.md`, perguntas em aberto; decidir na Sprint 13 |
-| Loop que lança várias vezes no cristal mutável falha por causa do ADR-001 (o feitiço vê o mundo da hora da conjuração) | `PUZ-03-simbolo.md`; proposta: a serpente explica na Sprint 13 |
+| A serpente puxa conversa sozinha em momentos-chave? | `NAR-dialogo.md`, perguntas em aberto; na Sprint 13 ficou só com E |
+| Decisões da Sprint 13 tomadas por recomendação (serpente por sala, dicas com pergunta, save por perfil e momentos de gravação) | `docs/sprints/sprint-13-serpente-save.md`, Decisões; o Victor revisa |
+| Mapa da área (forma, atalho de volta, segredos, o que fica atrás do chefe) | `docs/mapa-area.md`; o Victor confere no papel |
+| ~~Loop no cristal mutável falha por causa do ADR-001~~ | **Feito na Sprint 13:** a lição de condicionais explica que é um acerto por conjuração |
 | Limites das estrelas do Puzzle 6 (20/24) | `PUZ-06-revisao.md`; calibrar no playtest |
 | Questões do GDD: título, protagonista, motivo do mago, público, C++ | `docs/gdd.md`, fim |
 
 ## 9. Próximo passo
 
-1. Perguntar ao Victor se ele revisou as decisões da Sprint 12 (relatório) e jogou a seção 4f de `docs/feiticos-exemplo.md`.
-2. Começar a **Sprint 13** (`docs/sprints/sprint-13-serpente-save.md`): falas da serpente (apresentação e um ensinamento por conceito: sequência, variáveis, condicionais, loops, funções), dicas em três níveis por puzzle, save com versão (grimório, slots, XP e nível, sala atual, puzzles resolvidos, chefes derrotados, cenas vistas), por perfil, e o mapa da área no papel. **Primeiro** as specs `NAR-serpente`, `NAR-dicas` e `SAV-progresso`. O sistema de diálogo e a aba Referência já existem: o conteúdo entra em `content/dialogos.json`, `content/referencia.json` (páginas de conceito, `requer: []`) e `textos.csv`. Decidir com o Victor: onde a serpente aparece em cada sala, se ela puxa conversa sozinha e como as dicas são pedidas (ex.: falar com ela de novo numa sala de puzzle).
+1. Perguntar ao Victor se ele conferiu o mapa no papel (`docs/mapa-area.md`, 4 perguntas) e revisou as decisões das Sprints 12 e 13.
+2. Começar a **Sprint 14** (`docs/sprints/sprint-14-montagem-area.md`): montar as 12 salas na forma do mapa, posicionar puzzles, inimigos e segredos, e fazer o menu inicial, a pausa e as opções básicas (tamanho da fonte do grimório e dos diálogos). **Primeiro** as specs `MUN-mapa` (grafo de salas e o que bloqueia cada passagem; o teste confere que toda porta leva a uma sala que existe e tem volta, e que cada bloqueio só exige conceitos já ensinados) e `UI-menus`. O menu entra antes do `World` na `Main` (continuar/novo jogo usando o `save.json` do perfil). As salas `sala_p0N`/`sala_c0N` foram geradas por script: mexer na geometria exige rodar a aceitação de novo.

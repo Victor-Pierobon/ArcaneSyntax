@@ -29,5 +29,5 @@ layout = "############################################################
 ############################################################
 ############################################################"
 exits = {"b": "sala_02:A"}
-targets = {"1": "fogo", "2": "planta", "3": "raio", "4": "serpente:serpente_ola", "5": "cristal"}
+targets = {"1": "fogo", "2": "planta", "3": "raio", "4": "serpente:ensino_sequencia", "5": "cristal"}
 puzzle = {"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]}

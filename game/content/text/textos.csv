@@ -108,3 +108,57 @@ REF_LER_RUNA_TITULO,ler_runa
 REF_LER_RUNA_TEXTO,"[b]ler_runa(n)[/b]\n\nLê o número gravado numa runa da sala. As runas contam da esquerda para a direita, [b]a partir de 1[/b].\n\n[code]a = ler_runa(1)\nb = ler_runa(2)\nprint(a + b)[/code]\n\nPedir uma runa que não existe dá erro, e a mensagem diz quantas runas a sala tem."
 REF_PRINT_TITULO,print
 REF_PRINT_TEXTO,"[b]print(...)[/b]\n\nMostra uma visão sobre a sua cabeça e no registro. Use para descobrir o que o feitiço está vendo.\n\n[code]print(alvo.elemento, alvo.distancia)[/code]\n\nAs visões não mudam o mundo. São só para você entender o que acontece."
+ENSINO_SEQUENCIA_LICAO,"Primeira lição: o feitiço roda de cima para baixo, uma linha depois da outra. Isso se chama sequência. Se você escreve meditar() e, embaixo, lancar(...), primeiro junta mana e só depois lança."
+ENSINO_SEQUENCIA_2,"Está vendo o cristal adormecido perto da porta? Um feitiço o acorda... mas você chegou sem mana. Pense na ordem das coisas. A página Sequência, na Referência, ajuda."
+ENSINO_VARIAVEIS_1,"Sss, runas! Cada uma guarda um número, e os números mudam toda vez que alguém entra nesta sala."
+ENSINO_VARIAVEIS_LICAO,"Uma variável é um nome que guarda um valor:\n    a = ler_runa(1)\nDepois, use o nome no lugar do valor, como em a + b. Se o número muda a cada visita, guarde o que leu em vez de decorar."
+ENSINO_VARIAVEIS_2,"O cadeado com o Σ quer a soma das runas. A página Variáveis está na Referência."
+ENSINO_CONDICIONAIS_1,"Que cristal caprichoso! Muda de símbolo a cada acerto e só aceita o elemento que vence o símbolo da vez."
+ENSINO_CONDICIONAIS_LICAO,"Para decidir, use if:\n    if alvo.elemento == ""fogo"":\n        lancar(gelo, projetil, alvo)\nDepois vêm elif e else para os outros casos. O feitiço olha o mundo e escolhe, em vez de lançar sempre o mesmo."
+ENSINO_CONDICIONAIS_2,"Um segredo: o feitiço vê o mundo como ele estava quando você conjurou. Por isso é um acerto por conjuração. A página Condicionais está na Referência."
+ENSINO_LOOPS_1,"Um vão cheio de espinhos... e cada construir_bloco() põe só um bloco. Quantos você vai precisar?"
+ENSINO_LOOPS_LICAO,"Quando algo se repete, use um loop:\n    for i in range(3):\n        meditar()\nA linha recuada roda 3 vezes. Escrever uma vez sai mais barato que copiar: cada linha nova custa a inscrição."
+ENSINO_LOOPS_2,"As estrelas desta ponte contam a mana gasta: o loop brilha aqui. A página Loops está na Referência."
+ENSINO_FUNCOES_1,"Três colunas, cada uma com uma altura gravada. Subir é sempre a mesma receita; só muda o número."
+ENSINO_FUNCOES_LICAO,"Uma função guarda uma receita com nome:\n    def subir(altura):\n        levitar(altura)\nDepois é só chamar subir(5). O parâmetro altura recebe o número que você passar."
+ENSINO_FUNCOES_2,"Dentro da função dá até para meditar antes de subir. A página Funções está na Referência."
+ENSINO_REVISAO_1,"A última câmara deste andar. Aqui está tudo junto: runas, ponte, cristal e colunas."
+ENSINO_REVISAO_LICAO,"Você já tem tudo o que precisa: sequência, variáveis, condicionais, loops e funções. Resolva um mecanismo de cada vez, com o feitiço certo para cada um."
+ENSINO_REVISAO_2,"E economize: as estrelas daqui são as mais difíceis do andar. As páginas de conceito estão todas na Referência."
+SERPENTE_DICA_PERGUNTA_1,Quer uma dica? Esta é a primeira de três.
+SERPENTE_DICA_PERGUNTA_2,Quer outra dica? Esta é a segunda de três.
+SERPENTE_DICA_PERGUNTA_3,Quer a última dica? Ela já mostra boa parte do feitiço.
+SERPENTE_DICA_SIM,"Sim, por favor."
+SERPENTE_DICA_NAO,Agora não.
+SERPENTE_DICA_DEPOIS,"Tudo bem. Tentar sozinho também ensina, sss."
+DICA_P01_1,"Lembra: o feitiço roda uma linha depois da outra. O que precisa acontecer antes de lançar?"
+DICA_P01_2,"Junte mana primeiro e lance depois: duas linhas, nessa ordem, no mesmo feitiço."
+DICA_P01_3,"Algo assim:\nmeditar()\nlancar(fogo, projetil, alvo)\nChegue perto do cristal antes de conjurar."
+DICA_P02_1,"Uma variável guarda um valor com um nome. As runas mudam; o que você leu nelas, não."
+DICA_P02_2,"Leia as três runas com ler_runa(1), ler_runa(2) e ler_runa(3), some e inscreva o total no cadeado."
+DICA_P02_3,"a = ler_runa(1)\nb = ler_runa(2)\n... e depois inscrever(a + b + ...), a até 3 passos do cadeado."
+DICA_P03_1,"O cristal mostra um símbolo diferente a cada acerto. O feitiço precisa olhar antes de escolher o elemento."
+DICA_P03_2,"Use if, elif e else com alvo.elemento: um caso para planta, um para fogo, um para gelo."
+DICA_P03_3,"if alvo.elemento == ""planta"":\n    lancar(fogo, projetil, alvo)\nelif ...\nFaça o mesmo para fogo e gelo e conjure três vezes."
+DICA_P04_1,Lembra do loop? Ele repete o que está dentro dele.
+DICA_P04_2,"Um for com range e o construir_bloco() dentro, recuado."
+DICA_P04_3,"for i in range(...):\n    construir_bloco()\nQuantos blocos tem o vão?"
+DICA_P05_1,Subir uma coluna é sempre a mesma receita. Receita com nome é função.
+DICA_P05_2,"Faça def subir(altura): com levitar(altura) e mover(2) dentro, e chame uma vez para cada coluna."
+DICA_P05_3,"def subir(altura):\n    levitar(altura)\n    mover(2)\nE subir(...) com cada número gravado. Se faltar mana, medite dentro da função."
+DICA_P06_1,"Um mecanismo por vez: cadeado, ponte, cristal e colunas. Cada um pede o conceito de uma sala que você já passou."
+DICA_P06_2,"A soma das runas para o cadeado, um for para a ponte, um if para o cristal, uma função para as colunas."
+DICA_P06_3,"inscrever(ler_runa(1) + ...)\nfor i in range(...): construir_bloco()\no if do cristal, conjurado duas vezes\ndef subir(h) para as colunas"
+REF_SEQUENCIA_TITULO,Sequência
+REF_SEQUENCIA_TEXTO,"[b]Uma linha depois da outra[/b]\n\nO feitiço roda de cima para baixo. A ordem importa:\n\n[code]meditar()\nlancar(fogo, projetil, alvo)[/code]\n\nPrimeiro junta mana, depois lança. Trocar as duas linhas de lugar muda tudo: sem mana, o lançamento falha.\n\nSe uma linha dá erro, as de baixo não rodam. As de cima já aconteceram."
+REF_VARIAVEIS_TITULO,Variáveis
+REF_VARIAVEIS_TEXTO,"[b]Um nome que guarda um valor[/b]\n\n[code]a = ler_runa(1)\nb = ler_runa(2)\ntotal = a + b\nprint(total)[/code]\n\nO [b]=[/b] guarda o valor da direita no nome da esquerda. Depois, use o nome no lugar do valor.\n\nUma variável pode mudar: [code]total = total + 1[/code] soma 1 ao que já estava lá."
+REF_CONDICIONAIS_TITULO,Condicionais
+REF_CONDICIONAIS_TEXTO,"[b]if, elif, else: o feitiço que decide[/b]\n\n[code]if alvo.elemento == ""fogo"":\n    lancar(gelo, projetil, alvo)\nelif alvo.elemento == ""gelo"":\n    lancar(raio, projetil, alvo)\nelse:\n    lancar(fogo, projetil, alvo)[/code]\n\nSó o primeiro caso verdadeiro roda. Repare nos dois-pontos e no recuo de 4 espaços.\n\n[b]==[/b] compara; [b]=[/b] guarda. Não confunda os dois, sss."
+REF_LOOPS_TITULO,Loops
+REF_LOOPS_TEXTO,"[b]Repetir sem copiar[/b]\n\n[code]for i in range(3):\n    meditar()[/code]\n\nA linha recuada roda 3 vezes. Também dá para percorrer uma lista:\n\n[code]for inimigo in inimigos:\n    lancar(raio, faisca, inimigo)[/code]\n\nO [b]while[/b] repete enquanto a condição for verdadeira:\n\n[code]while mana < mana_max:\n    absorver_mana()[/code]\n\nCuidado com o loop que nunca para: a mana acaba e o feitiço falha."
+REF_FUNCOES_TITULO,Funções
+REF_FUNCOES_TEXTO,"[b]Uma receita com nome[/b]\n\n[code]def subir(altura):\n    levitar(altura)\n    mover(2)\n\nsubir(5)\nsubir(7)[/code]\n\n[b]def[/b] guarda a receita; ela só roda quando você a chama. O parâmetro [b]altura[/b] recebe o número de cada chamada.\n\nUma função também pode devolver um valor com [b]return[/b]:\n\n[code]def contra(simbolo):\n    if simbolo == ""fogo"":\n        return gelo\n    return fogo[/code]"
+SAVE_PROBLEMA,"Não deu para carregar o progresso (%s). Começando do zero; cópia guardada em %s"
+SAVE_ILEGIVEL,o arquivo está ilegível
+SAVE_VERSAO_NOVA,o save é da versão %d, mais nova que este jogo

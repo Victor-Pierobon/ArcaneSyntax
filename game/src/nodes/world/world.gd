@@ -12,19 +12,27 @@ const TARGET_RANGE_TILES := 12.0
 ## Pausa base entre ações nas salas com puzzle, dividida pela velocidade (spec PUZ-passo-a-passo).
 const STEP_DELAY := 0.3
 const STEP_SPEEDS := [1.0, 2.0, 0.5]
+## A fala que faz a lição contar como vista (spec NAR-serpente, regra 2).
+const LESSON_LINE := "licao"
 
 @export var rooms_dir: String = "res://content/rooms/"
 @export var start_room: String = "sala_01"
 @export var start_entry: String = "A"
 ## Arquivo do grimório; os testes usam outro caminho para não tocar no do jogador.
 @export var grimoire_path: String = GrimoireStore.DEFAULT_PATH
+## Arquivo do save; vazio não salva nem carrega. Quem define é a cena principal (spec SAV-progresso, regra 7).
+@export var save_path: String = ""
 
 var state := MagoState.new()
 var passive_scheduler := PassiveScheduler.new()
-## Puzzles resolvidos nesta sessão: id → {"estrelas": melhor} (gravar em disco é da Sprint 13).
+## Puzzles resolvidos: id → {"estrelas": melhor}. Vai para o save.
 var solved_puzzles: Dictionary = {}
-## Salas cujo chefe foi derrotado nesta sessão: o chefe não volta (spec COM-chefe, regra 7).
+## Salas cujo chefe foi derrotado: o chefe não volta (spec COM-chefe, regra 7). Vai para o save.
 var defeated_bosses: Dictionary = {}
+## Lições da serpente já vistas (cena → true) e dicas usadas por puzzle (NAR-serpente, NAR-dicas).
+var seen_lessons: Dictionary = {}
+var hints_used: Dictionary = {}
+var hints := HintBook.load_file(HintBook.DEFAULT_PATH)
 ## Mana gasta na sala atual pelos feitiços que agem, até o puzzle ser resolvido (PUZ-validacao, regra 14).
 var room_mana_spent := 0.0
 ## Sorteio das runas `?` e dos cristais mutáveis; os testes fixam a semente.
@@ -48,6 +56,11 @@ var _changing_room := false
 ## As cenas de diálogo e a caixa que as mostra (spec NAR-dialogo).
 var dialogues := DialogueBook.load_file(DialogueBook.DEFAULT_PATH)
 var dialogue_box := DialogueBox.new()
+## A conversa aberta: a leitura, a lição da serpente e o puzzle da dica oferecida (vazio se não é dica).
+var _talk_run: DialogueRun
+var _talk_lesson := ""
+var _talk_hint_puzzle := ""
+var _progress_store: ProgressStore
 
 @onready var player: Player = $Player
 @onready var hud: Hud = $Hud
@@ -89,10 +102,90 @@ func _ready() -> void:
 	state.health.died.connect(_on_died)
 	state.leveled_up.connect(_on_leveled_up)
 	add_child(dialogue_box)
-	dialogue_box.finished.connect(func() -> void: grimoire_ui.blocked = false)
-	for error in dialogues.errors:
+	dialogue_box.finished.connect(_on_dialogue_finished)
+	for error in dialogues.errors + hints.errors:
 		_report(error)
+	if not save_path.is_empty():
+		_load_progress()
 	go_to(start_room, start_entry)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_progress()
+
+
+## O que vai para o save (spec SAV-progresso, regra 3).
+func progress_snapshot() -> Dictionary:
+	return {
+		"sala": current_room.room_id if current_room else start_room,
+		"entrada": current_entry,
+		"mago": {"xp": state.xp, "mana": state.mana},
+		"puzzles": solved_puzzles,
+		"chefes": defeated_bosses.keys(),
+		"licoes": seen_lessons.keys(),
+		"dicas": hints_used,
+	}
+
+
+## Grava o progresso; false sem `save_path` ou se não conseguiu (regras 4 e 7).
+func save_progress() -> bool:
+	if _progress_store == null:
+		return false
+	return _progress_store.save(progress_snapshot())
+
+
+## Lê o save antes de montar a primeira sala; save com problema começa do zero (regra 6).
+func _load_progress() -> void:
+	_progress_store = ProgressStore.new(save_path)
+	var data := _progress_store.load_data()
+	if not _progress_store.last_problem.is_empty():
+		var message: String = tr("SAVE_PROBLEMA") % [_progress_store.last_problem, save_path + ".bak"]
+		cast_log.add_lines(PackedStringArray([message]))
+		push_warning(message)
+	if not data.is_empty():
+		apply_progress(data)
+
+
+## Aplica um save já lido; campo ausente ou do tipo errado fica no padrão (regra 6).
+func apply_progress(data: Dictionary) -> void:
+	var mago: Dictionary = data.get("mago") if data.get("mago") is Dictionary else {}
+	var xp: Variant = mago.get("xp")
+	var mana: Variant = mago.get("mana")
+	state.restore_progress(maxi(int(xp), 0) if _is_number(xp) else 0, float(mana) if _is_number(mana) else 0.0)
+	var puzzles: Variant = data.get("puzzles")
+	if puzzles is Dictionary:
+		for puzzle_id: String in puzzles:
+			var entry: Variant = puzzles[puzzle_id]
+			if entry is Dictionary:
+				var stars: Variant = entry.get("estrelas")
+				solved_puzzles[puzzle_id] = {"estrelas": int(stars) if _is_number(stars) else 0}
+	defeated_bosses = _string_set(data.get("chefes"))
+	seen_lessons = _string_set(data.get("licoes"))
+	var used: Variant = data.get("dicas")
+	if used is Dictionary:
+		for puzzle_id: String in used:
+			if _is_number(used[puzzle_id]):
+				hints_used[puzzle_id] = clampi(int(used[puzzle_id]), 0, HintBook.LEVELS)
+	var room: Variant = data.get("sala")
+	if room is String and ResourceLoader.exists(rooms_dir.path_join(room + ".tscn")):
+		start_room = room
+		var letter: Variant = data.get("entrada")
+		start_entry = letter if letter is String else ""
+
+
+static func _is_number(value: Variant) -> bool:
+	return value is int or value is float
+
+
+## Lista de textos do save → {texto: true}; qualquer outra coisa → vazio.
+static func _string_set(value: Variant) -> Dictionary:
+	var result := {}
+	if value is Array:
+		for item: Variant in value:
+			if item is String:
+				result[item] = true
+	return result
 
 
 func _physics_process(delta: float) -> void:
@@ -151,8 +244,31 @@ func talk() -> void:
 	if not dialogues.can_play(serpent.scene_id):
 		_report(tr("DIALOGO_CENA_COM_ERRO") % serpent.scene_id)
 		return
+	# Lição vista e puzzle da sala sem solução: a próxima dica; senão, a lição (NAR-serpente, regra 3).
+	_talk_lesson = serpent.scene_id
+	_talk_hint_puzzle = ""
+	var puzzle_open := current_room.has_puzzle() and not current_room.is_solved()
+	if seen_lessons.has(_talk_lesson) and puzzle_open and hints.has_hints(current_room.puzzle_id()):
+		_talk_hint_puzzle = current_room.puzzle_id()
+		_talk_run = DialogueRun.new(hints.scene(_talk_hint_puzzle, int(hints_used.get(_talk_hint_puzzle, 0)) + 1))
+	else:
+		_talk_run = dialogues.start(_talk_lesson)
 	grimoire_ui.blocked = true
-	dialogue_box.open(dialogues.start(serpent.scene_id))
+	dialogue_box.open(_talk_run)
+
+
+## Fim da conversa: conta a lição e a dica pelas falas que apareceram (NAR-serpente, regra 2; NAR-dicas,
+## regra 4) e salva.
+func _on_dialogue_finished() -> void:
+	grimoire_ui.blocked = false
+	if _talk_run == null:
+		return
+	if _talk_run.has_seen(LESSON_LINE):
+		seen_lessons[_talk_lesson] = true
+	if not _talk_hint_puzzle.is_empty() and _talk_run.has_seen(HintBook.HINT_LINE):
+		hints_used[_talk_hint_puzzle] = mini(int(hints_used.get(_talk_hint_puzzle, 0)) + 1, HintBook.LEVELS)
+	_talk_run = null
+	save_progress()
 
 
 ## A serpente da sala atual ao alcance do mago, ou null.
@@ -185,6 +301,7 @@ func _on_puzzle_solved(puzzle_id: String) -> void:
 	var bonus := Progression.economy_bonus(stars)
 	var xp := Progression.puzzle_xp(stars)
 	_gain_xp(xp, tr("XP_GANHO_ECONOMIA") % [xp, bonus] if bonus > 0 else tr("XP_GANHO") % xp)
+	save_progress()
 
 
 ## Soma o custo das conjurações que agem enquanto o puzzle da sala não foi resolvido (regra 14).
@@ -297,11 +414,13 @@ func _gain_xp(amount: int, message: String) -> void:
 
 func _on_leveled_up(level: int) -> void:
 	cast_log.add_lines(PackedStringArray([tr("NIVEL_SUBIU") % [level, roundi(state.mana_max)]]))
+	save_progress()
 
 
 func _on_boss_defeated(room_id: String) -> void:
 	defeated_bosses[room_id] = true
 	cast_log.add_lines(PackedStringArray([tr("CHEFE_DERROTADO")]))
+	save_progress()
 
 
 func _on_target_hit(_attack_element: String, effect: ElementTable.Effect) -> void:
@@ -398,6 +517,7 @@ func go_to(room_id: String, entry: String) -> void:
 	safe_point = player.global_position
 	_apply_camera_limits(current_room.bounds())
 	room_changed.emit(room_id)
+	save_progress()
 
 
 func _on_exit_touched(target_room: String, target_entry: String) -> void:

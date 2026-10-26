@@ -47,6 +47,16 @@ func gain_xp(amount: int) -> void:
 	xp_changed.emit(xp, level)
 
 
+## Volta ao progresso de um save, sem avisar subida de nível: o nível e a mana máxima vêm da XP
+## (spec SAV-progresso, regra 3).
+func restore_progress(p_xp: int, p_mana: float) -> void:
+	xp = maxi(p_xp, 0)
+	level = Progression.level_for(xp)
+	mana_max = Progression.mana_max_for(level)
+	set_mana(p_mana)
+	xp_changed.emit(xp, level)
+
+
 ## O "mago" do protocolo do executor (spec EXE-protocolo).
 func to_spell_mago() -> Dictionary:
 	return {"vida": health.current, "mana": mana, "mana_max": mana_max}

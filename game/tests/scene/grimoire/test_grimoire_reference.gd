@@ -48,7 +48,7 @@ func test_GRI_083_aba_de_referencia() -> void:
 	ui.editor.text = "lancar(gelo, projetil)"
 	ui.show_reference()
 	assert_bool(ui.is_showing_reference()).is_true()
-	assert_int(ui.reference_list.item_count).is_equal(13)
+	assert_int(ui.reference_list.item_count).is_equal(18)
 	assert_str(_titles()[0]).is_equal(tr("REF_LANCAR_TITULO"))
 	assert_str(ui.reference_text.text).is_equal(tr("REF_LANCAR_TEXTO"))
 	ui.select_page("levitar")
@@ -66,4 +66,4 @@ func test_GRI_084_peca_bloqueada_esconde_a_pagina() -> void:
 	ui.open()
 	ui.show_reference()
 	assert_array(_titles()).not_contains([tr("REF_LEVITAR_TITULO")])
-	assert_int(ui.reference_list.item_count).is_equal(12)
+	assert_int(ui.reference_list.item_count).is_equal(17)

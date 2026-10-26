@@ -1,5 +1,5 @@
 {
-  "serpente_ola": {
+  "ensino_sequencia": {
     "inicio": "a",
     "falas": {
       "a": {"quem": "serpente", "texto": "SERPENTE_OLA_1", "proxima": "b"},
@@ -9,8 +9,50 @@
       ]},
       "c": {"quem": "serpente", "texto": "SERPENTE_OLA_3", "proxima": "e"},
       "e": {"quem": "mago", "texto": "SERPENTE_OLA_5", "proxima": "f"},
-      "f": {"quem": "serpente", "texto": "SERPENTE_OLA_6"},
+      "f": {"quem": "serpente", "texto": "SERPENTE_OLA_6", "proxima": "licao"},
+      "licao": {"quem": "serpente", "texto": "ENSINO_SEQUENCIA_LICAO", "proxima": "g"},
+      "g": {"quem": "serpente", "texto": "ENSINO_SEQUENCIA_2"},
       "d": {"quem": "serpente", "texto": "SERPENTE_OLA_4"}
+    }
+  },
+  "ensino_variaveis": {
+    "inicio": "a",
+    "falas": {
+      "a": {"quem": "serpente", "texto": "ENSINO_VARIAVEIS_1", "proxima": "licao"},
+      "licao": {"quem": "serpente", "texto": "ENSINO_VARIAVEIS_LICAO", "proxima": "b"},
+      "b": {"quem": "serpente", "texto": "ENSINO_VARIAVEIS_2"}
+    }
+  },
+  "ensino_condicionais": {
+    "inicio": "a",
+    "falas": {
+      "a": {"quem": "serpente", "texto": "ENSINO_CONDICIONAIS_1", "proxima": "licao"},
+      "licao": {"quem": "serpente", "texto": "ENSINO_CONDICIONAIS_LICAO", "proxima": "b"},
+      "b": {"quem": "serpente", "texto": "ENSINO_CONDICIONAIS_2"}
+    }
+  },
+  "ensino_loops": {
+    "inicio": "a",
+    "falas": {
+      "a": {"quem": "serpente", "texto": "ENSINO_LOOPS_1", "proxima": "licao"},
+      "licao": {"quem": "serpente", "texto": "ENSINO_LOOPS_LICAO", "proxima": "b"},
+      "b": {"quem": "serpente", "texto": "ENSINO_LOOPS_2"}
+    }
+  },
+  "ensino_funcoes": {
+    "inicio": "a",
+    "falas": {
+      "a": {"quem": "serpente", "texto": "ENSINO_FUNCOES_1", "proxima": "licao"},
+      "licao": {"quem": "serpente", "texto": "ENSINO_FUNCOES_LICAO", "proxima": "b"},
+      "b": {"quem": "serpente", "texto": "ENSINO_FUNCOES_2"}
+    }
+  },
+  "ensino_revisao": {
+    "inicio": "a",
+    "falas": {
+      "a": {"quem": "serpente", "texto": "ENSINO_REVISAO_1", "proxima": "licao"},
+      "licao": {"quem": "serpente", "texto": "ENSINO_REVISAO_LICAO", "proxima": "b"},
+      "b": {"quem": "serpente", "texto": "ENSINO_REVISAO_2"}
     }
   }
 }

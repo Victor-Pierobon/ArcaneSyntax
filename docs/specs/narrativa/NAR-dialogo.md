@@ -23,7 +23,7 @@ Conteúdo final das falas (Sprint 13). Retrato, animação e voz. Condições na
 4. **Leitura** (`DialogueRun`, regra pura): começa na fala `inicio`; `current()` devolve `{quem, texto, opcoes}` (textos já traduzidos); `advance()` vai para a `proxima` (não faz nada numa fala com opções); `choose(n)` (a partir de 1) segue a opção; na fala sem continuação, `advance()` termina a cena.
 5. **Na sala**: em `targets`, `serpente:<cena>` põe a serpente. Com o mago a até **2 tiles**, aparece `E: falar` sobre ela; apertar **E** (ação `talk`) abre a cena.
 6. **Caixa de diálogo** (`DialogueBox`): no alto da tela, abaixo do HUD (embaixo ela cobria o mago e a serpente, que ficam no chão), com o nome de quem fala e o texto; as opções numeradas. Enquanto aberta, **o jogo pausa** e o grimório não abre. **Espaço**, **Enter** ou **E** avançam; **1–3** escolhem a opção. Ao terminar, a caixa fecha e o jogo despausa.
-7. Nesta sprint, a sala_01 tem uma serpente com uma cena de teste (`serpente_ola`): uma apresentação curta com uma escolha.
+7. Na Sprint 12, a sala_01 tinha uma cena de teste (`serpente_ola`); desde a Sprint 13 as cenas são as lições da serpente (NAR-serpente).
 
 ## Critérios de aceite
 
