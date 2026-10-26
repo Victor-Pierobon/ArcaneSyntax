@@ -24,6 +24,16 @@ def _exigir(obj, campo, valido, descricao, prefixo=""):
     return obj[campo]
 
 
+def _validar_alvo(alvo, prefixo):
+    _exigir(alvo, "id", lambda v: isinstance(v, str), "texto", prefixo)
+    _exigir(alvo, "elemento", lambda v: isinstance(v, str), "texto", prefixo)
+    _exigir(alvo, "distancia", _numero, "um número", prefixo)
+    if alvo.get("vida") is not None and not _numero(alvo["vida"]):
+        raise RequisicaoInvalida(f"{prefixo}vida precisa ser um número ou null")
+    if alvo.get("escudo") is not None and not isinstance(alvo["escudo"], str):
+        raise RequisicaoInvalida(f"{prefixo}escudo precisa ser texto ou null")
+
+
 def _validar(req):
     if req.get("versao") != VERSAO:
         raise RequisicaoInvalida(f"versão de protocolo não suportada: {req.get('versao')!r}")
@@ -36,9 +46,12 @@ def _validar(req):
     if alvo is not None:
         if not isinstance(alvo, dict):
             raise RequisicaoInvalida("mundo.alvo precisa ser um objeto ou null")
-        _exigir(alvo, "id", lambda v: isinstance(v, str), "texto", "mundo.alvo.")
-        _exigir(alvo, "elemento", lambda v: isinstance(v, str), "texto", "mundo.alvo.")
-        _exigir(alvo, "distancia", _numero, "um número", "mundo.alvo.")
+        _validar_alvo(alvo, "mundo.alvo.")
+    inimigos = mundo.get("inimigos", [])
+    if not isinstance(inimigos, list) or not all(isinstance(i, dict) for i in inimigos):
+        raise RequisicaoInvalida("mundo.inimigos precisa ser uma lista de objetos")
+    for n, inimigo in enumerate(inimigos):
+        _validar_alvo(inimigo, f"mundo.inimigos[{n}].")
     sala = mundo.get("sala")
     if sala is not None:
         if not isinstance(sala, dict):
@@ -86,7 +99,8 @@ def handle_request(req):
         return _invalida(id, str(e))
     mundo = req["mundo"]
     resultado = run_spell(
-        req["codigo"], mundo["mago"], mundo.get("alvo"), req.get("regras"), req.get("pecas"), mundo.get("sala")
+        req["codigo"], mundo["mago"], mundo.get("alvo"), req.get("regras"), req.get("pecas"), mundo.get("sala"),
+        mundo.get("inimigos"),
     )
     return _resposta(id, resultado)
 

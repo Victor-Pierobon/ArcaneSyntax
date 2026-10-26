@@ -2,6 +2,10 @@ class_name PlayerMotor
 extends RefCounted
 ## Regra pura do movimento do mago (spec MUN-movimento).
 
+## Empurrão do contato com um inimigo (spec COM-dano, regra 4); valores provisórios.
+const KNOCKBACK_SPEED := Vector2(140.0, 140.0)
+const KNOCKBACK_TIME := 0.2
+
 var walk_speed: float = 120.0
 var gravity: float = 980.0
 var jump_height: float = 48.0
@@ -24,6 +28,9 @@ var _dodge_left := 0.0
 var _dodge_direction := 1
 var _dodge_cooldown_left := 0.0
 var _air_dodge_available := true
+var _knockback_left := 0.0
+var _knockback_direction := 0
+var _knockback_lift := false
 
 
 ## Velocidade (positiva) que leva o mago exatamente a jump_height.
@@ -49,6 +56,8 @@ func step(velocity: Vector2, intent: PlayerIntent, on_floor: bool, delta: float)
 	if is_dodging():
 		_dodge_left -= delta
 		return Vector2(_dodge_direction * dodge_speed, 0.0)
+	if _knockback_left > 0.0:
+		return _knockback_step(velocity, on_floor, delta)
 
 	var v := velocity
 	v.x = intent.move_x * walk_speed
@@ -70,6 +79,24 @@ func step(velocity: Vector2, intent: PlayerIntent, on_floor: bool, delta: float)
 		v.y *= jump_cut
 		_jump_cut_available = false
 
+	return v
+
+
+## Empurra o mago para `direction` (1 ou -1) por KNOCKBACK_TIME, ignorando a intenção.
+func knock_back(direction: int) -> void:
+	_knockback_left = KNOCKBACK_TIME
+	_knockback_direction = direction
+	_knockback_lift = true
+
+
+func _knockback_step(velocity: Vector2, on_floor: bool, delta: float) -> Vector2:
+	_knockback_left -= delta
+	var v := Vector2(_knockback_direction * KNOCKBACK_SPEED.x, velocity.y)
+	if _knockback_lift:
+		v.y = -KNOCKBACK_SPEED.y
+		_knockback_lift = false
+	elif not on_floor:
+		v.y = minf(v.y + gravity * delta, max_fall_speed)
 	return v
 
 

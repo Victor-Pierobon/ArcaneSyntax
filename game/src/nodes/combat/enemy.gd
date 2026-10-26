@@ -1,0 +1,172 @@
+class_name Enemy
+extends TrainingTarget
+## Inimigo (spec COM-dano): tem vida, sofre dano pelo elemento e pela forma do golpe, e machuca
+## o mago por contato. Cada tipo (Elemental, SwarmBug, Guardian) decide como se mexe em `_think`.
+
+signal defeated
+## Encostou no mago neste quadro; a Room repassa para o World, que aplica o dano.
+signal touched_player(enemy: Enemy)
+
+const ENEMY_GROUP := &"inimigos"
+const CONTACT_DAMAGE := 1
+## Depois de derrotado, o texto do último golpe fica um instante antes de sumir.
+const DEFEAT_LINGER := 0.4
+const BAR_HEIGHT := 2.0
+
+var health: Health
+var contact_damage := CONTACT_DAMAGE
+var last_damage := 0
+var last_blocked := false
+## O mago, para quem reage a ele; null quando não há mundo (testes de sala).
+var player: Node2D
+
+var _contact := Area2D.new()
+var _bar_back := ColorRect.new()
+var _bar := ColorRect.new()
+
+
+func setup(p_target_id: String, p_element: String, max_health: int, size: Vector2) -> void:
+	target_id = p_target_id
+	element = p_element
+	name = p_target_id
+	body_size = size
+	health = Health.new(max_health)
+	health.invulnerable_time = 0.0
+
+
+func _ready() -> void:
+	super._ready()
+	add_to_group(ENEMY_GROUP)
+	_contact.name = "Contact"
+	_contact.collision_layer = 0
+	_contact.collision_mask = 1
+	_contact.monitorable = false
+	_contact.monitoring = false
+	var shape := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = body_size
+	shape.shape = rect
+	shape.position = Vector2(0, -body_size.y / 2)
+	_contact.add_child(shape)
+	add_child(_contact)
+	for bar: ColorRect in [_bar_back, _bar]:
+		bar.size = Vector2(body_size.x, BAR_HEIGHT)
+		bar.position = Vector2(-body_size.x / 2, -body_size.y - 4)
+		add_child(bar)
+	_bar_back.color = Color(0, 0, 0, 0.6)
+	_bar.color = Color("e05050")
+	# Nome e texto do golpe acima da barra, sem encostar nela (regressão: a barra cobria o nome).
+	name_label.position.y = -body_size.y - 4 - 1 - name_label.get_minimum_size().y
+	effect_label.position.y = name_label.position.y - 12
+	_activate_contact()
+
+
+## Como as áreas da sala, o contato só liga depois do primeiro quadro (MUN-salas, regra 7).
+func _activate_contact() -> void:
+	await get_tree().physics_frame
+	if is_inside_tree() and not is_defeated():
+		_contact.set_deferred(&"monitoring", true)
+
+
+func _physics_process(delta: float) -> void:
+	if is_defeated():
+		return
+	_think(delta)
+	if not _contact.monitoring:
+		return
+	for body in _contact.get_overlapping_bodies():
+		if body is Player:
+			_on_touched_player()
+			touched_player.emit(self)
+			return
+
+
+## Movimento do quadro; cada tipo de inimigo implementa.
+func _think(_delta: float) -> void:
+	pass
+
+
+func _on_touched_player() -> void:
+	pass
+
+
+## Pés do mago em coordenadas da sala, ou null sem mago.
+func _player_feet() -> Variant:
+	if player == null or not is_instance_valid(player) or get_parent() == null:
+		return null
+	return (get_parent() as Node2D).to_local(player.global_position)
+
+
+## Retângulo da barra de vida, em coordenadas do inimigo.
+func life_bar_rect() -> Rect2:
+	return Rect2(_bar_back.position, _bar_back.size)
+
+
+func is_defeated() -> bool:
+	return health.is_dead()
+
+
+## Elemento do escudo, ou null (só o guardião tem; COM-guardiao).
+func shield_element() -> Variant:
+	return null
+
+
+func hit(attack_element: String, form: String = "") -> void:
+	if is_defeated():
+		return
+	last_hit_element = attack_element
+	last_form = form
+	hits += 1
+	var result := _resolve(attack_element, form)
+	last_effect = result["effect"]
+	last_damage = result["damage"]
+	last_blocked = result["blocked"]
+	_show_hit(attack_element, _hit_text(result))
+	was_hit.emit(attack_element, last_effect)
+	apply_damage(last_damage)
+
+
+## {"blocked", "damage", "effect"} do golpe (o guardião troca pelo escudo).
+func _resolve(attack_element: String, form: String) -> Dictionary:
+	return {
+		"blocked": false,
+		"damage": Damage.amount(attack_element, form, element),
+		"effect": ElementTable.effect(attack_element, element),
+	}
+
+
+func _hit_text(result: Dictionary) -> String:
+	if result["blocked"]:
+		return tr("ALVO_BLOQUEOU")
+	var label := tr(ElementTable.LABEL_KEYS[result["effect"]])
+	return label if result["damage"] == 0 else "%s −%d" % [label, result["damage"]]
+
+
+func apply_damage(amount: int) -> void:
+	if is_defeated() or amount <= 0:
+		return
+	health.damage(amount)
+	_bar.size.x = body_size.x * health.current / health.maximum
+	if health.is_dead():
+		_defeat()
+
+
+## Sai dos grupos na hora (o próximo feitiço já não vê) e some depois de um instante (regra 2).
+func _defeat() -> void:
+	remove_from_group(TrainingTarget.GROUP)
+	remove_from_group(ENEMY_GROUP)
+	_contact.set_deferred(&"monitoring", false)
+	var hurtbox: Area2D = get_node_or_null("Hurtbox")
+	if hurtbox:
+		hurtbox.set_deferred(&"monitorable", false)
+	_body.visible = false
+	name_label.visible = false
+	_bar.visible = false
+	_bar_back.visible = false
+	if get_parent():
+		Fx.burst(get_parent(), position + Vector2(0, -body_size.y / 2), ELEMENT_COLORS.get(element, Color.WHITE), 24)
+	defeated.emit()
+	if is_inside_tree():
+		get_tree().create_timer(DEFEAT_LINGER, false, true).timeout.connect(queue_free)
+	else:
+		queue_free()

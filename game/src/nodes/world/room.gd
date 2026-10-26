@@ -7,6 +7,8 @@ signal hazard_touched
 signal safe_point_touched(feet: Vector2)
 ## O puzzle da sala foi resolvido (spec PUZ-validacao).
 signal puzzle_solved(puzzle_id: String)
+## Um inimigo encostou no mago (spec COM-dano, regra 4); `from` é a posição do inimigo.
+signal player_attacked(from: Vector2, amount: int)
 
 const TILESET := preload("res://assets/placeholder/tiles.tres")
 const ATLAS_STONE := Vector2i(0, 0)
@@ -19,7 +21,8 @@ const TILE := RoomLayout.TILE
 ## Letra da saída → "sala:Entrada", ex.: {"b": "sala_02:A"}.
 @export var exits: Dictionary = {}
 ## Dígito → o que ele é: elemento de boneco ({"1": "fogo"}, spec MUN-alvos), "cristal[:...]",
-## "runa:<n>" ou "runa:?", "cadeado:soma", "gravura:<texto>" (spec PUZ-validacao).
+## "runa:<n>" ou "runa:?", "cadeado:soma", "gravura:<texto>" (spec PUZ-validacao) ou
+## "inimigo:elemental[:<elemento>]", "inimigo:enxame[:<n>]", "inimigo:guardiao" (spec COM-dano).
 @export var targets: Dictionary = {}
 ## {"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]} ou vazio (spec PUZ-validacao).
 @export var puzzle: Dictionary = {}
@@ -30,6 +33,8 @@ var errors: Array[String] = []
 ## Sorteio das runas `?` e dos cristais mutáveis; o World passa o dele antes de pôr a sala na árvore.
 var rng: RandomNumberGenerator
 var bridge: Bridge
+## O mago, para os inimigos reagirem a ele; o World passa antes de pôr a sala na árvore.
+var player: Node2D
 
 var _areas: Array[Area2D] = []
 var _crystals: Dictionary = {}
@@ -41,6 +46,7 @@ var _locks: Dictionary = {}
 var _plates: Array[PressurePlate] = []
 ## Textos gravados na parede (regra 16), da esquerda para a direita.
 var _engravings: Array[Label] = []
+var _enemies: Array[Enemy] = []
 
 
 func _ready() -> void:
@@ -107,6 +113,15 @@ func spell_room() -> Dictionary:
 	if _runes.is_empty():
 		return {}
 	return {"runas": _runes.map(func(rune: Rune) -> int: return rune.value)}
+
+
+## Inimigos ainda não derrotados.
+func enemies() -> Array[Enemy]:
+	var alive: Array[Enemy] = []
+	for enemy in _enemies:
+		if is_instance_valid(enemy) and not enemy.is_defeated():
+			alive.append(enemy)
+	return alive
 
 
 func runes() -> Array[Rune]:
@@ -226,6 +241,9 @@ func _build_targets() -> void:
 		if spec.begins_with("gravura:"):
 			_add_engraving(spec.trim_prefix("gravura:"), cell)
 			continue
+		if spec.begins_with("inimigo:"):
+			_add_enemies(digit, spec, cell)
+			continue
 		if spec.begins_with("cadeado"):
 			var lock := RuneLock.make()
 			lock.position = RoomLayout.cell_feet(cell)
@@ -248,6 +266,44 @@ func _build_targets() -> void:
 		return a.position.x < b.position.x or (a.position.x == b.position.x and a.position.y < b.position.y)
 	)
 	_engravings.sort_custom(func(a: Label, b: Label) -> bool: return a.position.x < b.position.x)
+
+
+## Um dígito pode virar vários inimigos (o enxame); erros de autoria não criam nada (COM-dano, regra 8).
+func _add_enemies(digit: String, spec: String, cell: Vector2i) -> void:
+	var parts := spec.split(":")
+	var target_id := "%s_alvo_%s" % [room_id, digit]
+	var created: Array[Enemy] = []
+	match parts[1]:
+		"elemental":
+			var enemy_element := parts[2] if parts.size() > 2 else "fogo"
+			if not enemy_element in Elemental.ELEMENTS:
+				errors.append("elemental '%s' com elemento desconhecido (use fogo, gelo ou planta)" % enemy_element)
+				return
+			var elemental := Elemental.make_elemental(target_id, enemy_element)
+			elemental.layout = data
+			elemental.position = RoomLayout.cell_feet(cell)
+			created.append(elemental)
+		"enxame":
+			var count := SwarmBug.DEFAULT_COUNT
+			if parts.size() > 2:
+				count = parts[2].to_int() if parts[2].is_valid_int() else 0
+			if count < 1 or count > SwarmBug.MAX_COUNT:
+				errors.append("enxame com '%s' bichos (use de 1 a %d)" % [parts[2], SwarmBug.MAX_COUNT])
+				return
+			for n in count:
+				created.append(SwarmBug.make_bug("%s_%d" % [target_id, n + 1], RoomLayout.cell_center(cell), TAU * n / count))
+		"guardiao":
+			var guardian := Guardian.make_guardian(target_id)
+			guardian.position = RoomLayout.cell_feet(cell)
+			created.append(guardian)
+		_:
+			errors.append("inimigo desconhecido '%s' (use elemental, enxame ou guardiao)" % parts[1])
+			return
+	for enemy in created:
+		enemy.player = player
+		enemy.touched_player.connect(func(by: Enemy) -> void: player_attacked.emit(by.global_position, by.contact_damage))
+		_enemies.append(enemy)
+		add_child(enemy)
 
 
 func _add_engraving(text: String, cell: Vector2i) -> void:

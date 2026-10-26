@@ -1,0 +1,74 @@
+{
+  "descricao": "Combate: inimigos na foto, alvo com vida e escudo, loop de faiscas (Sprint 10)",
+  "requisicao": {
+    "versao": 1,
+    "id": 11,
+    "codigo": "vence = {\"fogo\": gelo, \"planta\": fogo, \"gelo\": raio}\nlancar(vence[alvo.escudo], projetil, alvo)\nfor inimigo in inimigos:\n    lancar(raio, faisca, inimigo)",
+    "mundo": {
+      "mago": {
+        "vida": 5,
+        "mana": 10,
+        "mana_max": 10
+      },
+      "alvo": {
+        "id": "sala_c03_alvo_1",
+        "elemento": "pedra",
+        "distancia": 4.0,
+        "vida": 18,
+        "escudo": "planta"
+      },
+      "inimigos": [
+        {
+          "id": "sala_c03_alvo_1",
+          "elemento": "pedra",
+          "distancia": 4.0,
+          "vida": 18,
+          "escudo": "planta"
+        },
+        {
+          "id": "sala_c02_alvo_4_1",
+          "elemento": "gelo",
+          "distancia": 6.5,
+          "vida": 2,
+          "escudo": null
+        }
+      ]
+    }
+  },
+  "resposta": {
+    "versao": 1,
+    "id": 11,
+    "ok": true,
+    "acoes": [
+      {
+        "tipo": "lancar",
+        "linha": 2,
+        "elemento": "fogo",
+        "forma": "projetil",
+        "alvo": "sala_c03_alvo_1"
+      },
+      {
+        "tipo": "lancar",
+        "linha": 4,
+        "elemento": "raio",
+        "forma": "faisca",
+        "alvo": "sala_c03_alvo_1"
+      },
+      {
+        "tipo": "lancar",
+        "linha": 4,
+        "elemento": "raio",
+        "forma": "faisca",
+        "alvo": "sala_c02_alvo_4_1"
+      }
+    ],
+    "saidas": [],
+    "mago": {
+      "vida": 5,
+      "mana": 4.3,
+      "mana_max": 10
+    },
+    "custo_mana": 5.7,
+    "erro": null
+  }
+}

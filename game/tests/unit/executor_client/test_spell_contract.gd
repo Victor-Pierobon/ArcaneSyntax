@@ -86,3 +86,24 @@ func test_EXE_111_requisicao_leva_a_sala() -> void:
 func test_EXE_111_sem_sala_omite_o_campo() -> void:
 	var request := SpellRequest.make("meditar()", {"vida": 10, "mana": 5, "mana_max": 20})
 	assert_bool(request.to_dict(1)["mundo"].has("sala")).is_false()
+
+
+func test_EXE_113_requisicao_leva_os_inimigos() -> void:
+	var fixture: Dictionary = fixtures["11_combate"]
+	var mundo: Dictionary = fixture["requisicao"]["mundo"]
+	var request := SpellRequest.make(
+		fixture["requisicao"]["codigo"], mundo["mago"], mundo["alvo"], {}, null, {}, mundo["inimigos"],
+	)
+	assert_dict(ContractFixtures.normalize(request.to_dict(11))).is_equal(fixture["requisicao"])
+
+
+func test_EXE_113_sem_inimigos_omite_o_campo() -> void:
+	var request := SpellRequest.make("meditar()", {"vida": 10, "mana": 5, "mana_max": 20})
+	assert_bool(request.to_dict(1)["mundo"].has("inimigos")).is_false()
+
+
+func test_EXE_113_resultado_le_a_faisca() -> void:
+	var result := SpellResult.from_dict(fixtures["11_combate"]["resposta"])
+	assert_str(result.actions[1]["forma"]).is_equal("faisca")
+	assert_str(result.actions[2]["alvo"]).is_equal("sala_c02_alvo_4_1")
+	assert_float(result.cost).is_equal(5.7)

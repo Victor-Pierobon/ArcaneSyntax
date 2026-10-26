@@ -1,6 +1,6 @@
 # Feitiços de exemplo
 
-Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 9). Os custos já contam o custo de inscrição da Sprint 9.
+Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 10). Os custos já contam o custo de inscrição da Sprint 9.
 
 ## Onde testar
 
@@ -19,6 +19,7 @@ Cada feitiço diz a **mana inicial** e o **alvo** sugeridos e o resultado espera
 | A **primeira vez** que cada linha roda (custo de inscrição, Sprint 9) | +0,1 |
 | `while`, `if`, `for`, `def` por si | 0 |
 | `lancar` / `mover` / `levitar` | 3 / 1 / 2 (mais a instrução) |
+| `lancar` com a forma `faisca` (Sprint 10) | 1 (mais a instrução) |
 | `inscrever` / `construir_bloco` / `ler_runa` (Sprint 9) | 1 / 0,5 / 0 (mais a instrução) |
 | `meditar()` / `absorver_mana()` | grátis; dão +5 / +1 de mana |
 
@@ -306,6 +307,54 @@ O `meditar()` dentro da função paga as três subidas. Também valem um `for al
 ### Puzzle 6: a câmara de revisão (tudo junto, com estrelas)
 
 Da esquerda para a direita: cadeado de runas, ponte de 8 blocos, cristal mutável de 2 cargas e duas colunas (alturas 5 e 6). A porta abre com tudo feito. A solução econômica gasta cerca de 19.5 de mana e ganha 3 estrelas (até 20); até 24, são 2 estrelas.
+
+## 4d. Combate com inimigos (Sprint 10)
+
+As salas `sala_c01` a `sala_c03` ficam depois da porta do Puzzle 6 (saída à direita). Para ir direto, abra `src/nodes/world/world.tscn` no editor, mude **Start Room** para `sala_c01` e aperte F5 (não precisa salvar). Os inimigos **voltam** quando você sai e entra de novo na sala, ou quando morre.
+
+**Dano** (projétil / faísca / cajado): normal 3 / 1 / 1, fraco 6 / 2 / –, resiste 1 / 0 / –. Encostar num inimigo tira 1 de vida e empurra o mago; o escudo bloqueia a mordida e a esquiva passa por dentro.
+
+### Elementais (sala_c01): o feitiço que pensa
+
+Um elemental de **fogo** e um de **gelo** (vida 12) num fosso. Da borda onde você entra eles não te alcançam. Mana cheia:
+
+```python
+if alvo.elemento == "fogo":
+    lancar(gelo, projetil, alvo)
+elif alvo.elemento == "gelo":
+    lancar(raio, projetil, alvo)
+else:
+    lancar(fogo, projetil, alvo)
+```
+
+Esperado: `Fraco! −6`; duas conjurações derrubam cada um (custo 3.2 cada; medite entre elas). Com `lancar(fogo, projetil, alvo)` no de fogo: `Resistiu −1`, são 12 projéteis. No cajado (**J**), 12 golpes, encostado nele.
+
+### Enxame (sala_c02): loop sobre a lista
+
+Seis bichos de gelo (vida 2) voando lá no alto. Pare no meio da sala, longe o bastante para eles não mergulharem, com mana **10**:
+
+```python
+for inimigo in inimigos:
+    lancar(raio, faisca, inimigo)
+```
+
+Esperado: seis faíscas, os seis caem numa conjuração só, custo **6.7**. Com `projetil` no lugar de `faisca`: caem 3 e dá `ManaEsgotada` (custo 9.4). Seis linhas `lancar(raio, faisca, inimigos[0])`, `[1]`... também funcionam, mas custam 7.2. E `while inimigos[0].vida > 0:` gasta a mana toda: o feitiço vê a vida da hora da conjuração, que nunca muda.
+
+Para ver a lista: `print(len(inimigos), inimigos[0].elemento, inimigos[0].vida)`.
+
+### Guardião (sala_c03): ler o escudo antes de agir
+
+O guardião (vida 18) troca o escudo: **fogo → planta → gelo**, 4 s cada, com 1 s sem escudo entre um e outro (ele pisca antes de trocar). Só passa o elemento que vence o escudo; o resto mostra `Bloqueou`.
+
+```python
+vence = {"fogo": gelo, "planta": fogo, "gelo": raio}
+if alvo.escudo is None:
+    lancar(fogo, projetil, alvo)
+else:
+    lancar(vence[alvo.escudo], projetil, alvo)
+```
+
+Esperado: todo golpe passa com `Fraco! −6`; três acertos derrubam o guardião (custo 3.4 cada). Um feitiço fixo, como `lancar(gelo, projetil, alvo)`, só passa pelo escudo de fogo. O cajado só acerta na brecha sem escudo.
 
 ## 5. Erros de propósito (para ver as mensagens)
 

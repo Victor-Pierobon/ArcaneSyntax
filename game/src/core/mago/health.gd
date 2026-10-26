@@ -15,7 +15,8 @@ var current: int
 var invulnerable_time: float = 1.0
 ## Ligado enquanto o mago esquiva: protege de ataques, não de espinhos (MUN-023).
 var dodging: bool = false
-## Escudo ativo: bloqueia o próximo ataque (não espinhos) e se desfaz (MAG-013).
+## Escudo ativo: bloqueia o próximo ataque (não espinhos) e se desfaz (MAG-013). Bloquear dá a mesma
+## invencibilidade do dano; sem isso, um inimigo encostado mordia no quadro seguinte (regressão, Sprint 10).
 var shielded: bool = false
 
 var _invulnerable_left := 0.0
@@ -34,6 +35,7 @@ func damage(amount: int, source: Source = Source.ATTACK) -> bool:
 		return false
 	if shielded and source == Source.ATTACK:
 		shielded = false
+		_invulnerable_left = invulnerable_time
 		attack_blocked.emit()
 		return false
 	current = maxi(current - amount, 0)

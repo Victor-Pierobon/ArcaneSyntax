@@ -1,7 +1,7 @@
 # Handoff — ArcaneSyntax
 
 > Contexto para começar uma conversa nova sem reler toda a documentação.
-> **Atualizado em:** 2026-10-25, fim da Sprint 9.
+> **Atualizado em:** 2026-10-25, fim da Sprint 10.
 > **Atualizar** ao fim de cada sprint (ou quando algo aqui deixar de ser verdade).
 
 ## 1. O projeto em 30 segundos
@@ -14,11 +14,11 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 
 | | |
 | --- | --- |
-| Sprint atual | **Sprint 9 concluída** (os 6 puzzles da Alpha jogáveis e com teste de aceitação; custo de inscrição; estrelas). A próxima é a **Sprint 10** (combate: inimigos). O marco M2 ainda espera o playtest do núcleo |
-| Commits | Sprints 0 a 8 commitadas, mais as specs da Sprint 9 (`8e9e035`). **O código da Sprint 9 ainda não**; o Victor revisa e commita |
-| Testes | 131 pytest + 265 GdUnit4 (inclui aceitação dos 6 puzzles com Python real), todos verdes localmente; pytest também verde no Python 3.14 |
+| Sprint atual | **Sprint 10 concluída** (elemental, enxame e guardião, com teste de aceitação no Python real; forma `faisca`; sentidos `inimigos`, `alvo.vida`, `alvo.escudo`). A próxima é a **Sprint 11** (chefe e arquivo de balanceamento). O marco M2 ainda espera o playtest do núcleo |
+| Commits | Sprints 0 a 9 commitadas (último: `76dd423`). **A Sprint 10 ainda não**; o Victor revisa e commita |
+| Testes | 144 pytest + 325 GdUnit4 (inclui aceitação dos 6 puzzles e dos 3 inimigos com Python real), todos verdes localmente; pytest também verde no Python 3.14 |
 | CI | Configurado, **ainda não confirmado verde no GitHub** |
-| Pendências do Victor | **Playtest do núcleo** (roteiro em `docs/playtest/roteiro-nucleo.md`) e dos Puzzles 2 a 6 (`docs/feiticos-exemplo.md`, seção 4c; calibrar as estrelas do Puzzle 6); Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); jogar e preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
+| Pendências do Victor | **Playtest do núcleo** (roteiro em `docs/playtest/roteiro-nucleo.md`) e dos Puzzles 2 a 6 (`docs/feiticos-exemplo.md`, seção 4c; calibrar as estrelas do Puzzle 6) e do combate (seção 4d; vida, velocidades, empurrão e tempos do escudo são provisórios); Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); jogar e preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
 
 ## 3. Regras de trabalho (combinadas com o Victor)
 
@@ -52,9 +52,9 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 - **Godot (`game/`)**: regras puras em `src/core/` (sem Node, testáveis sem cena); Nodes em `src/nodes/`; cliente do executor em `src/executor_client/`.
 - **Executor (`executor/`)**: worker Python persistente. O Godot sobe `runtime/python/python.exe -I -S -u executor/run_worker.py` com `OS.execute_with_pipe` e troca **uma linha JSON por requisição**. A ida e volta roda numa `Thread`; `execute()` é usado com `await`.
 - **Modelo de execução (ADR-001)**: o jogo manda uma foto do mundo; o executor roda o feitiço inteiro, simulando só a mana do mago, e devolve todas as ações, cada uma com a `linha` que a gerou. O resto do mundo não muda durante a execução.
-- **Protocolo v1**: requisição `{versao:1, id, codigo, mundo:{mago:{vida,mana,mana_max}, alvo:{id,elemento,distancia}|null, sala?:{runas:[int]}}, pecas?, regras?}` → resposta `{versao:1, id, ok, acoes:[{tipo,linha,...}], saidas:[{linha,texto}], mago, custo_mana, erro:{tipo,mensagem,linha,coluna}|null}`.
-- **Peças**: `lancar(elemento, forma, alvo=None)`, `mover(passos)`, `levitar(altura)`, `meditar()`, `absorver_mana()`, `inscrever(valor)`, `construir_bloco()`. Elementos `fogo/gelo/raio` e formas `projetil/escudo` são strings. Sentidos: `mana`, `mana_max`, `vida_atual`, `alvo` (`.elemento`, `.distancia`, somente leitura), `ler_runa(n)` (a partir de 1; lê `mundo.sala.runas`).
-- **Custo de mana (EXE-custo)**: instrução simples custa 0,1, cobrada **depois** de rodar (`return/break/continue/raise`: antes), **mais 0,1 de inscrição na primeira vez que cada linha roda** (Sprint 9: o loop sai mais barato que linhas repetidas); estruturas (`while/if/for/def`…) não custam; peças: `lancar` 3, `mover` 1, `levitar` 2, `inscrever` 1, `construir_bloco` 0,5, `meditar`/`absorver_mana` 0; teto `mana_max` aplicado depois de pagar. Mana interna em décimos inteiros. Feito por **instrumentação da AST** (ganchos `__instrucao__` e `__volta__`).
+- **Protocolo v1**: requisição `{versao:1, id, codigo, mundo:{mago:{vida,mana,mana_max}, alvo:{id,elemento,distancia,vida?,escudo?}|null, sala?:{runas:[int]}, inimigos?:[{id,elemento,distancia,vida?,escudo?}]}, pecas?, regras?}` → resposta `{versao:1, id, ok, acoes:[{tipo,linha,...}], saidas:[{linha,texto}], mago, custo_mana, erro:{tipo,mensagem,linha,coluna}|null}`.
+- **Peças**: `lancar(elemento, forma, alvo=None)`, `mover(passos)`, `levitar(altura)`, `meditar()`, `absorver_mana()`, `inscrever(valor)`, `construir_bloco()`. Elementos `fogo/gelo/raio` e formas `projetil/escudo/faisca` são strings. Sentidos: `mana`, `mana_max`, `vida_atual`, `alvo` (`.elemento`, `.distancia`, `.vida`, `.escudo`, somente leitura; os dois últimos `None` fora dos inimigos), `inimigos` (lista de alvos, do mais perto para o mais longe, até 12 tiles), `ler_runa(n)` (a partir de 1; lê `mundo.sala.runas`).
+- **Custo de mana (EXE-custo)**: instrução simples custa 0,1, cobrada **depois** de rodar (`return/break/continue/raise`: antes), **mais 0,1 de inscrição na primeira vez que cada linha roda** (Sprint 9: o loop sai mais barato que linhas repetidas); estruturas (`while/if/for/def`…) não custam; peças: `lancar` 3 (com `faisca`, 1), `mover` 1, `levitar` 2, `inscrever` 1, `construir_bloco` 0,5, `meditar`/`absorver_mana` 0; teto `mana_max` aplicado depois de pagar. Mana interna em décimos inteiros. Feito por **instrumentação da AST** (ganchos `__instrucao__` e `__volta__`).
 - **Limites (EXE-limites)**: `ManaEsgotada`, `TempoEsgotado` (1000 ms no worker; watchdog de 3000 ms no Godot), `LimiteExcedido` (1000 ações, 200 saídas); memória do worker limitada a 256 MB. Os limites não podem ser capturados pelo feitiço.
 - **Sandbox (EXE-sandbox)**: só `import math`/`random`; nomes `__x` e atributos `_x` proibidos; `except:` e `BaseException` proibidos; builtins em lista branca (sem `open`, `exec`, `eval`…). Violação → `FeiticoProibido` e nada roda.
 - **Movimento**: `Player` (CharacterBody2D) chama `PlayerMotor.step(velocity, intent, on_floor, delta)`; a intenção vem de `Player.intent_source` (teclado por padrão; testes injetam). Pulo de 3 tiles, coyote/buffer 0,1 s, esquiva (Shift) de 3 tiles com invulnerabilidade a ataques.
@@ -63,10 +63,11 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 - **Ações no mundo (Sprint 6)**: `World.cast` → `ActionPlayer.play(result.actions)` (sempre, inclusive com erro) → `WorldActions.act_<tipo>`. Projétil (220 px/s, mira o alvo pelo id), escudo (2 s, bloqueia um ataque), `mover`/`levitar`/`meditar` controlam o mago e devolvem o controle, cajado (J, sem mana). `ElementTable`: fogo > planta, gelo > fogo, raio > gelo; cada um resiste a si mesmo. Bonecos mostram `Fraco!/Resistiu/Acertou`. Tudo congela com o grimório aberto.
 - **Passivo (Sprint 7)**: botão **Passivo** no grimório; `World` roda o passivo a cada 1 s via `PassiveScheduler` (sem sobrepor, pausado não roda), aplica a variação de mana, toca as ações no `PassivePlayer`; erro desliga (menos `ManaEsgotada`/`ExecutorIndisponivel`), editar religa; HUD mostra o status. Sons (`Sfx`) e partículas (`Fx`) provisórios, gerados por código.
 - **Puzzles (Sprints 8 e 9)**: na cena da sala, `puzzle = {"id", "condicoes", "estrelas"?}`; em `targets`: `cristal`, `cristal:fogo`, `cristal:mutavel[:cargas]`, `runa:4`/`runa:?`, `cadeado:soma`, `gravura:<texto>`; no layout: porta `|`, vão de ponte `~`, placa `_`. Condições: `cristais_acesos`, `cadeados_abertos`, `ponte_completa`, `placas_pisadas`. `PuzzleValidator` decide só pelo estado do mundo; resolvido abre a porta e fica em `World.solved_puzzles` (id → melhor quantidade de estrelas; memória). Estrelas pela mana gasta nos feitiços que agem (`World.room_mana_spent`). Levitar seguido de mover voa (elevador). Passo a passo com a linha destacada (V). **Salas:** Puzzle 1 na sala_01 (a saída só abre resolvido); Puzzles 2 a 6 em `sala_p02` a `sala_p06`, depois da saída de baixo à direita da sala_03 (provisório). Testes de aceitação em `tests/acceptance/` com o `PuzzleDriver` (sala do jogo + Python real).
+- **Combate (Sprint 10)**: em `targets`, `inimigo:elemental[:fogo|gelo|planta]` (vida 12, patrulha e persegue no chão), `inimigo:enxame[:n]` (bichos de gelo, vida 2, voam, mergulham e recuam), `inimigo:guardiao` (vida 18, escudo fogo → planta → gelo de 4 s com 1 s de brecha; só passa o elemento que vence o escudo). Regras puras em `src/core/combat/` (`Damage`: projétil 3, faísca 1, cajado 1 × multiplicador, truncado; `ElementalBrain`, `SwarmBugBrain`, `GuardianShield`); nós em `src/nodes/combat/` (`Enemy` herda de `TrainingTarget`). Contato tira 1 de vida e empurra (`PlayerMotor.knock_back`); bloquear com escudo dá 1 s de invencibilidade. O projétil persegue o alvo e só acerta ele. Inimigos reaparecem (a sala é montada de novo). Salas `sala_c01..c03` depois da porta do Puzzle 6 (provisório). Aceitação em `tests/acceptance/test_combate_0N.gd`.
 - **Grimório**: Tab abre (pausa o mundo), Esc fecha. `Grimoire` (modelo; nomes até 24, únicos sem diferenciar maiúsculas; sinais de renomear/apagar para os slots), `GrimoireStore` (`user://grimorio.json`, gravação atômica, `.bak` se o arquivo estiver ilegível), `GrimoireUI` (lista + `CodeEdit` com realce de Python e das peças do jogo). Ainda não executa feitiços.
 - **Contrato**: `tests/contract/*.json` é verificado pelas duas suítes.
 
-Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `CastLog`, `TrainingTarget`, `ActionPlayer`, `WorldActions`, `Projectile`, `Shield`, `ElementTable`, `PassiveScheduler`, `Sfx`, `Fx`, `PuzzleValidator`, `MutableCrystalRule`, `Crystal`, `Rune`, `RuneLock`, `Bridge`, `PressurePlate`, `RuneDoor`, `StepView`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellReport`, `CompletionProvider`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` e `PuzzleDriver` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
+Classes principais: `PlayerIntent`, `PlayerMotor`, `Player`, `Health`, `MagoState`, `RoomLayout`, `Room`, `World`, `Hud`, `CastLog`, `TrainingTarget`, `ActionPlayer`, `WorldActions`, `Projectile`, `Shield`, `ElementTable`, `PassiveScheduler`, `Sfx`, `Fx`, `PuzzleValidator`, `MutableCrystalRule`, `Damage`, `ElementalBrain`, `SwarmBugBrain`, `GuardianShield`, `Enemy`, `Elemental`, `SwarmBug`, `Guardian`, `Crystal`, `Rune`, `RuneLock`, `Bridge`, `PressurePlate`, `RuneDoor`, `StepView`, `Grimoire`, `GrimoireStore`, `GrimoireUI`, `PythonHighlighter`, `SpellReport`, `CompletionProvider`, `SpellExecutor`, `PythonSpellExecutor`, `SpellRequest`, `SpellResult`, `SpellError`, `ContractFixtures` e `PuzzleDriver` (testes). Python: `pieces.Contexto`, `runner.run_spell`, `protocol.handle_request` / `handle_line`, `worker.main`.
 
 ## 6. Comandos
 
@@ -113,7 +114,9 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 - **Para o assistente:** comandos Bash com heredoc contendo Python com barras invertidas ou caminhos do Windows já falharam **quatro** vezes (duas na Sprint 9); prefira as ferramentas Write/Edit, ou um script `.py` escrito com Write. Script Python que grava com `write_text` no Windows gera CRLF: use `write_bytes`.
 - `ActionPlayer.play` com só ações desconhecidas emite `finished` antes de devolver; um `await finished` depois disso trava o teste.
 - O Python 3.14 embutido não tem pytest: rode-o com o pytest do Python local no `sys.path` (comando em `docs/arquitetura.md`, armadilhas).
-- As salas `sala_p0N` foram geradas por script (geometria do elevador exata: colunas de 2 tiles coladas, alturas = degrau + 1). Mexer à mão exige rodar a aceitação de novo.
+- As salas `sala_p0N` e `sala_c0N` foram geradas por script (geometria do elevador exata: colunas de 2 tiles coladas, alturas = degrau + 1). Mexer à mão exige rodar a aceitação de novo.
+- Inimigo derrotado some 0,4 s depois: em teste, guarde o que precisa pelos sinais (`was_hit`, `defeated`), não lendo o nó depois.
+- Captura de tela por script: espere `physics_frame` (a janela desenha muito mais rápido que a física; com `process_frame` o mundo quase não anda).
 
 ## 8. Decisões em aberto
 
@@ -123,12 +126,12 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 | Build de fumaça completo (exportar e conjurar no `.exe`) | Passos em `docs/sprints/sprint-02-executor-custo-sandbox.md`; depende dos templates de exportação |
 | ~~Lista de peças desbloqueadas entra no protocolo?~~ | **Decidido (2026-10-25):** sim, o executor recusa peças bloqueadas (opção recomendada; o Victor não se opôs) |
 | ~~Peças novas para puzzles~~ | **Feito na Sprint 9** (`ler_runa`, `inscrever`, `construir_bloco`) |
-| Peças de combate (`inimigos`, `alvo.escudo`) | Sprint 10 |
+| ~~Peças de combate~~ | **Feito na Sprint 10** (`inimigos`, `alvo.vida`, `alvo.escudo`, `faisca`) |
 | Loop que lança várias vezes no cristal mutável falha por causa do ADR-001 (o feitiço vê o mundo da hora da conjuração) | `PUZ-03-simbolo.md`; proposta: a serpente explica na Sprint 13 |
 | Limites das estrelas do Puzzle 6 (20/24) | `PUZ-06-revisao.md`; calibrar no playtest |
 | Questões do GDD: título, protagonista, motivo do mago, público, C++ | `docs/gdd.md`, fim |
 
 ## 9. Próximo passo
 
-1. Perguntar ao Victor sobre o **playtest do núcleo** e dos **Puzzles 2 a 6** (ainda pendente; fecha o M2 e calibra as estrelas).
-2. Começar a **Sprint 10** (`docs/sprints/sprint-10-combate-inimigos.md`): inimigos. **Primeiro** listar as peças e sentidos novos (`inimigos`, `alvo.escudo`, vida dos inimigos) e atualizar `EXE-pecas`, o protocolo (campos opcionais, sem quebrar a v1) e as specs de combate; o balanceamento já deve usar o custo com inscrição.
+1. Perguntar ao Victor sobre o **playtest** do núcleo, dos Puzzles 2 a 6 e do combate (ainda pendente; fecha o M2 e calibra estrelas e valores do combate).
+2. Começar a **Sprint 11** (`docs/sprints/sprint-11-combate-chefe.md`): chefe da Masmorra com duas fases que trocam de fraqueza, e o **arquivo de balanceamento** (as `regras` do executor e os números do combate num lugar só). **Primeiro** as specs `COM-chefe` e `BAL-valores`; decidir com o Victor o formato do arquivo (ex.: `content/balanceamento.json`) e se o chefe usa o `GuardianShield` ou uma regra própria.

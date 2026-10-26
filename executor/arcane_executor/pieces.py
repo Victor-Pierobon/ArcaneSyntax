@@ -10,7 +10,7 @@ import time
 ARQUIVO_FEITICO = "<feitico>"
 
 ELEMENTOS = ("fogo", "gelo", "raio")
-FORMAS = ("projetil", "escudo")
+FORMAS = ("projetil", "escudo", "faisca")
 ACOES = ("lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco")
 # Peças sujeitas a desbloqueio (spec EXE-desbloqueio); os sentidos ficam sempre disponíveis.
 PECAS_DESBLOQUEAVEIS = ACOES + ELEMENTOS + FORMAS
@@ -27,6 +27,7 @@ REGRAS_PADRAO = {
     "custo_absorver": 0,
     "custo_inscrever": 1,
     "custo_bloco": 0.5,
+    "custo_faisca": 1,
     "limite_tempo_ms": 1000,
 }
 
@@ -92,12 +93,14 @@ def _exigir_numero(nome_peca, nome_param, valor):
 class Alvo:
     """O que o mago está mirando. Somente leitura."""
 
-    __slots__ = ("_id", "_elemento", "_distancia")
+    __slots__ = ("_id", "_elemento", "_distancia", "_vida", "_escudo")
 
-    def __init__(self, id, elemento, distancia):
+    def __init__(self, id, elemento, distancia, vida=None, escudo=None):
         object.__setattr__(self, "_id", id)
         object.__setattr__(self, "_elemento", elemento)
         object.__setattr__(self, "_distancia", distancia)
+        object.__setattr__(self, "_vida", vida)
+        object.__setattr__(self, "_escudo", escudo)
 
     @property
     def elemento(self):
@@ -107,17 +110,31 @@ class Alvo:
     def distancia(self):
         return self._distancia
 
+    @property
+    def vida(self):
+        return self._vida
+
+    @property
+    def escudo(self):
+        return self._escudo
+
     def __setattr__(self, nome, valor):
         raise AttributeError(f"o alvo é somente leitura: não dá para mudar '{nome}'")
 
     def __repr__(self):
-        return f"Alvo(elemento={self._elemento!r}, distancia={self._distancia!r})"
+        extra = "".join(f", {nome}={valor!r}" for nome, valor in (("vida", self._vida), ("escudo", self._escudo)) if valor is not None)
+        return f"Alvo(elemento={self._elemento!r}, distancia={self._distancia!r}{extra})"
+
+
+def _alvo_da_foto(dados):
+    # Fora da classe: o feitiço vê os atributos do alvo e não pode fabricar alvos novos.
+    return Alvo(dados["id"], dados["elemento"], dados["distancia"], dados.get("vida"), dados.get("escudo"))
 
 
 class Contexto:
     """Estado de uma execução: fila de ações, saídas, mago simulado e mana gasta."""
 
-    def __init__(self, mago, alvo, regras=None, pecas=None, sala=None):
+    def __init__(self, mago, alvo, regras=None, pecas=None, sala=None, inimigos=None):
         regras = {**REGRAS_PADRAO, **(regras or {})}
         self.bloqueadas = set() if pecas is None else set(PECAS_DESBLOQUEAVEIS) - set(pecas)
         self.vida = mago["vida"]
@@ -135,12 +152,16 @@ class Contexto:
             "absorver": para_gotas(regras["custo_absorver"]),
             "inscrever": para_gotas(regras["custo_inscrever"]),
             "bloco": para_gotas(regras["custo_bloco"]),
+            "faisca": para_gotas(regras["custo_faisca"]),
         }
         # Linhas que já pagaram a inscrição nesta execução (EXE-custo, regra 13).
         self.inscritas = set()
         self.limite_tempo = regras["limite_tempo_ms"] / 1000
         self.inicio = time.perf_counter()
-        self.alvo = Alvo(alvo["id"], alvo["elemento"], alvo["distancia"]) if alvo else None
+        self.inimigos = tuple(_alvo_da_foto(dados) for dados in inimigos or ())
+        # O alvo que também está em `inimigos` é o mesmo objeto (EXE-pecas, regra 11).
+        mesmo = next((i for i in self.inimigos if alvo and i._id == alvo["id"]), None)
+        self.alvo = mesmo or (_alvo_da_foto(alvo) if alvo else None)
         self.runas = tuple((sala or {}).get("runas") or ())
         self.acoes = []
         self.saidas = []
@@ -169,6 +190,7 @@ class Contexto:
             construir_bloco=self.construir_bloco,
             ler_runa=self.ler_runa,
             alvo=self.alvo,
+            inimigos=list(self.inimigos),
             __instrucao__=self.instrucao,
             __volta__=self.volta,
         )
@@ -239,10 +261,10 @@ class Contexto:
             texto = texto[: MAX_TEXTO - 1] + "…"
         self.saidas.append({"linha": linha, "texto": texto})
 
-    def _cobrar_peca(self, peca):
+    def _cobrar_peca(self, peca, nome=None):
         linha = linha_do_jogador()
         self._conferir(linha)
-        self._pagar(self.custo[peca], linha, f"{peca}()")
+        self._pagar(self.custo[peca], linha, f"{nome or peca}()")
 
     # --- peças ---
 
@@ -256,7 +278,7 @@ class Contexto:
         for peca in (elemento, forma):
             if peca in self.bloqueadas:
                 raise PecaBloqueada(f"você ainda não conhece {peca}")
-        self._cobrar_peca("lancar")
+        self._cobrar_peca("faisca" if forma == "faisca" else "lancar", "lancar")
         self.registrar("lancar", elemento=elemento, forma=forma, alvo=alvo._id if alvo else None)
 
     def mover(self, passos):

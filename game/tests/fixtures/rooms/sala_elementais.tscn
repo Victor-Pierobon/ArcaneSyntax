@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/nodes/world/room.gd" id="1_room"]
+
+[node name="sala_elementais" type="Node2D"]
+script = ExtResource("1_room")
+room_id = "sala_elementais"
+layout = "########################################
+#......................................#
+#......................................#
+#......................................#
+#.A.........1.........2.........3......#
+########################################"
+targets = {"1": "inimigo:elemental:fogo", "2": "inimigo:elemental:gelo", "3": "inimigo:elemental:planta"}

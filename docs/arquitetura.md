@@ -36,13 +36,13 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 | `docs/adr/` | Decisões de arquitetura |
 | `game/` | Projeto Godot (`res://` aponta para cá) |
 | `game/src/core/` | Regras puras, sem Node |
-| `game/src/nodes/` | Cenas e scripts de cena (`player/`, `world/`, `ui/`, `dev/`) |
+| `game/src/nodes/` | Cenas e scripts de cena (`player/`, `world/`, `ui/`, `magic/`, `puzzles/`, `combat/`, `grimoire/`, `fx/`, `dev/`) |
 | `game/content/rooms/` | Salas do jogo (cenas `Room` com layout em texto) |
 | `game/assets/placeholder/` | Arte provisória (tileset de 3 tiles) |
 | `game/tests/fixtures/rooms/` | Salas pequenas usadas pelos testes |
 | `game/src/executor_client/` | Cliente do executor Python |
 | `game/content/` | Conteúdo de dados (hoje só `text/textos.csv`) |
-| `game/tests/` | GdUnit4: `unit/`, `scene/`, `integration/`, `support/` |
+| `game/tests/` | GdUnit4: `unit/`, `scene/`, `integration/`, `acceptance/`, `support/` |
 | `game/addons/gdUnit4/` | GdUnit4 v6.2.2 (código de terceiros, não editar) |
 | `executor/` | Pacote Python `arcane_executor` + `run_worker.py` + `tests/` (pytest) |
 | `tests/contract/` | Fixtures JSON do protocolo, usadas pelas duas suítes |
@@ -89,9 +89,9 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 
 ### Conjuração e alvos (specs GRI-slots, MUN-alvos, EXE-desbloqueio)
 
-- `World.cast(n)`: se o jogo não está pausado e o slot tem feitiço, monta `SpellRequest` com `spell_context()` (`mago` de `MagoState`, `target` de `current_target()`, `pieces` de `MagoState.unlocked_pieces`), espera `executor.execute`, aplica a **variação** de mana, escreve no `CastLog`, avisa o grimório e emite `spell_cast`. Teclas 1–5 via `_unhandled_input`.
+- `World.cast(n)`: se o jogo não está pausado e o slot tem feitiço, monta `SpellRequest` com `spell_context()` (`mago` de `MagoState`, `target` de `current_target()`, `pieces` de `MagoState.unlocked_pieces`, `room` de `Room.spell_room()`, `enemies` de `current_enemies()`), espera `executor.execute`, aplica a **variação** de mana, escreve no `CastLog`, avisa o grimório e emite `spell_cast`. Teclas 1–5 via `_unhandled_input`.
 - `World.executor`: nó `Executor` (`PythonSpellExecutor`) por padrão; o setter religa o grimório. Testes trocam por `FakeSpellExecutor` (`tests/support/`).
-- `TrainingTarget` (`src/nodes/world/training_target.gd`): boneco com `target_id` e `element`, no grupo `alvos`. Layout: dígitos `1`–`9`; `Room.targets = {"1": "fogo"}`. `World.current_target()`: o mais perto num raio de 12 tiles, distância em tiles.
+- `TrainingTarget` (`src/nodes/world/training_target.gd`): boneco com `target_id` e `element`, no grupo `alvos`; `body_size` (os inimigos mudam), `hit(elemento, forma)`, `last_form`, `_show_hit(elemento, texto)`. Layout: dígitos `1`–`9`; `Room.targets = {"1": "fogo"}`. `World.current_target()`: o mais perto num raio de 12 tiles, distância em tiles.
 - `CastLog` (`src/nodes/ui/cast_log.gd`): últimas 6 linhas no canto superior direito. `Hud.bind_slots(grimoire)`: barra com os 5 slots.
 - `MagoState.ALL_PIECES` (constante `Array[String]`) e `unlocked_pieces` (hoje tudo desbloqueado).
 
@@ -99,8 +99,8 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 
 - `ActionPlayer` (`src/nodes/magic/action_player.gd`): `play(acoes)` enfileira e toca em ordem; `is_playing()`, sinal `finished`; chama `port.act_<tipo>(acao)`. No jogo o `port` é o `WorldActions`; nos testes, `FakeWorldPort` (`tests/support/`).
 - `WorldActions` (`src/nodes/magic/world_actions.gd`): `act_lancar` (projétil ou escudo, espera 0,15 s), `act_mover` e `act_levitar` (controlam o mago pela `intent_source` e devolvem o controle; param ao chegar, ao ficar 0,3 s sem avançar ou em 3 s), `act_meditar` (0,5 s parado), `act_absorver_mana` (0,08 s), `staff_attack()` (cajado, recarga 0,35 s), `show_visions(textos)`, `on_attack_blocked()`. Esperas em tempo de jogo, congelam com o grimório aberto.
-- `Projectile` (Area2D, grupo `projeteis`): 220 px/s, alcance 12 tiles, mira o `center()` do alvo pelo id ou vai reto; some em parede ou ao acertar. `Shield` (filho `Shield` do `Player`): 2 s ou até bloquear um ataque; liga `Health.shielded`.
-- Camada de colisão **4** = hurtboxes (bonecos; no futuro, inimigos). Projétil detecta 1 (mundo) + 4; cajado detecta 4.
+- `Projectile` (Area2D, grupo `projeteis`): `form` `projetil` (220 px/s) ou `faisca` (300 px/s, menor), alcance 12 tiles. Com alvo, **persegue** o `center()` dele e só acerta ele (atravessa os outros); sem alvo, ou se o alvo sumiu, vai reto e acerta o primeiro. Some em parede ou ao acertar. `Shield` (filho `Shield` do `Player`): 2 s ou até bloquear um ataque; liga `Health.shielded`.
+- Camada de colisão **4** = hurtboxes (bonecos, cristais e inimigos). Projétil detecta 1 (mundo) + 4; cajado detecta 4. A área `Contact` dos inimigos detecta 1 (o mago).
 - `ElementTable` (`src/core/magic/element_table.gd`): `effect(ataque, alvo)` → `NORMAL`/`WEAK`/`RESIST`; `multiplier()`. `TrainingTarget.hit(elemento)` guarda `last_hit_element`/`last_effect` e mostra o texto.
 - `World.cast` agora também toca as ações (inclusive as anteriores a um erro) e as visões; `World.find_target(id)`.
 - Motor: `PlayerIntent.fly_y` (NAN = sem voo) desliga a gravidade (MUN-015).
@@ -110,7 +110,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `Grimoire`: slot passivo (`set_passive`, `clear_passive`, `passive`, `passive_changed`; campo `"passivo"` no arquivo).
 - `PassiveScheduler` (`src/core/magic/passive_scheduler.gd`): `tick(delta)` devolve true a cada 1 s (não enquanto ocupado ou desligado); `mark_started`, `mark_finished(resultado)` → `Outcome` (`OK`, `MANA_OUT_FIRST`, `MANA_OUT_REPEAT`, `DISABLED`, `TRANSIENT`); `reset()`.
 - `World._execute(codigo)`: execução comum (estado real + mana pela variação), usada por `cast` e `_run_passive`. O passivo toca as ações no `PassivePlayer` (outro `ActionPlayer`) e só escreve no registro quando desliga ou fica sem mana pela primeira vez. Editar o código do passivo ou trocá-lo chama `passive_scheduler.reset()`.
-- `Sfx` (`src/nodes/fx/sfx.gd`, nó `Sfx` no `World`): sons gerados por código para `conjurar` (timbre por elemento), `acerto`, `fraco`, `escudo`, `cajado`, `mana`; `played` guarda o histórico; barramento `SFX` (`default_bus_layout.tres`).
+- `Sfx` (`src/nodes/fx/sfx.gd`, nó `Sfx` no `World`): sons gerados por código para `conjurar` (timbre por elemento), `acerto`, `fraco`, `escudo`, `cajado`, `mana`, `derrota`; `played` guarda o histórico; barramento `SFX` (`default_bus_layout.tres`).
 - `Fx.burst(pai, posição, cor, quantidade, subindo)` (`src/nodes/fx/fx.gd`): partículas provisórias. `TrainingTarget` emite `was_hit` (o `World` toca o som).
 
 ### Puzzles (specs PUZ-validacao, PUZ-passo-a-passo, PUZ-01 a PUZ-06)
@@ -125,7 +125,17 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - Passo a passo: `ActionPlayer` emite `sequence_started(codigo)` e `action_started(acao)` e espera `step_delay` entre ações; nas salas com puzzle o `World` usa 0,3 s ÷ `step_speed` e mostra o `StepView` (painel no alto com o código e a linha destacada). `World.cycle_step_speed()` (V): 1× → 2× → 0,5×.
 - Testes de aceitação de puzzle em `tests/acceptance/`: sala do jogo + Python real + soluções que passam e que falham. `tests/support/puzzle_driver.gd` (`PuzzleDriver`) joga a sala: `start`, `place`, `walk_until_x`, `set_runes`, `cast` (enche a mana antes), `run_passive`.
 
-- Salas do jogo: `content/rooms/sala_01..03.tscn` (sala_01 tem o Puzzle 1) (40–60 × 23 tiles) e `sala_p02..p06.tscn` (Puzzles 2 a 6), em sequência a partir da saída `b` da sala_03 (provisório até a Sprint 14). As salas `sala_p0N` foram geradas por script; se mudar uma, confira a geometria (o elevador depende de colunas de 2 tiles coladas). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
+- Salas do jogo: `content/rooms/sala_01..03.tscn` (sala_01 tem o Puzzle 1) (40–60 × 23 tiles), `sala_p02..p06.tscn` (Puzzles 2 a 6), em sequência a partir da saída `b` da sala_03, e `sala_c01..c03.tscn` (combate), depois da porta da sala_p06 (tudo provisório até a Sprint 14). As salas `sala_p0N` e `sala_c0N` foram geradas por script; se mudar uma, confira a geometria (o elevador depende de colunas de 2 tiles coladas). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
+
+### Combate (specs COM-dano, COM-elemental, COM-enxame, COM-guardiao)
+
+- Autoria: em `targets`, `"inimigo:elemental[:fogo|gelo|planta]"`, `"inimigo:enxame[:n]"` (1 a 9, padrão 6) e `"inimigo:guardiao"`. Ids `<sala>_alvo_<dígito>`; no enxame, `<sala>_alvo_<dígito>_<n>`.
+- Regras puras (`src/core/combat/`): `Damage.amount(ataque, forma, elemento)` (projétil 3, faísca 1, cajado 1, vezes o multiplicador, truncado); `ElementalBrain` (`velocity_x(pés, pés do mago ou null, ahead_free)`, `can_walk(layout, pés, direção, meia largura)`: não entra em parede nem sai do chão); `SwarmBugBrain` (`HOVER`/`DIVE`/`RETREAT`, `step(centro, centro do mago ou null, delta)`, `bite()`); `GuardianShield` (`tick`, `current()` vazio na brecha, `is_blinking()`, `resolve(ataque, forma)` → `{blocked, damage, effect}`).
+- `Enemy` (`src/nodes/combat/enemy.gd`, herda de `TrainingTarget`, grupos `alvos` e `inimigos`): `setup(id, elemento, vida, tamanho)`, `health` (`Health` sem invencibilidade), `hit(elemento, forma)` → `_resolve` (o guardião troca pelo escudo) → `apply_damage`; `_think(delta)` por tipo; área `Contact` que emite `touched_player` a cada quadro encostado; barra de vida (`life_bar_rect()`); `defeated`: sai dos grupos na hora e some 0,4 s depois; `shield_element()`. Tipos: `Elemental`, `SwarmBug`, `Guardian`.
+- `Room`: cria os inimigos, `enemies()` (vivos), sinal `player_attacked(de, dano)`; `player` vem do `World` antes de a sala entrar na árvore.
+- `World`: `current_enemies()` (vivos, até 12 tiles, do mais perto para o mais longe), `_target_view` (inimigo traz `vida` e `escudo`), `_on_player_attacked` (dano `ATTACK` e `PlayerMotor.knock_back`). Os inimigos reaparecem porque `go_to` monta a sala de novo (também ao morrer).
+- `Health`: bloquear com o escudo também dá 1 s de invencibilidade (regressão da Sprint 10: sem isso, o inimigo encostado mordia no quadro seguinte).
+- Aceitação em `tests/acceptance/test_combate_01..03.gd`, com o `PuzzleDriver` (o nome ficou da Sprint 9; serve para qualquer sala).
 
 ### Cliente do executor (spec EXE-protocolo)
 
@@ -147,15 +157,15 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 | --- | --- |
 | `worker.py` | Limita a própria memória (256 MB: Job Object no Windows, `RLIMIT_AS` no Linux); loop: lê linha do stdin (UTF-8), escreve resposta no stdout real, `flush` |
 | `protocol.py` | `handle_line(str) -> str`, `handle_request(dict) -> dict`; valida requisição; JSON de saída com `ensure_ascii=True` |
-| `runner.py` | `run_spell(codigo, mago, alvo, regras, pecas, sala)`: `ast.parse` → `sandbox.verificar` → `instrumentar` (ganchos de custo e de volta) → `compile` como `<feitico>` → `exec`; captura erros com a linha do jogador |
+| `runner.py` | `run_spell(codigo, mago, alvo, regras, pecas, sala, inimigos)`: `ast.parse` → `sandbox.verificar` → `instrumentar` (ganchos de custo e de volta) → `compile` como `<feitico>` → `exec`; captura erros com a linha do jogador |
 | `sandbox.py` | Verificador da AST (imports, nomes `__`, atributos `_`, `except:`/`BaseException`), builtins em lista branca, `getattr` e companhia protegidos, importador com lista branca (`math`, `random`) |
-| `pieces.py` | `Contexto` (fila de ações, saídas, mago simulado em gotas, custo, ganchos `instrucao`/`volta`, limites), peças, `Alvo` somente leitura, exceções de limite, `linha_do_jogador()` |
+| `pieces.py` | `Contexto` (fila de ações, saídas, mago simulado em gotas, custo, ganchos `instrucao`/`volta`, limites), peças, `Alvo` somente leitura (`elemento`, `distancia`, `vida`, `escudo`; criado por `_alvo_da_foto`, fora da classe, para o feitiço não fabricar alvos), exceções de limite, `linha_do_jogador()` |
 | `run_worker.py` | Entrada; põe `executor/` no `sys.path` (necessário porque `-I` não faz isso) |
 
 Pontos importantes:
 
 - O código do jogador é compilado com o nome de arquivo `<feitico>`. É assim que `linha_do_jogador()` e o traceback encontram a linha certa, ignorando os frames do executor.
-- Sentidos (`mana`, `mana_max`, `vida_atual`) são variáveis globais do namespace, ressincronizadas depois de cada instrução paga. `alvo` é um objeto `Alvo` ou `None`.
+- Sentidos (`mana`, `mana_max`, `vida_atual`) são variáveis globais do namespace, ressincronizadas depois de cada instrução paga. `alvo` é um objeto `Alvo` ou `None`; `inimigos` é uma `list` nova de `Alvo` a cada execução, e o alvo que também está na lista é o mesmo objeto.
 - Elementos e formas são strings (`fogo = "fogo"`).
 - Erro de execução não descarta o que rodou antes; o executor captura qualquer exceção (menos `KeyboardInterrupt`).
 - **Custo (EXE-custo):** a instrumentação insere `__instrucao__(linha)` depois de cada instrução simples (antes de `return/break/continue/raise`) e `__volta__(linha)` no início de cada volta de laço. O gancho de instrução cobra `custo_instrucao` (mais `custo_inscricao` na primeira vez de cada linha, guardada em `Contexto.inscritas`), aplica o teto `mana_max` e sincroniza os sentidos; os dois ganchos conferem o tempo. Peças cobram o custo base na chamada.
@@ -164,13 +174,13 @@ Pontos importantes:
 
 ## Protocolo v1 (resumo; detalhes em `docs/specs/executor/EXE-protocolo.md`)
 
-Requisição: `{versao: 1, id, codigo, mundo: {mago: {vida, mana, mana_max}, alvo: {id, elemento, distancia} | null, sala?: {runas: [int]}}, pecas?: [..], regras?: {ganho_meditar, ganho_absorver, custo_instrucao, custo_inscricao, custo_lancar, custo_mover, custo_levitar, custo_meditar, custo_absorver, custo_inscrever, custo_bloco, limite_tempo_ms}}`
+Requisição: `{versao: 1, id, codigo, mundo: {mago: {vida, mana, mana_max}, alvo: {id, elemento, distancia, vida?, escudo?} | null, sala?: {runas: [int]}, inimigos?: [{id, elemento, distancia, vida?, escudo?}]}, pecas?: [..], regras?: {ganho_meditar, ganho_absorver, custo_instrucao, custo_inscricao, custo_lancar, custo_faisca, custo_mover, custo_levitar, custo_meditar, custo_absorver, custo_inscrever, custo_bloco, limite_tempo_ms}}`
 
 Resposta: `{versao: 1, id, ok, acoes: [{tipo, linha, ...}], saidas: [{linha, texto}], mago: {...} | null, custo_mana, erro: {tipo, mensagem, linha, coluna} | null}`
 
 Tipos de erro do executor além das exceções do Python: `RequisicaoInvalida`, `ManaEsgotada`, `TempoEsgotado`, `LimiteExcedido`, `FeiticoProibido`. Do Godot: `ExecutorIndisponivel`, `RespostaInvalida`, `TempoEsgotado` (watchdog).
 
-Ações: `lancar {elemento, forma, alvo}`, `mover {passos}`, `levitar {altura}`, `meditar`, `absorver_mana`, `inscrever {valor}`, `construir_bloco`. Sentido-função: `ler_runa(n)` (não gera ação).
+Ações: `lancar {elemento, forma (projetil, escudo, faisca), alvo}`, `mover {passos}`, `levitar {altura}`, `meditar`, `absorver_mana`, `inscrever {valor}`, `construir_bloco`. Sentido-função: `ler_runa(n)` (não gera ação).
 
 ## Testes
 
@@ -199,6 +209,8 @@ Convenções:
 | `JSON.parse_string` do Godot lê todo número como float | Converter `linha` para int (`SpellResult`); comparar com fixtures via `ContractFixtures.normalize` |
 | `res://` não alcança a raiz do repositório | `PythonSpellExecutor.base_dir()`: no editor usa `globalize_path("res://") + "/.."`; no jogo exportado, a pasta do `.exe` |
 | Python com `-I` não põe a pasta do script no `sys.path` | `run_worker.py` insere manualmente |
+| Inimigo derrotado some 0,4 s depois do último golpe | Em teste, guardar o que precisa pelos sinais (`was_hit`, `defeated`); ler o nó depois disso dá "previously freed" (Sprint 10) |
+| Captura de tela por script esperando `process_frame` | A janela desenha bem mais rápido que a física: esperar `physics_frame` para o mundo andar de verdade (Sprint 10) |
 | `ActionPlayer.play` com só ações desconhecidas emite `finished` antes de devolver | Um `await player.finished` depois disso trava o teste até o tempo limite; achado na Sprint 9 |
 | O pytest não está instalado no Python 3.14 embutido | Rodar com o pytest do Python local no `sys.path`: `runtime/python/python.exe -c "import sys; sys.path.append(r'<site-packages>'); import pytest; pytest.main(['-q', '-p', 'no:cacheprovider'])"` |
 | Script Python gravando arquivo com `write_text` no Windows | Grava CRLF; usar `write_bytes(texto.encode())` para manter LF |

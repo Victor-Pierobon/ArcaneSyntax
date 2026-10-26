@@ -57,13 +57,14 @@ def instrumentar(arvore):
     return ast.fix_missing_locations(arvore)
 
 
-def run_spell(codigo, mago, alvo=None, regras=None, pecas=None, sala=None):
+def run_spell(codigo, mago, alvo=None, regras=None, pecas=None, sala=None, inimigos=None):
     """Roda o código do jogador. Devolve {acoes, saidas, mago, custo_mana, erro}.
 
     `pecas`: peças desbloqueadas; None libera todas (spec EXE-desbloqueio).
     `sala`: o que a sala mostra ao feitiço, como as runas (EXE-protocolo, regra 7).
+    `inimigos`: os inimigos da foto, do mais perto para o mais longe (EXE-protocolo, regra 8).
     """
-    ctx = Contexto(mago, alvo, regras, pecas, sala)
+    ctx = Contexto(mago, alvo, regras, pecas, sala, inimigos)
 
     def resultado(erro=None):
         ctx.fechar()

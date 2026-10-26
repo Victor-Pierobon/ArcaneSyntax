@@ -59,7 +59,22 @@ func test_MAG_013_escudo_bloqueia_um_ataque_mas_nao_espinho() -> void:
 	assert_bool(health.shielded).is_false()
 	assert_int(blocked[0]).is_equal(1)
 	assert_int(health.current).is_equal(4)
+	health.tick(1.1)
 	assert_bool(health.damage(1)).is_true()
+
+
+## Regressão (Sprint 10, achado pelo COM-005): o escudo bloqueava a mordida, mas o inimigo
+## continuava encostado e mordia no quadro seguinte. Bloquear dá a mesma invencibilidade do dano.
+func test_MAG_013_bloquear_da_invencibilidade() -> void:
+	health.shielded = true
+	assert_bool(health.damage(1)).is_false()
+	assert_bool(health.damage(1)).is_false()
+	assert_int(health.current).is_equal(5)
+	health.tick(0.9)
+	assert_bool(health.damage(1)).is_false()
+	health.tick(0.2)
+	assert_bool(health.damage(1)).is_true()
+	assert_int(health.current).is_equal(4)
 
 
 func test_sinal_changed_avisa_vida_atual_e_maxima() -> void:

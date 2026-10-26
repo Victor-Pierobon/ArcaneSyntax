@@ -155,3 +155,17 @@ func test_MUN_013_invulneravel_so_durante_a_esquiva() -> void:
 	assert_bool(motor.is_invulnerable()).is_true()
 	_idle_frames(12, true)
 	assert_bool(motor.is_invulnerable()).is_false()
+
+
+## Spec: docs/specs/combate/COM-dano.md (regra 4): o contato empurra o mago para longe.
+func test_COM_004_empurrao_ignora_a_intencao_por_um_instante() -> void:
+	motor.knock_back(-1)
+	var v := motor.step(Vector2.ZERO, PlayerIntent.make(1.0), true, DT)
+	assert_float(v.x).is_equal(-PlayerMotor.KNOCKBACK_SPEED.x)
+	assert_float(v.y).is_equal(-PlayerMotor.KNOCKBACK_SPEED.y)
+	v = motor.step(v, PlayerIntent.make(1.0), false, DT)
+	assert_float(v.x).is_equal(-PlayerMotor.KNOCKBACK_SPEED.x)
+	assert_float(v.y).is_greater(-PlayerMotor.KNOCKBACK_SPEED.y)
+	for i in int(PlayerMotor.KNOCKBACK_TIME / DT) + 1:
+		v = motor.step(v, PlayerIntent.make(1.0), true, DT)
+	assert_float(v.x).is_equal(120.0)

@@ -56,3 +56,8 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 
 - Puzzles 2 a 6 jogáveis em `sala_p02` a `sala_p06` (runas e cadeado, cristal que muda de símbolo, ponte de 12 com estrelas, elevador com levitar + mover, câmara de revisão), cada um com teste de aceitação no Python real. Custo de inscrição (decisão do Victor) para o loop custar menos que linhas repetidas. Bugs com regressão: ordem das placas; alturas do elevador sem gravura (captura de tela). Mutação achou um teste fraco (placa no ar). 265 GdUnit4 e 131 pytest verdes.
 - Próximo: Victor revisa e commita; playtest do núcleo e dos puzzles; depois Sprint 10 (combate).
+
+## 2026-10-25 (Sprint 10)
+
+- Combate: elemental (fogo, gelo, planta), enxame e guardião de escudo em `sala_c01` a `sala_c03`, cada um com teste de aceitação no Python real. Decisões do Victor: forma `faisca` (custo 1) para o loop sobre o enxame caber na mana, escudo do guardião que só deixa passar a fraqueza, inimigos que reaparecem. Sentidos novos: `inimigos`, `alvo.vida`, `alvo.escudo`. Bugs com regressão: o escudo não protegia de um inimigo encostado (bloquear agora dá invencibilidade); barra de vida em cima do nome (captura de tela). Mutação: 23 de 23 depois de um teste novo (ordem dos inimigos). 325 GdUnit4 e 144 pytest verdes.
+- Próximo: Victor revisa e commita; playtest (núcleo, puzzles e combate); depois Sprint 11 (chefe e arquivo de balanceamento).

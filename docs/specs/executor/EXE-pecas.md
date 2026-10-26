@@ -1,8 +1,8 @@
 # EXE-pecas — Peças disponíveis para os feitiços (Alpha)
 
 - **Status:** Implementada
-- **Sprint:** 1, 9
-- **Relacionadas:** EXE-protocolo, ADR-001, PUZ-02-runas, PUZ-04-ponte, GDD "Sistema de feitiços"
+- **Sprint:** 1, 9, 10
+- **Relacionadas:** EXE-protocolo, ADR-001, PUZ-02-runas, PUZ-04-ponte, COM-dano, COM-enxame, COM-guardiao, GDD "Sistema de feitiços"
 
 ## Contexto
 
@@ -10,12 +10,12 @@ As peças são o vocabulário do jogador. Elas não fazem nada no mundo diretame
 
 ## Fora do escopo
 
-Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5). Lista de inimigos para enxames (Sprint 10).
+Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5).
 
 ## Regras
 
-1. **Elementos** são strings comuns, disponíveis como nomes prontos: `fogo`, `gelo`, `raio`. **Formas**: `projetil`, `escudo`. Por serem strings, `alvo.elemento == "fogo"` e `alvo.elemento == fogo` funcionam, e `lancar(alvo.elemento, ...)` é válido.
-2. **Sentidos** são variáveis globais lidas do mundo: `mana`, `mana_max`, `vida_atual` e `alvo`. `alvo` é `None` quando não há alvo; senão tem os atributos somente-leitura `elemento` e `distancia`.
+1. **Elementos** são strings comuns, disponíveis como nomes prontos: `fogo`, `gelo`, `raio`. **Formas**: `projetil`, `escudo` e, desde a Sprint 10, `faisca`. Por serem strings, `alvo.elemento == "fogo"` e `alvo.elemento == fogo` funcionam, e `lancar(alvo.elemento, ...)` é válido.
+2. **Sentidos** são variáveis globais lidas do mundo: `mana`, `mana_max`, `vida_atual`, `alvo` e, desde a Sprint 10, `inimigos`. `alvo` é `None` quando não há alvo; senão tem os atributos somente-leitura `elemento`, `distancia`, `vida` e `escudo` (os dois últimos valem `None` quando a foto não os traz, como nos bonecos).
 3. Os sentidos do mago são ressincronizados com o estado real **depois de cada instrução** (desde a Sprint 2, EXE-custo regra 7; antes era a cada peça). Se o jogador escrever `mana = 999`, isso não dá mana nenhuma: no fim da instrução o valor volta ao real.
 4. Peças:
 
@@ -42,6 +42,13 @@ Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5
 
 8. O executor **não sabe** se o cadeado abre ou se a ponte já está pronta: ele só registra as ações. Quem decide é o jogo, pelo estado do mundo (PUZ-validacao).
 9. `inscrever` e `construir_bloco` estão sujeitas a desbloqueio (EXE-desbloqueio). `ler_runa` é um sentido e está sempre disponível.
+
+### Peças de combate (Sprint 10)
+
+10. `inimigos` é uma lista (`list`) de alvos, na ordem da foto (`mundo.inimigos`, do mais perto para o mais longe; COM-dano, regra 6). Sem inimigos, é a lista vazia. Cada item tem os mesmos atributos somente-leitura do `alvo` e serve de alvo para `lancar`. A lista é nova a cada execução: mexer nela (`inimigos.clear()`, `inimigos = []`) só engana o próprio feitiço.
+11. Se o `alvo` tem o mesmo `id` de um item de `inimigos`, os dois são **o mesmo objeto** (`alvo is inimigos[0]` quando o alvo é o inimigo mais perto).
+12. O executor não sabe quanto de vida sobra depois de um golpe: `inimigo.vida` é a da foto até o fim da execução (ADR-001). Por isso `while inimigo.vida > 0:` gasta a mana toda e termina em `ManaEsgotada`.
+13. `faisca` é uma forma como as outras: `lancar(raio, faisca, alvo)` registra `{"tipo": "lancar", ..., "forma": "faisca"}` e custa `custo_faisca` (EXE-custo).
 
 ## Critérios de aceite
 
@@ -158,3 +165,41 @@ Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5
 - **Dado** `mundo.sala.runas` `[4, 7, 2]`
 - **Quando** o feitiço faz `ler_runa = lambda n: 99` e depois `inscrever(ler_runa(1))`
 - **Então** a ação registra `valor` 99: trocar a peça só engana o próprio feitiço, e o cadeado continua julgando pelo valor certo (PUZ-02)
+
+### EXE-120 — inimigos lê a foto
+
+- **Dado** `mundo.inimigos` com `a` (fogo, 3 tiles, vida 12) e `b` (gelo, 5 tiles, vida 2)
+- **Quando** o feitiço é `print(len(inimigos), inimigos[0].elemento, inimigos[1].vida)`
+- **Então** a saída é `2 fogo 2`
+
+### EXE-121 — Sem inimigos
+
+- **Dado** uma requisição sem `mundo.inimigos`
+- **Então** `inimigos == []` é verdadeiro, e `for inimigo in inimigos:\n    lancar(raio, faisca, inimigo)` não registra nada
+
+### EXE-122 — Loop sobre os inimigos
+
+- **Dado** três inimigos `a`, `b`, `c`
+- **Quando** o feitiço é `for inimigo in inimigos:\n    lancar(raio, faisca, inimigo)`
+- **Então** registra três ações `lancar` na linha 2, com `alvo` `a`, `b` e `c`, nessa ordem
+
+### EXE-123 — vida e escudo
+
+- **Dado** o alvo `{"id": "g", "elemento": "pedra", "distancia": 4, "vida": 18, "escudo": "planta"}`
+- **Então** `alvo.vida == 18` e `alvo.escudo == "planta"`; um alvo sem esses campos tem `vida` e `escudo` `None`; `alvo.escudo = "fogo"` dá `AttributeError`
+
+### EXE-124 — alvo e inimigos são o mesmo objeto
+
+- **Dado** o alvo com id `a` e `inimigos` começando por `a`
+- **Então** `alvo is inimigos[0]` é verdadeiro
+
+### EXE-125 — faísca
+
+- **Quando** o feitiço chama `lancar(raio, faisca, alvo)`
+- **Então** a ação tem `"forma": "faisca"`; `lancar(raio, "faísca")`, com acento, dá `ValueError` com a lista das formas
+
+### EXE-126 — A vida não muda durante o feitiço
+
+- **Dado** um inimigo com vida 2 e mana 10
+- **Quando** o feitiço é `while inimigos[0].vida > 0:\n    lancar(raio, faisca, inimigos[0])`
+- **Então** registra 9 ações e dá `ManaEsgotada` na linha 2

@@ -8,7 +8,7 @@ const MANA_STEP := 0.1
 ## Peças sujeitas a desbloqueio (spec EXE-desbloqueio).
 const ALL_PIECES: Array[String] = [
 	"lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco",
-	"fogo", "gelo", "raio", "projetil", "escudo",
+	"fogo", "gelo", "raio", "projetil", "escudo", "faisca",
 ]
 
 var health := Health.new(5)

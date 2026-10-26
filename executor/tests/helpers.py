@@ -3,7 +3,7 @@ from arcane_executor.protocol import handle_request
 MAGO_PADRAO = {"vida": 10, "mana": 5, "mana_max": 20}
 
 
-def requisicao(codigo, mago=None, alvo=None, regras=None, id=1, sala=None):
+def requisicao(codigo, mago=None, alvo=None, regras=None, id=1, sala=None, inimigos=None):
     req = {
         "versao": 1,
         "id": id,
@@ -12,6 +12,8 @@ def requisicao(codigo, mago=None, alvo=None, regras=None, id=1, sala=None):
     }
     if sala is not None:
         req["mundo"]["sala"] = sala
+    if inimigos is not None:
+        req["mundo"]["inimigos"] = inimigos
     if regras is not None:
         req["regras"] = regras
     return req

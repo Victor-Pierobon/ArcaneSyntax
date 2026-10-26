@@ -36,8 +36,8 @@ func _ready() -> void:
 	_refresh_symbol()
 
 
-func hit(attack_element: String) -> void:
-	super.hit(attack_element)
+func hit(attack_element: String, form: String = "") -> void:
+	super.hit(attack_element, form)
 	if lit or attack_element == "cajado":
 		return
 	if rule:

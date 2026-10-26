@@ -1,7 +1,7 @@
 # EXE-custo — Custo de mana dos feitiços
 
 - **Status:** Implementada
-- **Sprint:** 2, 9
+- **Sprint:** 2, 9, 10
 - **Relacionadas:** EXE-protocolo, EXE-pecas, EXE-limites, PUZ-04-ponte, GDD "Mana como custo de execução"
 - **Decisão do Victor (2026-10-25):** "linhas baratas": cada instrução custa pouco, peças têm custo base, recuperar mana é grátis.
 - **Decisão do Victor (2026-10-25, Sprint 9):** custo de inscrição, para que um loop custe menos que as mesmas linhas repetidas (a ponte de 12 blocos do GDD).
@@ -27,6 +27,7 @@ O GDD quer que código eficiente custe menos, que um loop infinito acabe com a m
    | `absorver_mana` | `custo_absorver` | 0 |
    | `inscrever` (Sprint 9) | `custo_inscrever` | 1 |
    | `construir_bloco` (Sprint 9) | `custo_bloco` | 0,5 |
+   | `lancar` com a forma `faisca` (Sprint 10) | `custo_faisca`, no lugar de `custo_lancar` | 1 |
    | `ler_runa` (sentido, Sprint 9) | — | 0 |
 
 6. **Teto depois do pagamento.** Ganhos de mana podem passar de `mana_max` durante a instrução; depois de pagar a instrução, a mana é limitada a `mana_max`.
@@ -128,3 +129,16 @@ O GDD quer que código eficiente custe menos, que um loop infinito acabe com a m
 - **Dado** `regras` `{"custo_inscricao": 0}`
 - **Quando** o feitiço é `x = 1\ny = 2`
 - **Então** `custo_mana` é 0.2 (o comportamento da Sprint 2)
+
+### EXE-095 — Faísca custa 1
+
+- **Dado** mana 5
+- **Quando** o feitiço é `lancar(raio, faisca)`
+- **Então** `custo_mana` é 1.2 e a mana final é 3.8; com `regras` `{"custo_faisca": 2}`, o custo é 2.2
+
+### EXE-096 — Loop de faíscas sobre o enxame
+
+- **Dado** mana 10 e seis inimigos em `mundo.inimigos`
+- **Quando** o feitiço é `for inimigo in inimigos:\n    lancar(raio, faisca, inimigo)`
+- **Então** registra seis ações e `custo_mana` é 6.7 (COM-044)
+- **E** com `projetil` no lugar de `faisca`, registra três ações, dá `ManaEsgotada` na linha 2 e `custo_mana` é 9.4

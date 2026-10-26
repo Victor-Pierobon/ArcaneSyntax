@@ -34,7 +34,7 @@ func act_lancar(action: Dictionary) -> void:
 		_raise_shield(element)
 		world.sfx.play("escudo")
 	else:
-		_launch_projectile(element, action.get("alvo"))
+		_launch_projectile(element, action.get("alvo"), str(action.get("forma", "projetil")))
 		world.sfx.play("conjurar", element)
 	await _wait(CAST_DELAY)
 
@@ -174,7 +174,7 @@ func show_visions(texts: PackedStringArray) -> void:
 	tween.tween_property(label, "modulate:a", 0.0, 0.5).set_delay(VISION_TIME)
 
 
-func _launch_projectile(element: String, target_id: Variant) -> void:
+func _launch_projectile(element: String, target_id: Variant, form: String) -> void:
 	var player := world.player
 	var target: TrainingTarget = world.find_target(str(target_id)) if target_id != null else null
 	if target:
@@ -186,7 +186,7 @@ func _launch_projectile(element: String, target_id: Variant) -> void:
 	var direction := Vector2(player.motor.facing, 0)
 	if target:
 		direction = (target.center() - hand).normalized()
-	var projectile := Projectile.make(element, direction)
+	var projectile := Projectile.make(element, direction, form, target)
 	projectile.position = hand
 	world.add_child(projectile)
 

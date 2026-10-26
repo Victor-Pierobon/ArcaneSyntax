@@ -4,7 +4,7 @@ from helpers import requisicao
 
 TODAS = [
     "lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco",
-    "fogo", "gelo", "raio", "projetil", "escudo",
+    "fogo", "gelo", "raio", "projetil", "escudo", "faisca",
 ]
 
 
@@ -76,3 +76,10 @@ def test_EXE_084_ler_runa_sempre_disponivel():
     req = requisicao("print(ler_runa(1))", sala={"runas": [5]})
     req["pecas"] = []
     assert handle_request(req)["saidas"][0]["texto"] == "5"
+
+
+def test_EXE_086_faisca_bloqueada():
+    r = run_com("lancar(raio, faisca)", sem("faisca"))
+    assert r["erro"]["tipo"] == "PecaBloqueada"
+    assert r["erro"]["linha"] == 1
+    assert r["acoes"] == []

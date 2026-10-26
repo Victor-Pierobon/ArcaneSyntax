@@ -1,7 +1,7 @@
 # EXE-desbloqueio — Peças que o jogador ainda não conhece
 
 - **Status:** Implementada
-- **Sprint:** 5
+- **Sprint:** 5, 10
 - **Relacionadas:** EXE-pecas, EXE-sandbox, GRI-autocompletar
 - **Decisão (2026-10-25):** o executor recusa peças bloqueadas (opção recomendada; o Victor não se opôs). Esconder só no autocompletar furaria a progressão do metroidvania.
 
@@ -12,7 +12,7 @@ Novos elementos, formas e ações são encontrados pela torre e funcionam como o
 ## Regras
 
 1. A requisição pode trazer `"pecas"`: a lista de peças desbloqueadas. **Sem o campo, tudo está desbloqueado** (compatível com o protocolo v1 e com os testes antigos).
-2. Peças sujeitas a desbloqueio: `lancar`, `mover`, `levitar`, `meditar`, `absorver_mana`, `fogo`, `gelo`, `raio`, `projetil`, `escudo` e, desde a Sprint 9, `inscrever` e `construir_bloco`. Os sentidos (`mana`, `mana_max`, `vida_atual`, `alvo`, `ler_runa`) estão sempre disponíveis.
+2. Peças sujeitas a desbloqueio: `lancar`, `mover`, `levitar`, `meditar`, `absorver_mana`, `fogo`, `gelo`, `raio`, `projetil`, `escudo` e, desde a Sprint 9, `inscrever` e `construir_bloco`, e desde a Sprint 10, `faisca`. Os sentidos (`mana`, `mana_max`, `vida_atual`, `alvo`, `ler_runa`, `inimigos`) estão sempre disponíveis.
 3. Um nome desconhecido em `pecas` torna a requisição inválida (`RequisicaoInvalida`).
 4. **Antes de executar:** usar o nome de uma peça bloqueada gera o erro `PecaBloqueada` com linha e coluna, e **nada roda** (como o `FeiticoProibido`).
 5. **Durante a execução:** `lancar` recusa elemento ou forma bloqueados que chegam como texto (`lancar("raio", ...)` ou `lancar(alvo.elemento, ...)`) com `PecaBloqueada` na linha; a ação não é registrada nem cobrada.
@@ -53,3 +53,9 @@ Novos elementos, formas e ações são encontrados pela torre e funcionam como o
 
 - **Dado** `pecas` com `"bola_de_fogo"`
 - **Então** `RequisicaoInvalida`
+
+### EXE-086 — Faísca bloqueada
+
+- **Dado** `pecas` sem `faisca`
+- **Quando** o feitiço é `lancar(raio, faisca)`
+- **Então** `PecaBloqueada` na linha 1, e nada roda

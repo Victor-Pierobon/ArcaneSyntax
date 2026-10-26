@@ -10,12 +10,12 @@ O mago precisa de vida e mana reais no jogo: o HUD mostra, os espinhos tiram, e 
 
 ## Fora do escopo
 
-Dano de inimigos (Sprint 10), recuperação de mana por feitiços no mundo (Sprint 7), save (Sprint 13).
+Dano de inimigos (COM-dano), recuperação de mana por feitiços no mundo (Sprint 7), save (Sprint 13).
 
 ## Regras
 
 1. `Health` (regra pura): vida inteira de 0 até `maximum` (padrão **5**). Dano reduz, cura aumenta, nunca passa dos limites.
-2. Depois de levar dano, **1 s de invencibilidade**: danos nesse tempo são ignorados.
+2. Depois de levar dano, **1 s de invencibilidade**: danos nesse tempo são ignorados. Desde a Sprint 10, vale também depois de o escudo bloquear um ataque (MAG-formas, regra 5).
 3. A esquiva deixa o mago invulnerável a ataques. **Espinhos ignoram essa proteção** (só respeitam a invencibilidade pós-dano).
 4. Ao chegar a 0, o sinal `died` é emitido uma única vez.
 5. `MagoState` reúne `health`, `mana` e `mana_max` (padrão: vida 5/5, mana **0** de **10**, porque o jogo começa sem mana, segundo o GDD). A mana tem resolução de 0,1 e fica entre 0 e `mana_max`. `to_spell_mago()` gera o `mago` do protocolo.

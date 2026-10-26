@@ -1,7 +1,7 @@
 # EXE-protocolo — Protocolo Godot ↔ executor (v1)
 
 - **Status:** Implementada
-- **Sprint:** 1, 9
+- **Sprint:** 1, 9, 10
 - **Relacionadas:** ADR-001, ADR-002, EXE-pecas, EXE-erros
 
 ## Contexto
@@ -39,6 +39,7 @@ As regras de custo, limites e sandbox estão em EXE-custo, EXE-limites e EXE-san
    | `custo_meditar` / `custo_absorver` | 0 / 0 | EXE-custo |
    | `custo_inscricao` (Sprint 9) | 0.1 | EXE-custo, regra 13 |
    | `custo_inscrever` / `custo_bloco` (Sprint 9) | 1 / 0.5 | EXE-custo |
+   | `custo_faisca` (Sprint 10) | 1 | EXE-custo |
    | `limite_tempo_ms` | 1000 | EXE-limites |
 3. Resposta:
    ```json
@@ -59,6 +60,7 @@ As regras de custo, limites e sandbox estão em EXE-custo, EXE-limites e EXE-san
 5. Quando dá erro, `ok` é `false` e `erro` segue EXE-erros. As ações e saídas produzidas **antes** do erro continuam na resposta.
 6. Uma requisição inválida nunca derruba o worker: ele responde com erro e segue lendo.
 7. **Sala (Sprint 9, ainda v1).** `mundo.sala` é opcional: `{"runas": [4, 7, 2]}`, com números inteiros. Sem o campo, a sala não tem runas. Campos desconhecidos dentro de `sala` são ignorados, para o jogo poder mandar mais coisas no futuro sem quebrar o executor. As ações novas (`inscrever`, `construir_bloco`) seguem a regra 4. Uma requisição antiga, sem `sala`, continua válida e dá a mesma resposta.
+8. **Inimigos (Sprint 10, ainda v1).** `mundo.inimigos` é opcional: uma lista de objetos `{"id", "elemento", "distancia", "vida"?, "escudo"?}`, do mais perto para o mais longe (COM-dano). `mundo.alvo` aceita os mesmos campos opcionais. `vida` é número ou null; `escudo` é texto ou null; sem o campo, vale `None` no feitiço. Um item malformado torna a requisição inválida. Requisições antigas continuam válidas e dão a mesma resposta.
 
 ## Critérios de aceite
 
@@ -126,3 +128,15 @@ As regras de custo, limites e sandbox estão em EXE-custo, EXE-limites e EXE-san
 - **Dado** uma fixture nova `10_pecas_de_puzzle.json`, com runas na sala, `ler_runa`, `inscrever` e `construir_bloco`
 - **Quando** rodam as duas suítes
 - **Então** o executor produz a resposta da fixture, e o Godot manda `mundo.sala` montado a partir da sala atual e lê as ações novas sem perder campos
+
+### EXE-112 — Inimigos na requisição
+
+- **Dado** `mundo.inimigos` com dois inimigos e `mundo.alvo` com `vida` e `escudo`
+- **Então** a requisição é válida
+- **E** `mundo.inimigos` que não é lista, item sem `id`, `vida` em texto ou `escudo` numérico dão `RequisicaoInvalida`
+
+### EXE-113 — Contrato do combate
+
+- **Dado** uma fixture nova `11_combate.json`, com inimigos, alvo com vida e escudo, e um loop de faíscas
+- **Quando** rodam as duas suítes
+- **Então** o executor produz a resposta da fixture, e o Godot manda `mundo.inimigos` montado a partir da sala atual

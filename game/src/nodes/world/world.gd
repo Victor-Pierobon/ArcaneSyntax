@@ -189,7 +189,8 @@ func _on_actions_finished() -> void:
 ## Executa um código com o estado real e aplica a mana pela variação.
 func _execute(code: String) -> SpellResult:
 	var context := spell_context()
-	var request := SpellRequest.make(code, context["mago"], context["target"], {}, context["pieces"], context["room"])
+	var request := SpellRequest.make(code, context["mago"], context["target"], {}, context["pieces"], context["room"],
+			context["enemies"])
 	var result: SpellResult = await executor.execute(request)
 	_tally_mana(result)
 	if not result.mago.is_empty():
@@ -226,10 +227,18 @@ func _update_passive_hud() -> void:
 	hud.set_passive_status(grimoire.passive(), passive_scheduler.is_disabled())
 
 
-## Estado do mundo que vai para o executor: mago, alvo, peças desbloqueadas e o que a sala mostra.
+## Estado do mundo que vai para o executor: mago, alvo, peças desbloqueadas, o que a sala mostra
+## e os inimigos no alcance (spec COM-dano, regra 6).
 func spell_context() -> Dictionary:
 	var room: Dictionary = current_room.spell_room() if current_room else {}
-	return {"mago": state.to_spell_mago(), "target": current_target(), "pieces": state.unlocked_pieces, "room": room}
+	return {"mago": state.to_spell_mago(), "target": current_target(), "pieces": state.unlocked_pieces, "room": room,
+			"enemies": current_enemies()}
+
+
+## Encostar num inimigo: dano de ataque e um empurrão para longe dele (spec COM-dano, regra 4).
+func _on_player_attacked(from: Vector2, amount: int) -> void:
+	if state.health.damage(amount, Health.Source.ATTACK):
+		player.motor.knock_back(1 if player.global_position.x >= from.x else -1)
 
 
 func _on_target_hit(_attack_element: String, effect: ElementTable.Effect) -> void:
@@ -247,7 +256,7 @@ func find_target(target_id: String) -> TrainingTarget:
 	return null
 
 
-## O boneco (ou, no futuro, inimigo) mais perto do mago no alcance; null se nenhum (spec MUN-alvos).
+## O boneco, cristal ou inimigo mais perto do mago no alcance; null se nenhum (spec MUN-alvos).
 func current_target() -> Variant:
 	var best: TrainingTarget = null
 	var best_distance := TARGET_RANGE_TILES * RoomLayout.TILE + 0.001
@@ -261,7 +270,29 @@ func current_target() -> Variant:
 			best_distance = distance
 	if best == null:
 		return null
-	return {"id": best.target_id, "elemento": best.element, "distancia": snappedf(best_distance / RoomLayout.TILE, 0.1)}
+	return _target_view(best, best_distance)
+
+
+## Inimigos vivos da sala no alcance, do mais perto para o mais longe (spec COM-dano, regra 6).
+func current_enemies() -> Array:
+	var found := []
+	if current_room == null:
+		return found
+	for enemy in current_room.enemies():
+		var distance := player.global_position.distance_to(enemy.global_position)
+		if distance <= TARGET_RANGE_TILES * RoomLayout.TILE + 0.001:
+			found.append([distance, enemy])
+	found.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	return found.map(func(pair: Array) -> Dictionary: return _target_view(pair[1], pair[0]))
+
+
+## Como o feitiço vê um alvo; inimigos também trazem vida e escudo.
+func _target_view(target: TrainingTarget, distance: float) -> Dictionary:
+	var view := {"id": target.target_id, "elemento": target.element, "distancia": snappedf(distance / RoomLayout.TILE, 0.1)}
+	if target is Enemy:
+		view["vida"] = target.health.current
+		view["escudo"] = target.shield_element()
+	return view
 
 
 func go_to(room_id: String, entry: String) -> void:
@@ -275,6 +306,7 @@ func go_to(room_id: String, entry: String) -> void:
 
 	current_room = load(path).instantiate()
 	current_room.rng = rng
+	current_room.player = player
 	room_mana_spent = 0.0
 	add_child(current_room)
 	move_child(current_room, 0)
@@ -283,12 +315,15 @@ func go_to(room_id: String, entry: String) -> void:
 	current_room.hazard_touched.connect(_on_hazard_touched)
 	current_room.safe_point_touched.connect(func(feet: Vector2) -> void: safe_point = feet)
 	current_room.puzzle_solved.connect(_on_puzzle_solved)
+	current_room.player_attacked.connect(_on_player_attacked)
 	if current_room.has_puzzle() and solved_puzzles.has(current_room.puzzle_id()):
 		current_room.apply_solved()
 	_apply_step_mode()
 	for node in current_room.get_children():
 		if node is TrainingTarget:
 			node.was_hit.connect(_on_target_hit)
+		if node is Enemy:
+			node.defeated.connect(func() -> void: sfx.play("derrota"))
 
 	if not current_room.has_entry(entry):
 		_report("entrada '%s' não existe na sala %s; usando a primeira" % [entry, room_id])

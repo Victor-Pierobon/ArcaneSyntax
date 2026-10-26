@@ -46,6 +46,7 @@ ERRO_EXECUTOR,O grimório não respondeu. Tente de novo.
 ALVO_FRACO,Fraco!
 ALVO_RESISTIU,Resistiu
 ALVO_ACERTOU,Acertou
+ALVO_BLOQUEOU,Bloqueou
 GRIMORIO_PASSIVO,Passivo
 HUD_PASSIVO_VAZIO,Passivo: —
 HUD_PASSIVO,Passivo: %s

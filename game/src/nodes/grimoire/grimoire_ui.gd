@@ -31,7 +31,7 @@ var load_problem := ""
 var _grimoire: Grimoire
 var _store: GrimoireStore
 var _executor: SpellExecutor
-## Devolve {"mago", "target", "pieces", "room"} com o estado atual do mundo.
+## Devolve {"mago", "target", "pieces", "room", "enemies"} com o estado atual do mundo.
 var _context: Callable
 ## Último resultado (Testar ou conjuração) por feitiço (GRI-053).
 var _last_results: Dictionary = {}
@@ -189,7 +189,8 @@ func test_selected() -> void:
 		return
 	_commit_editor()
 	var context: Dictionary = _context.call()
-	var request := SpellRequest.make(editor.text, context["mago"], context["target"], {}, context["pieces"], context.get("room", {}))
+	var request := SpellRequest.make(editor.text, context["mago"], context["target"], {}, context["pieces"],
+			context.get("room", {}), context.get("enemies", []))
 	var spell_name := _selected
 	result_label.text = tr("GRIMORIO_TESTANDO")
 	var result: SpellResult = await _executor.execute(request)
@@ -207,7 +208,8 @@ func estimate_now() -> void:
 	var code := editor.text
 	var context: Dictionary = _context.call()
 	var mago := {"vida": context["mago"].get("vida", 5), "mana": ESTIMATE_MANA, "mana_max": ESTIMATE_MANA}
-	var request := SpellRequest.make(code, mago, ESTIMATE_TARGET, {}, context["pieces"], context.get("room", {}))
+	var request := SpellRequest.make(code, mago, ESTIMATE_TARGET, {}, context["pieces"], context.get("room", {}),
+			context.get("enemies", []))
 	var result: SpellResult = await _executor.execute(request)
 	if code != editor.text:
 		return  # o código mudou enquanto estimava; outra estimativa vem a seguir

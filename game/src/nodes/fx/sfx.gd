@@ -29,6 +29,7 @@ func _ready() -> void:
 		"escudo": _tone(520.0, 520.0, 0.3, Wave.SINE, 0.25),
 		"cajado": _tone(200.0, 120.0, 0.06, Wave.NOISE, 0.25),
 		"mana": _tone(1040.0, 1180.0, 0.07, Wave.SINE, 0.12),
+		"derrota": _tone(520.0, 140.0, 0.25, Wave.SQUARE, 0.25),
 	}
 	_streams["conjurar"] = _streams["conjurar_fogo"]
 	for i in VOICES:

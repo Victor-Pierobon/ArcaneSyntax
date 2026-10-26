@@ -2,7 +2,7 @@
 
 - **Status:** Implementada (efeitos provisórios)
 - **Sprint:** 6
-- **Relacionadas:** MAG-formas, MUN-alvos; Sprint 10 (dano de verdade nos inimigos)
+- **Relacionadas:** MAG-formas, MUN-alvos, COM-dano (dano de verdade nos inimigos, Sprint 10)
 
 ## Contexto
 

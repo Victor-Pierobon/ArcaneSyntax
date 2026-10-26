@@ -20,7 +20,7 @@ A torre é um mapa contínuo dividido em salas. Enquanto não há arte definitiv
    | `*` | marcador de ponto seguro (invisível) |
    | `A`–`Z` | entrada: o mago aparece com os pés no fundo desta célula |
    | `a`–`z` | saída: tocar leva a outra sala |
-   | `1`–`9` | boneco de treino, cristal, runa, cadeado ou gravura (tipo em `targets`; MUN-alvos, PUZ-validacao) |
+   | `1`–`9` | boneco de treino, cristal, runa, cadeado, gravura ou inimigo (tipo em `targets`; MUN-alvos, PUZ-validacao, COM-dano) |
    | `\|` | porta de runas: sólida até o puzzle da sala ser resolvido (PUZ-validacao) |
    | `~` | vão de ponte: vazio até `construir_bloco()` pôr um bloco sólido ali (Sprint 9, PUZ-validacao) |
    | `_` | placa de pressão no fundo da célula (Sprint 9, PUZ-validacao) |
