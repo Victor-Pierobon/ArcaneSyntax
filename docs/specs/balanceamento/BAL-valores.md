@@ -14,7 +14,7 @@ Sensação de movimento (pulo, coyote, esquiva, empurrão, velocidades dos proj�
 
 ## Regras
 
-1. O arquivo é `game/content/balanceamento.json`, em JSON, com as seções `mago`, `executor`, `dano`, `elemental`, `enxame`, `guardiao` e `chefe`. Tempos em segundos (`_s`), distâncias em tiles (`_tiles`), velocidades em px/s.
+1. O arquivo é `game/content/balanceamento.json`, em JSON, com as seções `mago`, `executor`, `dano`, `elemental`, `enxame`, `guardiao`, `chefe` e, desde a Sprint 12, `xp` e `niveis` (PRO-xp, PRO-niveis; a mana máxima saiu de `mago` e vem do nível). As listas (`chefe.elementos`, `niveis.xp`, `niveis.mana_max`) são validadas pelo tipo dos itens, e as duas de `niveis` precisam ter o mesmo tamanho. Tempos em segundos (`_s`), distâncias em tiles (`_tiles`), velocidades em px/s.
 2. Quem lê é a classe `Balance` (Godot), que carrega o arquivo uma vez e guarda o conteúdo. O jogo não tem outro lugar com esses números: as classes que antes tinham constantes passam a perguntar a `Balance`.
 3. A seção `executor` tem exatamente as chaves de `REGRAS_PADRAO` (EXE-custo e EXE-limites: ganhos, custos e `limite_tempo_ms`). O `World` e o grimório mandam essa seção como `regras` em **toda** requisição: conjurar, passivo, Testar e estimativa de custo.
 4. O executor continua com `REGRAS_PADRAO` como padrão (console de feitiços e testes do executor), mas os valores do arquivo e os do padrão são iguais, e um teste do executor garante isso: mudar um custo exige mudar os dois, e o teste avisa.
@@ -54,7 +54,7 @@ Sensação de movimento (pulo, coyote, esquiva, empurrão, velocidades dos proj�
 
 ```json
 {
-  "mago": {"vida": 5, "mana_max": 10, "invencivel_s": 1.0},
+  "mago": {"vida": 5, "invencivel_s": 1.0},
   "executor": {"ganho_meditar": 5, "custo_lancar": 3, "custo_faisca": 1, "...": "..."},
   "dano": {"projetil": 3, "faisca": 1, "cajado": 1, "contato": 1, "fraco": 2, "normal": 1, "resiste": 0.5},
   "chefe": {"vida": 30, "elementos": ["fogo", "gelo"], "troca_vida": 15, "transicao_s": 1.5}

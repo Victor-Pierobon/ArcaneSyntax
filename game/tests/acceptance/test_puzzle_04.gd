@@ -43,6 +43,13 @@ func test_PUZ_050_A_for() -> void:
 	await _cross()
 
 
+## PRO-006 (docs/specs/progressao/PRO-xp.md): 3 estrelas dão 20 + 10 de economia.
+func test_PRO_006_bonus_de_economia() -> void:
+	await driver.cast("for i in range(12):\n    construir_bloco()")
+	assert_int(driver.world.state.xp).is_equal(30)
+	assert_str(driver.world.cast_log.text()).contains("+30 XP (economia +10)")
+
+
 func test_PUZ_050_B_while_com_contador() -> void:
 	await driver.cast("n = 0\nwhile n < 12:\n    construir_bloco()\n    n = n + 1")
 	_assert_solved(true, "B")

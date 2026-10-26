@@ -25,7 +25,7 @@ const TILE := RoomLayout.TILE
 ## Dígito → o que ele é: elemento de boneco ({"1": "fogo"}, spec MUN-alvos), "cristal[:...]",
 ## "runa:<n>" ou "runa:?", "cadeado:soma", "gravura:<texto>" (spec PUZ-validacao) ou
 ## "inimigo:elemental[:<elemento>]", "inimigo:enxame[:<n>]", "inimigo:guardiao" (spec COM-dano) ou
-## "inimigo:chefe" (spec COM-chefe).
+## "inimigo:chefe" (spec COM-chefe) ou "serpente:<cena>" (spec NAR-dialogo).
 @export var targets: Dictionary = {}
 ## {"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]} ou vazio (spec PUZ-validacao).
 @export var puzzle: Dictionary = {}
@@ -52,6 +52,7 @@ var _plates: Array[PressurePlate] = []
 ## Textos gravados na parede (regra 16), da esquerda para a direita.
 var _engravings: Array[Label] = []
 var _enemies: Array[Enemy] = []
+var _serpents: Array[Serpent] = []
 
 
 func _ready() -> void:
@@ -129,6 +130,10 @@ func enemies() -> Array[Enemy]:
 		if is_instance_valid(enemy) and not enemy.is_defeated():
 			alive.append(enemy)
 	return alive
+
+
+func serpents() -> Array[Serpent]:
+	return _serpents
 
 
 func runes() -> Array[Rune]:
@@ -250,6 +255,13 @@ func _build_targets() -> void:
 			continue
 		if spec.begins_with("inimigo:"):
 			_add_enemies(digit, spec, cell)
+			continue
+		if spec.begins_with("serpente:"):
+			var serpent := Serpent.make(spec.trim_prefix("serpente:"))
+			serpent.position = RoomLayout.cell_feet(cell)
+			serpent.player = player
+			_serpents.append(serpent)
+			add_child(serpent)
 			continue
 		if spec.begins_with("cadeado"):
 			var lock := RuneLock.make()

@@ -1,0 +1,16 @@
+{
+  "serpente_ola": {
+    "inicio": "a",
+    "falas": {
+      "a": {"quem": "serpente", "texto": "SERPENTE_OLA_1", "proxima": "b"},
+      "b": {"quem": "serpente", "texto": "SERPENTE_OLA_2", "opcoes": [
+        {"texto": "SERPENTE_OLA_OPCAO_QUEM", "proxima": "c"},
+        {"texto": "SERPENTE_OLA_OPCAO_SAIR", "proxima": "d"}
+      ]},
+      "c": {"quem": "serpente", "texto": "SERPENTE_OLA_3", "proxima": "e"},
+      "e": {"quem": "mago", "texto": "SERPENTE_OLA_5", "proxima": "f"},
+      "f": {"quem": "serpente", "texto": "SERPENTE_OLA_6"},
+      "d": {"quem": "serpente", "texto": "SERPENTE_OLA_4"}
+    }
+  }
+}

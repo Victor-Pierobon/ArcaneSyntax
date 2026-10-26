@@ -45,6 +45,9 @@ var executor: SpellExecutor:
 			grimoire_ui.set_spell_runner(executor, spell_context)
 
 var _changing_room := false
+## As cenas de diálogo e a caixa que as mostra (spec NAR-dialogo).
+var dialogues := DialogueBook.load_file(DialogueBook.DEFAULT_PATH)
+var dialogue_box := DialogueBox.new()
 
 @onready var player: Player = $Player
 @onready var hud: Hud = $Hud
@@ -84,6 +87,11 @@ func _ready() -> void:
 	if not grimoire_store.last_problem.is_empty():
 		push_warning("%s; cópia guardada em %s" % [grimoire_store.last_problem, grimoire_store.backup_path()])
 	state.health.died.connect(_on_died)
+	state.leveled_up.connect(_on_leveled_up)
+	add_child(dialogue_box)
+	dialogue_box.finished.connect(func() -> void: grimoire_ui.blocked = false)
+	for error in dialogues.errors:
+		_report(error)
 	go_to(start_room, start_entry)
 
 
@@ -101,6 +109,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed(&"attack"):
 		world_actions.staff_attack()
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed(&"talk"):
+		talk()
 		get_viewport().set_input_as_handled()
 		return
 	for slot_number in range(1, Grimoire.SLOT_COUNT + 1):
@@ -131,6 +143,28 @@ func cast(slot_number: int) -> void:
 	spell_cast.emit(slot_number, result)
 
 
+## Tecla E: abre a cena da serpente ao alcance; cena com erro só é registrada (NAR-dialogo, regras 3 e 5).
+func talk() -> void:
+	var serpent := serpent_in_reach()
+	if serpent == null or dialogue_box.is_open():
+		return
+	if not dialogues.can_play(serpent.scene_id):
+		_report(tr("DIALOGO_CENA_COM_ERRO") % serpent.scene_id)
+		return
+	grimoire_ui.blocked = true
+	dialogue_box.open(dialogues.start(serpent.scene_id))
+
+
+## A serpente da sala atual ao alcance do mago, ou null.
+func serpent_in_reach() -> Serpent:
+	if current_room == null:
+		return null
+	for serpent in current_room.serpents():
+		if is_instance_valid(serpent) and serpent.in_reach():
+			return serpent
+	return null
+
+
 func is_puzzle_solved(puzzle_id: String) -> bool:
 	return solved_puzzles.has(puzzle_id)
 
@@ -147,6 +181,10 @@ func _on_puzzle_solved(puzzle_id: String) -> void:
 		cast_log.add_lines(PackedStringArray([tr("PUZZLE_RESOLVIDO_ESTRELAS") % [stars, room_mana_spent]]))
 	else:
 		cast_log.add_lines(PackedStringArray([tr("PUZZLE_RESOLVIDO")]))
+	# Só chega aqui na primeira vez: a sala de um puzzle resolvido já nasce resolvida (PRO-xp, regra 3).
+	var bonus := Progression.economy_bonus(stars)
+	var xp := Progression.puzzle_xp(stars)
+	_gain_xp(xp, tr("XP_GANHO_ECONOMIA") % [xp, bonus] if bonus > 0 else tr("XP_GANHO") % xp)
 
 
 ## Soma o custo das conjurações que agem enquanto o puzzle da sala não foi resolvido (regra 14).
@@ -244,6 +282,23 @@ func _on_player_attacked(from: Vector2, amount: int) -> void:
 		player.motor.knock_back(1 if player.global_position.x >= from.x else -1)
 
 
+## Todo inimigo derrotado dá XP, mesmo os que reaparecem (spec PRO-xp, regra 2).
+func _on_enemy_defeated(xp: int) -> void:
+	sfx.play("derrota")
+	_gain_xp(xp, tr("XP_GANHO") % xp)
+
+
+func _gain_xp(amount: int, message: String) -> void:
+	if amount <= 0:
+		return
+	cast_log.add_lines(PackedStringArray([message]))
+	state.gain_xp(amount)
+
+
+func _on_leveled_up(level: int) -> void:
+	cast_log.add_lines(PackedStringArray([tr("NIVEL_SUBIU") % [level, roundi(state.mana_max)]]))
+
+
 func _on_boss_defeated(room_id: String) -> void:
 	defeated_bosses[room_id] = true
 	cast_log.add_lines(PackedStringArray([tr("CHEFE_DERROTADO")]))
@@ -333,7 +388,7 @@ func go_to(room_id: String, entry: String) -> void:
 		if node is TrainingTarget:
 			node.was_hit.connect(_on_target_hit)
 		if node is Enemy:
-			node.defeated.connect(func() -> void: sfx.play("derrota"))
+			node.defeated.connect(_on_enemy_defeated.bind(node.xp))
 
 	if not current_room.has_entry(entry):
 		_report("entrada '%s' não existe na sala %s; usando a primeira" % [entry, room_id])

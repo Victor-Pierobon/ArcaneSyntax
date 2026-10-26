@@ -1,6 +1,6 @@
 # Feitiços de exemplo
 
-Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 11). Os custos de mana vêm de `game/content/balanceamento.json`. Os custos já contam o custo de inscrição da Sprint 9.
+Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 12). Os custos de mana vêm de `game/content/balanceamento.json`. Os custos já contam o custo de inscrição da Sprint 9.
 
 ## Onde testar
 
@@ -372,13 +372,27 @@ vence = {"fogo": gelo, "gelo": raio, "planta": fogo}
 lancar(vence[alvo.elemento], projetil, alvo)
 ```
 
-Esperado: seis conjurações (custo 3.4 cada, 20.4 no total). A mana máxima é 10, então medite no meio da luta, com o escudo ligado ou longe dos orbes. A versão com `if/elif` custa 3.2 por conjuração.
+Esperado: seis conjurações (custo 3.4 cada, 20.4 no total). Com mana máxima 10 (nível 1; ela sobe com o nível), medite no meio da luta, com o escudo ligado ou longe dos orbes. A versão com `if/elif` custa 3.2 por conjuração.
 
 Com o feitiço fixo `lancar(gelo, projetil, alvo)`, a fase 1 cai em três conjurações, mas na fase 2 cada golpe mostra `Resistiu −1` (15 conjurações a mais).
 
 Para ver o que o feitiço enxerga: `print(alvo.elemento, alvo.vida)` mostra `fogo 30`; na transição e depois dela, `gelo 15`.
 
 Os números do chefe (e de todo o combate e dos custos de mana) estão em `game/content/balanceamento.json`. Mudou algo ali, feche e abra o jogo. Se mudar um custo da seção `executor`, mude também `REGRAS_PADRAO` em `executor/arcane_executor/pieces.py`: o pytest avisa se os dois discordarem.
+
+## 4f. Progressão, serpente e referência (Sprint 12)
+
+**Serpente:** na `sala_01`, logo depois da entrada, há uma serpente verde. Chegue perto: aparece `E: falar`. Aperte **E**. O jogo pausa e a caixa abre no alto da tela; **Espaço** (ou Enter, ou E) avança e **1** ou **2** escolhem. Com a caixa aberta, o grimório (Tab) não abre. Essa cena é de teste; as falas de verdade são da Sprint 13.
+
+**XP e níveis:** o HUD mostra `Nível 1 · XP 0/30` abaixo da mana. Cada ganho aparece no registro:
+- elemental `+10 XP`, cada bicho do enxame `+2 XP`, guardião `+15 XP`, chefe `+50 XP`;
+- puzzle `+20 XP`, só na primeira vez. Na ponte do Puzzle 4 com o loop `for i in range(12): construir_bloco()` (3 estrelas) aparece `+30 XP (economia +10)`.
+
+Ao subir de nível aparece `Nível 2! Mana máxima 12` e a mana enche. Teste rápido: na `sala_c01`, derrote os dois elementais (+20) e resolva um puzzle (+20), e você chega ao nível 2. Os inimigos voltam quando você sai e entra, e dão XP de novo. Confira que um feitiço vê a mana nova: `print(mana_max)` mostra 12 no nível 2.
+
+**Referência:** abra o grimório (Tab) e clique na aba **Referência**. São 13 páginas (lancar, elementos, formas, mover, levitar, meditar, absorver_mana, inscrever, construir_bloco, sentidos, alvo e inimigos, ler_runa, print). A aba Feitiços continua com o feitiço em edição como você deixou.
+
+Os números de XP e da curva de níveis estão nas seções `xp` e `niveis` de `game/content/balanceamento.json`.
 
 ## 5. Erros de propósito (para ver as mensagens)
 

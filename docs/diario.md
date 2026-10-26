@@ -69,3 +69,13 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 - Arquivo de balanceamento `game/content/balanceamento.json`, lido por `Balance`: mago, custos do executor (vão como `regras` em toda requisição), dano, inimigos e chefe. Um pytest garante que o arquivo e o `REGRAS_PADRAO` concordam.
 - Nenhum bug no jogo (dois testes com expectativa errada foram corrigidos). Mutação: 3 de 4; o sobrevivente era uma precisão menor que um quadro, e o código foi simplificado. 354 GdUnit4 e 145 pytest verdes.
 - Próximo: Victor revisa e commita; depois Sprint 12 (progressão e sistemas da serpente).
+
+## 2026-10-26 (Sprint 12)
+
+- O Victor jogou o chefe e está funcionando. Sprint 11 commitada (`e3a7f22`).
+- Progressão: XP por inimigos (elemental 10, bicho 2, guardião 15, chefe 50) e por puzzles (20 na primeira vez, +5 por estrela acima de uma); níveis 1 a 5 que aumentam e enchem a mana (10 → 18); nível e XP no HUD. Números no `balanceamento.json` (seções `xp` e `niveis`).
+- Diálogo: cenas em `content/dialogos.json`, com escolhas e validação que aponta cena e fala (fala inexistente, texto fora do `textos.csv`, fala que nunca é alcançada ou não termina). A serpente na `sala_01` fala com **E**, e a caixa pausa o jogo.
+- Aba Referência no grimório, com 13 páginas das peças na voz da serpente, filtradas pelo desbloqueio.
+- Bugs com regressão (captura de tela): o mago cobria o `E: falar`; a caixa de diálogo embaixo cobria o mago e a serpente e foi para o alto. Mutação: 7 de 7. 387 GdUnit4 e 145 pytest verdes.
+- Decisões tomadas por recomendação (o Victor pediu para seguir); registradas no relatório para revisão.
+- Próximo: Victor revisa e commita; depois Sprint 13 (falas da serpente, dicas e save).

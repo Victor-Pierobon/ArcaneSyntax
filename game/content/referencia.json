@@ -1,0 +1,15 @@
+[
+  {"id": "lancar", "requer": ["lancar"]},
+  {"id": "elementos", "requer": ["lancar"]},
+  {"id": "formas", "requer": ["lancar"]},
+  {"id": "mover", "requer": ["mover"]},
+  {"id": "levitar", "requer": ["levitar"]},
+  {"id": "meditar", "requer": ["meditar"]},
+  {"id": "absorver_mana", "requer": ["absorver_mana"]},
+  {"id": "inscrever", "requer": ["inscrever"]},
+  {"id": "construir_bloco", "requer": ["construir_bloco"]},
+  {"id": "sentidos", "requer": []},
+  {"id": "alvo", "requer": []},
+  {"id": "ler_runa", "requer": []},
+  {"id": "print", "requer": []}
+]

@@ -10,7 +10,7 @@ Feitiços como `lancar(fogo, projetil, alvo)` e o feitiço adaptável precisam d
 
 ## Regras
 
-1. No layout, os dígitos `1`–`9` marcam bonecos de treino. A sala diz o elemento de cada um em `targets` (ex.: `{"1": "fogo", "2": "planta"}`). Um dígito sem elemento é erro de autoria. Desde a Sprint 10, `inimigo:<tipo>` cria um inimigo (COM-dano, regra 8), que também é um alvo.
+1. No layout, os dígitos `1`–`9` marcam bonecos de treino. A sala diz o elemento de cada um em `targets` (ex.: `{"1": "fogo", "2": "planta"}`). Um dígito sem elemento é erro de autoria. Desde a Sprint 10, `inimigo:<tipo>` cria um inimigo (COM-dano, regra 8), que também é um alvo. Desde a Sprint 12, `serpente:<cena>` põe a serpente, que não é alvo (NAR-dialogo, regra 5).
 2. Cada boneco tem um `target_id` (`<sala>_alvo_<dígito>`) e um `element`, está no grupo `alvos` e fica de pé na célula (visual provisório: retângulo na cor do elemento).
 3. **O alvo de um feitiço** é o boneco, cristal ou inimigo do grupo `alvos` mais perto do mago num raio de **12 tiles**; se não houver nenhum, `alvo` é `None`.
 4. A distância vai ao executor em **tiles**, com uma casa decimal.

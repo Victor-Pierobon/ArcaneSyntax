@@ -12,6 +12,7 @@ const PROBLEM_TEXT := {
 const MARK_COLOR := Color(0.75, 0.15, 0.15, 0.45)
 const ESTIMATE_MANA := 1000.0
 const ESTIMATE_TARGET := {"id": "estimativa", "elemento": "fogo", "distancia": 3.0}
+const REFERENCE_TAB := 1
 
 var spell_list := ItemList.new()
 var name_field := LineEdit.new()
@@ -27,6 +28,11 @@ var estimate_timer := Timer.new()
 var marked_line := -1
 ## Motivo, se o arquivo do grimório estava ilegível; mostrado na primeira abertura (GRI-008).
 var load_problem := ""
+## Ligado enquanto um diálogo está aberto: o grimório não abre (NAR-dialogo, regra 6).
+var blocked := false
+var tabs := TabContainer.new()
+var reference_list := ItemList.new()
+var reference_text := RichTextLabel.new()
 
 var _grimoire: Grimoire
 var _store: GrimoireStore
@@ -37,6 +43,9 @@ var _context: Callable
 var _last_results: Dictionary = {}
 var _selected := ""
 var _root := PanelContainer.new()
+## Páginas de referência (GRI-referencia) e os ids na ordem da lista.
+var _reference := ReferenceBook.load_file(ReferenceBook.DEFAULT_PATH)
+var _page_ids: Array[String] = []
 
 
 func _init() -> void:
@@ -63,7 +72,7 @@ func is_open() -> bool:
 
 
 func open() -> void:
-	if is_open():
+	if is_open() or blocked:
 		return
 	_root.visible = true
 	get_tree().paused = true
@@ -93,6 +102,41 @@ func toggle() -> void:
 		close()
 	else:
 		open()
+
+
+func show_reference() -> void:
+	tabs.current_tab = REFERENCE_TAB
+	_refresh_reference()
+
+
+func show_spells() -> void:
+	tabs.current_tab = 0
+
+
+func is_showing_reference() -> bool:
+	return tabs.current_tab == REFERENCE_TAB
+
+
+func select_page(page_id: String) -> void:
+	var index := _page_ids.find(page_id)
+	if index < 0:
+		return
+	reference_list.select(index)
+	reference_text.text = _reference.text(page_id)
+
+
+## Lista as páginas das peças desbloqueadas e mostra a primeira (GRI-referencia, regras 3 e 5).
+func _refresh_reference() -> void:
+	var pieces := PackedStringArray(MagoState.ALL_PIECES)
+	if _context.is_valid():
+		pieces = PackedStringArray(_context.call().get("pieces", pieces))
+	_page_ids = _reference.visible_pages(pieces)
+	reference_list.clear()
+	for page_id in _page_ids:
+		reference_list.add_item(_reference.title(page_id))
+	reference_text.text = ""
+	if not _page_ids.is_empty():
+		select_page(_page_ids[0])
 
 
 func selected_name() -> String:
@@ -341,9 +385,18 @@ func _build() -> void:
 	title.add_theme_font_size_override(&"font_size", 12)
 	column.add_child(title)
 
+	# Abas Feitiços e Referência (GRI-referencia, regra 5).
+	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	tabs.add_theme_font_size_override(&"font_size", 9)
+	tabs.tab_changed.connect(func(tab: int) -> void:
+		if tab == REFERENCE_TAB:
+			_refresh_reference()
+	)
+	column.add_child(tabs)
 	var split := HSplitContainer.new()
-	split.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(split)
+	split.name = "GRIMORIO_ABA_FEITICOS"
+	tabs.add_child(split)
+	_build_reference()
 
 	var side := VBoxContainer.new()
 	side.custom_minimum_size = Vector2(150, 0)
@@ -430,3 +483,20 @@ func _build() -> void:
 	status_label.add_theme_font_size_override(&"font_size", 9)
 	status_label.add_theme_color_override(&"font_color", Color("ff9a7a"))
 	column.add_child(status_label)
+
+
+func _build_reference() -> void:
+	var split := HSplitContainer.new()
+	split.name = "GRIMORIO_ABA_REFERENCIA"
+	tabs.add_child(split)
+	reference_list.custom_minimum_size = Vector2(150, 0)
+	reference_list.add_theme_font_size_override(&"font_size", 9)
+	reference_list.item_selected.connect(func(index: int) -> void: select_page(_page_ids[index]))
+	split.add_child(reference_list)
+	reference_text.bbcode_enabled = true
+	reference_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	reference_text.add_theme_font_size_override(&"normal_font_size", 9)
+	reference_text.add_theme_font_size_override(&"bold_font_size", 9)
+	reference_text.add_theme_font_size_override(&"mono_font_size", 9)
+	reference_text.add_theme_color_override(&"default_color", Color("e8e2d0"))
+	split.add_child(reference_text)

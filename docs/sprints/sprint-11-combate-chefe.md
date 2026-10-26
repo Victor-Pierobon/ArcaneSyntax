@@ -1,6 +1,6 @@
 # Sprint 11 — Combate II: chefe e balanceamento
 
-- **Status:** Concluída em 2026-10-26 · aguardando revisão e commit do Victor
+- **Status:** Concluída em 2026-10-26 · commitada (`e3a7f22`)
 - **Fase do plano:** 6 · **Marco:** fecha o combate do M3 · **Estimativa:** 12–19 h
 - **Depende de:** Sprint 10
 

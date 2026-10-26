@@ -1,8 +1,11 @@
 class_name MagoState
 extends RefCounted
-## Vida e mana reais do mago (spec MUN-vida). O executor só simula; quem manda é este estado.
+## Vida, mana, XP e nível reais do mago (specs MUN-vida, PRO-xp, PRO-niveis). O executor só simula;
+## quem manda é este estado.
 
 signal mana_changed(mana: float, mana_max: float)
+signal xp_changed(xp: int, level: int)
+signal leveled_up(level: int)
 
 const MANA_STEP := 0.1
 ## Peças sujeitas a desbloqueio (spec EXE-desbloqueio).
@@ -11,11 +14,13 @@ const ALL_PIECES: Array[String] = [
 	"fogo", "gelo", "raio", "projetil", "escudo", "faisca",
 ]
 
-## Vida, mana máxima e invencibilidade vêm do balanceamento, seção `mago` (spec BAL-valores).
+## Vida e invencibilidade vêm do balanceamento, seção `mago`; a mana máxima, do nível (spec BAL-valores).
 var health := Health.new(Balance.integer("mago", "vida"))
 var mana: float = 0.0
-var mana_max: float = Balance.number("mago", "mana_max")
-## Até a progressão existir (Sprint 12), tudo começa desbloqueado (GRI-slots, regra 11).
+var xp := 0
+var level := 1
+var mana_max: float = Progression.mana_max_for(1)
+## Até os upgrades da torre existirem, tudo começa desbloqueado (GRI-slots, regra 11).
 var unlocked_pieces := PackedStringArray(ALL_PIECES)
 
 
@@ -26,6 +31,20 @@ func _init() -> void:
 func set_mana(value: float) -> void:
 	mana = clampf(snappedf(value, MANA_STEP), 0.0, mana_max)
 	mana_changed.emit(mana, mana_max)
+
+
+## Soma XP e sobe os níveis alcançados; cada nível novo aumenta e enche a mana (PRO-niveis, regra 4).
+func gain_xp(amount: int) -> void:
+	if amount <= 0:
+		return
+	xp += amount
+	var reached := Progression.level_for(xp)
+	while level < reached:
+		level += 1
+		mana_max = Progression.mana_max_for(level)
+		set_mana(mana_max)
+		leveled_up.emit(level)
+	xp_changed.emit(xp, level)
 
 
 ## O "mago" do protocolo do executor (spec EXE-protocolo).

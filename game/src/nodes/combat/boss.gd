@@ -24,7 +24,7 @@ var _transition_clock := 0.0
 
 static func make_boss(p_target_id: String) -> Boss:
 	var boss := Boss.new()
-	boss.setup(p_target_id, boss.phases.element(), Balance.integer("chefe", "vida"), BODY)
+	boss.setup(p_target_id, boss.phases.element(), "chefe", BODY)
 	return boss
 
 

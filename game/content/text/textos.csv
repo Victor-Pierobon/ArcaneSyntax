@@ -1,5 +1,5 @@
 keys,pt_BR
-PROTOTIPO_DICA,"A/D andar · Espaço pular · Shift esquivar · J cajado · Tab grimório · 1-5 conjurar"
+PROTOTIPO_DICA,"A/D andar · Espaço pular · Shift esquivar · J cajado · E falar · Tab grimório · 1-5 conjurar"
 HUD_VIDA,Vida %d/%d
 HUD_MANA,Mana %.1f/%.1f
 GRIMORIO_TITULO,Grimório
@@ -62,3 +62,49 @@ PONTE_PRONTA,A ponte já está pronta
 PONTE_SEM_VAO,Não há vão para construir uma ponte aqui
 PUZZLE_RESOLVIDO,Puzzle resolvido!
 "PUZZLE_RESOLVIDO_ESTRELAS","Puzzle resolvido! Estrelas: %d de 3 (mana gasta: %.1f)"
+XP_GANHO,+%d XP
+XP_GANHO_ECONOMIA,+%d XP (economia +%d)
+NIVEL_SUBIU,Nível %d! Mana máxima %d
+HUD_NIVEL,Nível %d · XP %d/%d
+HUD_NIVEL_MAXIMO,Nível %d · XP %d
+DIALOGO_SERPENTE,Serpente
+DIALOGO_MAGO,Você
+DIALOGO_FALAR,E: falar
+DIALOGO_CONTINUAR,Espaço: continuar
+DIALOGO_CENA_COM_ERRO,O diálogo %s não pode tocar (veja os erros de autoria)
+SERPENTE_OLA_1,"Sss... alguém novo nas páginas! Faz tanto tempo que ninguém abre este livro."
+SERPENTE_OLA_2,"Eu sou a serpente. Moro nas margens do grimório e conheço cada runa dele. Quer saber como a magia funciona aqui?"
+SERPENTE_OLA_OPCAO_QUEM,Como a magia funciona?
+SERPENTE_OLA_OPCAO_SAIR,Agora não.
+SERPENTE_OLA_3,"Aqui, todo feitiço é escrito em Python, uma linha depois da outra. Abra o grimório com Tab: na aba Referência deixei uma página para cada peça."
+SERPENTE_OLA_5,E se eu errar?
+SERPENTE_OLA_6,"Então o feitiço falha e você perde um pouco de mana. Só isso. Errar é o jeito mais rápido de aprender, sss."
+SERPENTE_OLA_4,"Sem pressa. Estarei aqui, enrolada nesta margem, quando quiser conversar."
+GRIMORIO_ABA_FEITICOS,Feitiços
+GRIMORIO_ABA_REFERENCIA,Referência
+REF_LANCAR_TITULO,lancar
+REF_LANCAR_TEXTO,"[b]lancar(elemento, forma, alvo)[/b]\n\nA peça mais antiga do livro: solta um feitiço. Escolha o elemento, a forma e, se quiser, o alvo.\n\n[code]lancar(fogo, projetil, alvo)[/code]\n\nCom alvo, o projétil persegue quem você escolheu. Sem alvo, voa reto e acerta o primeiro que tocar.\nCusta 3 de mana (a faísca custa 1)."
+REF_ELEMENTOS_TITULO,Elementos
+REF_ELEMENTOS_TEXTO,"[b]fogo, gelo, raio[/b]\n\nCada elemento é forte contra outro:\n• fogo vence planta\n• gelo vence fogo\n• raio vence gelo\n\nAcertar a fraqueza dá o dobro de dano ([b]Fraco![/b]). Um elemento contra ele mesmo dá a metade ([b]Resistiu[/b]).\n\nDica: os elementos são texto, então [code]alvo.elemento == fogo[/code] funciona."
+REF_FORMAS_TITULO,Formas
+REF_FORMAS_TEXTO,"[b]projetil, faisca, escudo[/b]\n\n• [b]projetil[/b]: dano 3, custo 3. Bom contra inimigos grandes.\n• [b]faisca[/b]: dano 1, custo 1. Barata, ótima num loop sobre muitos inimigos.\n• [b]escudo[/b]: envolve você por 2 segundos e bloqueia um ataque.\n\n[code]lancar(raio, faisca, alvo)\nlancar(gelo, escudo)[/code]"
+REF_MOVER_TITULO,mover
+REF_MOVER_TEXTO,"[b]mover(passos)[/b]\n\nAnda alguns tiles. Número positivo vai para a direita; negativo, para a esquerda.\n\n[code]mover(3)\nmover(-2)[/code]\n\nEnquanto o feitiço move você, o teclado espera. Custa 1 de mana."
+REF_LEVITAR_TITULO,levitar
+REF_LEVITAR_TEXTO,"[b]levitar(altura)[/b]\n\nSobe no ar a altura que você pedir, em tiles. A altura precisa ser maior que zero.\n\n[code]levitar(3)\nmover(4)[/code]\n\nLevitar e depois mover faz você voar por cima de buracos. Custa 2 de mana."
+REF_MEDITAR_TITULO,meditar
+REF_MEDITAR_TEXTO,"[b]meditar()[/b]\n\nVocê para, respira e recupera 5 de mana, até o máximo. Não custa nada além da própria linha.\n\n[code]while mana < mana_max:\n    meditar()[/code]\n\nCuidado: meditando, você fica parado. Escolha um lugar seguro."
+REF_ABSORVER_MANA_TITULO,absorver_mana
+REF_ABSORVER_MANA_TEXTO,"[b]absorver_mana()[/b]\n\nPuxa 1 de mana do ar à sua volta. É pouco, mas não para você.\n\nFica ótima no [b]passivo[/b], o feitiço que roda sozinho a cada segundo:\n\n[code]if mana < mana_max:\n    absorver_mana()[/code]"
+REF_INSCREVER_TITULO,inscrever
+REF_INSCREVER_TEXTO,"[b]inscrever(valor)[/b]\n\nGrava um número no cadeado de runas mais perto, a até 3 passos. Se for o número certo, ele abre.\n\n[code]total = ler_runa(1) + ler_runa(2)\ninscrever(total)[/code]\n\nCusta 1 de mana."
+REF_CONSTRUIR_BLOCO_TITULO,construir_bloco
+REF_CONSTRUIR_BLOCO_TEXTO,"[b]construir_bloco()[/b]\n\nPõe o próximo bloco de uma ponte sobre o vão da sala.\n\nUma ponte de 12 blocos pede 12 chamadas. Escrever 12 linhas funciona, mas um loop sai mais barato:\n\n[code]for i in range(12):\n    construir_bloco()[/code]\n\nCusta 0,5 de mana por bloco."
+REF_SENTIDOS_TITULO,Sentidos do mago
+REF_SENTIDOS_TEXTO,"[b]mana, mana_max, vida_atual[/b]\n\nSão variáveis que o livro preenche para você, com o que você sente agora.\n\n[code]if mana < 3:\n    meditar()\nprint(vida_atual)[/code]\n\nMudar o valor delas não muda nada no mundo: [code]mana = 999[/code] não dá mana, sss."
+REF_ALVO_TITULO,alvo e inimigos
+REF_ALVO_TEXTO,"[b]alvo[/b] é o que está mais perto de você, a até 12 tiles. [b]None[/b] se não houver nada.\nEle tem [code]alvo.elemento[/code], [code]alvo.distancia[/code], [code]alvo.vida[/code] e [code]alvo.escudo[/code].\n\n[b]inimigos[/b] é a lista dos inimigos por perto, do mais perto para o mais longe:\n\n[code]for inimigo in inimigos:\n    lancar(raio, faisca, inimigo)[/code]\n\nO feitiço vê o mundo como ele era quando você conjurou."
+REF_LER_RUNA_TITULO,ler_runa
+REF_LER_RUNA_TEXTO,"[b]ler_runa(n)[/b]\n\nLê o número gravado numa runa da sala. As runas contam da esquerda para a direita, [b]a partir de 1[/b].\n\n[code]a = ler_runa(1)\nb = ler_runa(2)\nprint(a + b)[/code]\n\nPedir uma runa que não existe dá erro, e a mensagem diz quantas runas a sala tem."
+REF_PRINT_TITULO,print
+REF_PRINT_TEXTO,"[b]print(...)[/b]\n\nMostra uma visão sobre a sua cabeça e no registro. Use para descobrir o que o feitiço está vendo.\n\n[code]print(alvo.elemento, alvo.distancia)[/code]\n\nAs visões não mudam o mundo. São só para você entender o que acontece."

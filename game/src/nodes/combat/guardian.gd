@@ -13,7 +13,7 @@ var shield := GuardianShield.new()
 
 static func make_guardian(p_target_id: String) -> Guardian:
 	var guardian := Guardian.new()
-	guardian.setup(p_target_id, GuardianShield.BODY_ELEMENT, Balance.integer("guardiao", "vida"), BODY)
+	guardian.setup(p_target_id, GuardianShield.BODY_ELEMENT, "guardiao", BODY)
 	return guardian
 
 

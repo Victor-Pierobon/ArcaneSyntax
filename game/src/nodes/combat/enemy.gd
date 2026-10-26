@@ -14,6 +14,8 @@ const BAR_HEIGHT := 2.0
 
 var health: Health
 var contact_damage := Balance.integer("dano", "contato")
+## XP que o mago ganha ao derrotá-lo (spec PRO-xp).
+var xp := 0
 var last_damage := 0
 var last_blocked := false
 ## O mago, para quem reage a ele; null quando não há mundo (testes de sala).
@@ -24,13 +26,16 @@ var _bar_back := ColorRect.new()
 var _bar := ColorRect.new()
 
 
-func setup(p_target_id: String, p_element: String, max_health: int, size: Vector2) -> void:
+## `kind`: o tipo no balanceamento (`elemental`, `enxame`, `guardiao`, `chefe`), que dá a vida
+## (na seção do tipo) e a XP (seção `xp`).
+func setup(p_target_id: String, p_element: String, kind: String, size: Vector2) -> void:
 	target_id = p_target_id
 	element = p_element
 	name = p_target_id
 	body_size = size
-	health = Health.new(max_health)
+	health = Health.new(Balance.integer(kind, "vida"))
 	health.invulnerable_time = 0.0
+	xp = Balance.integer("xp", kind)
 
 
 func _ready() -> void:

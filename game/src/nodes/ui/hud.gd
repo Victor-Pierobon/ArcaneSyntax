@@ -5,6 +5,8 @@ extends CanvasLayer
 var life_label := Label.new()
 var mana_label := Label.new()
 var mana_bar := ProgressBar.new()
+## Nível e XP (spec PRO-niveis, regra 6).
+var level_label := Label.new()
 ## Os 5 slots e o feitiço de cada um (spec GRI-slots, GRI-034).
 var slots_label := Label.new()
 ## Feitiço passivo e se está ligado (spec MAG-passivo, MAG-057).
@@ -20,12 +22,14 @@ func _init() -> void:
 	add_child(box)
 	for label in [life_label, mana_label]:
 		label.add_theme_font_size_override(&"font_size", 9)
+	level_label.add_theme_font_size_override(&"font_size", 8)
 	mana_bar.custom_minimum_size = Vector2(80, 5)
 	mana_bar.show_percentage = false
 	mana_bar.max_value = 100.0
 	box.add_child(life_label)
 	box.add_child(mana_label)
 	box.add_child(mana_bar)
+	box.add_child(level_label)
 	# Dica de controles enquanto não há menu nem tutorial.
 	var hint := Label.new()
 	hint.text = "PROTOTIPO_DICA"
@@ -45,8 +49,10 @@ func _init() -> void:
 func bind(state: MagoState) -> void:
 	state.health.changed.connect(_on_life_changed)
 	state.mana_changed.connect(_on_mana_changed)
+	state.xp_changed.connect(_on_xp_changed)
 	_on_life_changed(state.health.current, state.health.maximum)
 	_on_mana_changed(state.mana, state.mana_max)
+	_on_xp_changed(state.xp, state.level)
 
 
 func bind_slots(grimoire: Grimoire) -> void:
@@ -74,6 +80,14 @@ func _on_slots_changed() -> void:
 
 func _on_life_changed(current: int, maximum: int) -> void:
 	life_label.text = tr("HUD_VIDA") % [current, maximum]
+
+
+func _on_xp_changed(xp: int, level: int) -> void:
+	var next := Progression.next_threshold(level)
+	if next < 0:
+		level_label.text = tr("HUD_NIVEL_MAXIMO") % [level, xp]
+	else:
+		level_label.text = tr("HUD_NIVEL") % [level, xp, next]
 
 
 func _on_mana_changed(mana: float, mana_max: float) -> void:

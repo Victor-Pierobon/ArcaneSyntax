@@ -1,7 +1,6 @@
 {
   "mago": {
     "vida": 5,
-    "mana_max": 10,
     "invencivel_s": 1.0
   },
   "executor": {
@@ -61,5 +60,17 @@
     "orbe_velocidade": 90,
     "orbe_alcance_tiles": 16,
     "orbe_dano": 1
+  },
+  "xp": {
+    "elemental": 10,
+    "enxame": 2,
+    "guardiao": 15,
+    "chefe": 50,
+    "puzzle": 20,
+    "bonus_estrela": 5
+  },
+  "niveis": {
+    "xp": [0, 30, 70, 130, 210],
+    "mana_max": [10, 12, 14, 16, 18]
   }
 }

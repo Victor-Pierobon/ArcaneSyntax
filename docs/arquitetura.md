@@ -71,11 +71,11 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 ### Mago, salas e HUD (specs MUN-vida, MUN-salas, UI-hud)
 
 - `Health` (`src/core/mago/health.gd`): vida inteira, `damage(amount, source)` devolve se contou, `Source.ATTACK`/`HAZARD`, 1 s de invencibilidade pós-dano (`tick(delta)`), `dodging` protege só de `ATTACK`, sinais `changed(current, maximum)` e `died`.
-- `MagoState` (`src/core/mago/mago_state.gd`): `health` (5), `mana` (0) e `mana_max` (10) com resolução 0,1; sinal `mana_changed`; `to_spell_mago()` gera o `mago` do protocolo. **A mana real mora aqui**; o executor só simula.
+- `MagoState` (`src/core/mago/mago_state.gd`): `health` (5), `mana` (0) e `mana_max` (a do nível; 10 no nível 1) com resolução 0,1; `xp`, `level`, `gain_xp(n)` (sobe níveis, aumenta e enche a mana); sinais `mana_changed`, `xp_changed`, `leveled_up`; `to_spell_mago()` gera o `mago` do protocolo. **A mana real mora aqui**; o executor só simula.
 - `RoomLayout` (`src/core/world/room_layout.gd`): lê o layout em texto (`#` pedra, `=` plataforma, `^` espinhos, `*` ponto seguro, `A–Z` entradas, `a–z` saídas); `cell_feet(cell)`, `size_px()`, `errors`.
 - `Room` (`src/nodes/world/room.gd`): cena com `room_id`, `layout` e `exits` (`{"b": "sala_02:A"}`). No `_ready` monta um `TileMapLayer` com `assets/placeholder/tiles.tres` e cria `Area2D` para saídas, espinhos e pontos seguros, que **só ligam depois do primeiro quadro de física**. Sinais: `exit_touched`, `hazard_touched`, `safe_point_touched`.
 - `World` (`src/nodes/world/world.gd` + `world.tscn`, cena principal): tem `Player` e `Hud`; `go_to(sala, entrada)` troca a sala (sempre adiado para fora do callback de física), põe o mago na entrada, ajusta os limites da câmera e o ponto seguro. Espinho: 1 de dano (ignora a esquiva) e volta ao ponto seguro. Morte: vida cheia e volta à entrada da sala atual. `rooms_dir` configurável (testes usam `res://tests/fixtures/rooms/`); `authoring_errors` junta erros de autoria.
-- `Hud` (`src/nodes/ui/hud.gd`, CanvasLayer montado em código): `life_label`, `mana_label`, `mana_bar`, dica de controles; `bind(state)`.
+- `Hud` (`src/nodes/ui/hud.gd`, CanvasLayer montado em código): `life_label`, `mana_label`, `mana_bar`, `level_label` (nível e XP), dica de controles; `bind(state)`.
 ### Grimório (specs GRI-feiticos, GRI-grimorio)
 
 - `Grimoire` (`src/core/grimoire/grimoire.gd`): lista ordenada de `{name, code}`; `create`, `rename`, `delete`, `set_code` devolvem `Grimoire.Problem`; nomes até 24 caracteres, únicos sem diferenciar maiúsculas; `next_default_name("Feitiço")`; sinais `spell_created/renamed/deleted/code_changed`; `to_dict()`/`from_dict()` (null se inválido).
@@ -148,8 +148,27 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 
 - `game/content/balanceamento.json`: seções `mago`, `executor`, `dano`, `elemental`, `enxame`, `guardiao`, `chefe`. **Nenhum número de dificuldade ou de custo fica em constante.** Sensação (pulo, esquiva, empurrão, velocidade dos projéteis do mago) continua nas classes.
 - `Balance` (`src/core/balance/balance.gd`, estática): carrega na primeira consulta; `number`/`integer`/`list(seção, chave)` (0 ou `[]` se faltar), `rules()` (a seção `executor`), `validate(dados)`, `errors()`, `use_file(caminho)` e `reset()` para os testes (sempre `reset()` no `after_test`).
-- Quem lê: `Damage`, `ElementTable.multiplier`, os cérebros e o escudo do guardião (em variáveis de instância, lidas na criação), os nós dos inimigos (vida), `Enemy` (contato), `MagoState` (vida, mana máxima, invencibilidade), `BossPhases`, `Boss`, `BossBolt`.
+- Quem lê: `Damage`, `ElementTable.multiplier`, os cérebros e o escudo do guardião (em variáveis de instância, lidas na criação), os nós dos inimigos (vida), `Enemy` (contato), `MagoState` (vida, invencibilidade), `Progression` (XP e curva de níveis), `BossPhases`, `Boss`, `BossBolt`.
 - `World._execute` e `GrimoireUI` (Testar e estimativa) mandam `Balance.rules()` como `regras` em toda requisição. O executor mantém `REGRAS_PADRAO` como padrão; `executor/tests/test_balanceamento.py` exige que seja igual à seção `executor`.
+
+### Progressão (specs PRO-xp, PRO-niveis)
+
+- `Progression` (`src/core/mago/progression.gd`, estática): `level_for(xp)`, `mana_max_for(nível)`, `next_threshold(nível)` (-1 no último), `max_level()`, `puzzle_xp(estrelas)`, `economy_bonus(estrelas)`. Lê as seções `xp` e `niveis` do balanceamento.
+- `Enemy.setup(id, elemento, tipo, tamanho)`: `tipo` (`elemental`, `enxame`, `guardiao`, `chefe`) é a seção da vida e a chave da XP; `Enemy.xp`.
+- `World`: `_on_enemy_defeated(xp)` (todo inimigo derrotado, inclusive os que reaparecem), XP do puzzle em `_on_puzzle_solved` (só roda na primeira vez), `_gain_xp(n, mensagem)` escreve no registro; `_on_leveled_up` avisa o nível.
+
+### Diálogo (spec NAR-dialogo)
+
+- `content/dialogos.json`: `{"<cena>": {"inicio", "falas": {"<id>": {"quem", "texto", "proxima" | "opcoes": [{"texto", "proxima"}]}}}}`; textos são chaves do `textos.csv`.
+- `DialogueBook` (`src/core/narrative/`): `load_file`, `from_data(dados, has_text)`, `validate` (cena e fala no erro; confere também que toda fala é alcançada e chega a um fim), `can_play(cena)`, `start(cena)` → `DialogueRun` (`current()`, `advance()`, `choose(n)`, `is_finished()`, `line_id`).
+- `DialogueBox` (`src/nodes/narrative/`, CanvasLayer `layer = 11`, `PROCESS_MODE_ALWAYS`): no alto da tela, pausa a árvore enquanto aberta, consome toda a entrada; `open(run)`, `advance()`, `choose(n)`, `panel_rect()`, sinal `finished`.
+- `Serpent` (`src/nodes/narrative/`): `serpente:<cena>` em `targets`; `in_reach()` (2 tiles), aviso `E: falar`, `prompt_rect()`. `World.talk()` (ação `talk`, tecla E) abre a cena da serpente ao alcance e liga `GrimoireUI.blocked` até o fim; cena com erro vai para `authoring_errors`.
+
+### Referência (spec GRI-referencia)
+
+- `content/referencia.json`: lista `[{"id", "requer": [peças]}]`; título e texto são `REF_<ID>_TITULO`/`REF_<ID>_TEXTO` (BBCode, `\n` no CSV vira quebra de linha).
+- `ReferenceBook` (`src/core/grimoire/reference_book.gd`): `load_file`, `from_data`, `validate`, `visible_pages(desbloqueadas)`, `title(id)`, `text(id)`.
+- `GrimoireUI`: `tabs` (Feitiços | Referência), `show_reference()`, `show_spells()`, `select_page(id)`, `reference_list`, `reference_text`; as peças desbloqueadas vêm do contexto (`pieces`).
 
 ### Cliente do executor (spec EXE-protocolo)
 

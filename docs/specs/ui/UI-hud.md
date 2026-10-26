@@ -12,7 +12,8 @@ O jogador precisa ver a vida e a mana o tempo todo. A mana importa ainda mais aq
 
 1. O HUD lê um `MagoState` e se atualiza pelos sinais dele, sem consultar o estado a cada quadro.
 2. Vida: texto `Vida atual/máximo`. Mana: barra mais o texto `atual/máximo` com uma casa decimal.
-3. Textos via `textos.csv` (`HUD_VIDA`, `HUD_MANA`).
+3. Textos via `textos.csv` (`HUD_VIDA`, `HUD_MANA`, `HUD_NIVEL`).
+4. Desde a Sprint 12, abaixo da barra de mana: nível e XP (PRO-niveis, regra 6).
 
 ## Critérios de aceite
 

@@ -4,9 +4,9 @@ extends RefCounted
 ## Carrega o arquivo na primeira consulta e guarda; os testes trocam de arquivo com `use_file`.
 
 const DEFAULT_PATH := "res://content/balanceamento.json"
-## Toda chave que o jogo lê, por seção (regra 5). `chefe.elementos` é lista; o resto, número.
+## Toda chave que o jogo lê, por seção (regra 5). As de LIST_KEYS são listas; o resto, número.
 const KEYS := {
-	"mago": ["vida", "mana_max", "invencivel_s"],
+	"mago": ["vida", "invencivel_s"],
 	"executor": [
 		"ganho_meditar", "ganho_absorver", "custo_instrucao", "custo_inscricao", "custo_lancar", "custo_mover",
 		"custo_levitar", "custo_meditar", "custo_absorver", "custo_inscrever", "custo_bloco", "custo_faisca",
@@ -23,8 +23,11 @@ const KEYS := {
 		"vida", "elementos", "troca_vida", "transicao_s", "ataque_fase1_s", "ataque_fase2_s",
 		"ataque_alcance_tiles", "orbe_velocidade", "orbe_alcance_tiles", "orbe_dano",
 	],
+	"xp": ["elemental", "enxame", "guardiao", "chefe", "puzzle", "bonus_estrela"],
+	"niveis": ["xp", "mana_max"],
 }
-const LIST_KEYS := ["chefe.elementos"]
+## Chave → o que a lista tem.
+const LIST_KEYS := {"chefe.elementos": "elementos", "niveis.xp": "números", "niveis.mana_max": "números"}
 const BODY_ELEMENTS := ["fogo", "gelo", "raio", "planta", "pedra"]
 
 static var _path := DEFAULT_PATH
@@ -85,19 +88,26 @@ static func validate(data: Variant) -> Array[String]:
 				found.append("balanceamento: falta \"%s\"" % path)
 				continue
 			var value: Variant = values[key]
-			if path in LIST_KEYS:
-				if not _is_element_list(value):
-					found.append("balanceamento: \"%s\" não é lista de elementos" % path)
+			if LIST_KEYS.has(path):
+				if not _is_list_of(value, LIST_KEYS[path]):
+					found.append("balanceamento: \"%s\" não é lista de %s" % [path, LIST_KEYS[path]])
 			elif not (value is float or value is int):
 				found.append("balanceamento: \"%s\" não é número" % path)
+	# Uma posição por nível nas duas listas (PRO-niveis, regra 2).
+	var levels: Variant = data.get("niveis")
+	if levels is Dictionary and levels.get("xp") is Array and levels.get("mana_max") is Array \
+			and (levels["xp"] as Array).size() != (levels["mana_max"] as Array).size():
+		found.append("balanceamento: \"niveis.xp\" e \"niveis.mana_max\" precisam ter o mesmo tamanho")
 	return found
 
 
-static func _is_element_list(value: Variant) -> bool:
+static func _is_list_of(value: Variant, kind: String) -> bool:
 	if not value is Array or (value as Array).is_empty():
 		return false
 	for item: Variant in value:
-		if not item is String or not item in BODY_ELEMENTS:
+		if kind == "elementos" and not (item is String and item in BODY_ELEMENTS):
+			return false
+		if kind == "números" and not (item is float or item is int):
 			return false
 	return true
 

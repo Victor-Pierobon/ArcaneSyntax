@@ -12,7 +12,7 @@ var layout: RoomLayout
 
 static func make_elemental(p_target_id: String, p_element: String) -> Elemental:
 	var elemental := Elemental.new()
-	elemental.setup(p_target_id, p_element, Balance.integer("elemental", "vida"), BODY)
+	elemental.setup(p_target_id, p_element, "elemental", BODY)
 	return elemental
 
 
