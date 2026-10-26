@@ -1,6 +1,6 @@
 # Feitiços de exemplo
 
-Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 10). Os custos já contam o custo de inscrição da Sprint 9.
+Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 11). Os custos de mana vêm de `game/content/balanceamento.json`. Os custos já contam o custo de inscrição da Sprint 9.
 
 ## Onde testar
 
@@ -355,6 +355,30 @@ else:
 ```
 
 Esperado: todo golpe passa com `Fraco! −6`; três acertos derrubam o guardião (custo 3.4 cada). Um feitiço fixo, como `lancar(gelo, projetil, alvo)`, só passa pelo escudo de fogo. O cajado só acerta na brecha sem escudo.
+
+## 4e. O chefe da Masmorra (Sprint 11)
+
+A `sala_c04` fica depois da saída à direita da `sala_c03`. Para ir direto, mude **Start Room** para `sala_c04`. O chefe (vida 30) fica parado e lança um **orbe** a cada 3 s quando você está a até 12 tiles. O escudo bloqueia o orbe e a esquiva passa por ele.
+
+- **Fase 1:** corpo de **fogo** (fraco a gelo).
+- **Troca:** com vida 15 ele mostra `Fase 2!`, pisca 1,5 s sem levar dano (`Bloqueou`) e vira **gelo** (fraco a raio). O golpe que passaria de 15 para no limite: o terceiro projétil de gelo mostra `Fraco! −3`.
+- **Fase 2:** orbe a cada 2 s.
+- **Derrota:** a porta à direita abre, o registro mostra `Chefe derrotado!` e ele não volta enquanto o jogo estiver aberto. Se você morrer antes, ele volta com a vida cheia.
+
+O mesmo feitiço do elemental vence as duas fases:
+
+```python
+vence = {"fogo": gelo, "gelo": raio, "planta": fogo}
+lancar(vence[alvo.elemento], projetil, alvo)
+```
+
+Esperado: seis conjurações (custo 3.4 cada, 20.4 no total). A mana máxima é 10, então medite no meio da luta, com o escudo ligado ou longe dos orbes. A versão com `if/elif` custa 3.2 por conjuração.
+
+Com o feitiço fixo `lancar(gelo, projetil, alvo)`, a fase 1 cai em três conjurações, mas na fase 2 cada golpe mostra `Resistiu −1` (15 conjurações a mais).
+
+Para ver o que o feitiço enxerga: `print(alvo.elemento, alvo.vida)` mostra `fogo 30`; na transição e depois dela, `gelo 15`.
+
+Os números do chefe (e de todo o combate e dos custos de mana) estão em `game/content/balanceamento.json`. Mudou algo ali, feche e abra o jogo. Se mudar um custo da seção `executor`, mude também `REGRAS_PADRAO` em `executor/arcane_executor/pieces.py`: o pytest avisa se os dois discordarem.
 
 ## 5. Erros de propósito (para ver as mensagens)
 

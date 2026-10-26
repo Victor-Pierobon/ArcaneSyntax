@@ -3,7 +3,6 @@ extends Enemy
 ## Guardião de escudo (spec COM-guardiao): parado, com um escudo que troca de elemento.
 ## Com escudo, só o elemento que vence o escudo passa.
 
-const MAX_HEALTH := 18
 const BODY := Vector2(20, 28)
 const SHIELD_RADIUS := 20.0
 ## Pisca 4 vezes por segundo no último segundo do escudo.
@@ -14,7 +13,7 @@ var shield := GuardianShield.new()
 
 static func make_guardian(p_target_id: String) -> Guardian:
 	var guardian := Guardian.new()
-	guardian.setup(p_target_id, GuardianShield.BODY_ELEMENT, MAX_HEALTH, BODY)
+	guardian.setup(p_target_id, GuardianShield.BODY_ELEMENT, Balance.integer("guardiao", "vida"), BODY)
 	return guardian
 
 

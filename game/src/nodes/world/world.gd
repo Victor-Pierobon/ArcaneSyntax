@@ -23,6 +23,8 @@ var state := MagoState.new()
 var passive_scheduler := PassiveScheduler.new()
 ## Puzzles resolvidos nesta sessão: id → {"estrelas": melhor} (gravar em disco é da Sprint 13).
 var solved_puzzles: Dictionary = {}
+## Salas cujo chefe foi derrotado nesta sessão: o chefe não volta (spec COM-chefe, regra 7).
+var defeated_bosses: Dictionary = {}
 ## Mana gasta na sala atual pelos feitiços que agem, até o puzzle ser resolvido (PUZ-validacao, regra 14).
 var room_mana_spent := 0.0
 ## Sorteio das runas `?` e dos cristais mutáveis; os testes fixam a semente.
@@ -189,8 +191,9 @@ func _on_actions_finished() -> void:
 ## Executa um código com o estado real e aplica a mana pela variação.
 func _execute(code: String) -> SpellResult:
 	var context := spell_context()
-	var request := SpellRequest.make(code, context["mago"], context["target"], {}, context["pieces"], context["room"],
-			context["enemies"])
+	# As regras de mana vêm do arquivo de balanceamento (BAL-valores, regra 3).
+	var request := SpellRequest.make(code, context["mago"], context["target"], Balance.rules(), context["pieces"],
+			context["room"], context["enemies"])
 	var result: SpellResult = await executor.execute(request)
 	_tally_mana(result)
 	if not result.mago.is_empty():
@@ -239,6 +242,11 @@ func spell_context() -> Dictionary:
 func _on_player_attacked(from: Vector2, amount: int) -> void:
 	if state.health.damage(amount, Health.Source.ATTACK):
 		player.motor.knock_back(1 if player.global_position.x >= from.x else -1)
+
+
+func _on_boss_defeated(room_id: String) -> void:
+	defeated_bosses[room_id] = true
+	cast_log.add_lines(PackedStringArray([tr("CHEFE_DERROTADO")]))
 
 
 func _on_target_hit(_attack_element: String, effect: ElementTable.Effect) -> void:
@@ -307,6 +315,7 @@ func go_to(room_id: String, entry: String) -> void:
 	current_room = load(path).instantiate()
 	current_room.rng = rng
 	current_room.player = player
+	current_room.boss_beaten = defeated_bosses.has(room_id)
 	room_mana_spent = 0.0
 	add_child(current_room)
 	move_child(current_room, 0)
@@ -316,6 +325,7 @@ func go_to(room_id: String, entry: String) -> void:
 	current_room.safe_point_touched.connect(func(feet: Vector2) -> void: safe_point = feet)
 	current_room.puzzle_solved.connect(_on_puzzle_solved)
 	current_room.player_attacked.connect(_on_player_attacked)
+	current_room.boss_defeated.connect(_on_boss_defeated)
 	if current_room.has_puzzle() and solved_puzzles.has(current_room.puzzle_id()):
 		current_room.apply_solved()
 	_apply_step_mode()

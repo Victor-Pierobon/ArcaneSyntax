@@ -9,6 +9,8 @@ signal safe_point_touched(feet: Vector2)
 signal puzzle_solved(puzzle_id: String)
 ## Um inimigo encostou no mago (spec COM-dano, regra 4); `from` é a posição do inimigo.
 signal player_attacked(from: Vector2, amount: int)
+## O chefe da sala foi derrotado (spec COM-chefe, regra 7).
+signal boss_defeated(room_id: String)
 
 const TILESET := preload("res://assets/placeholder/tiles.tres")
 const ATLAS_STONE := Vector2i(0, 0)
@@ -22,7 +24,8 @@ const TILE := RoomLayout.TILE
 @export var exits: Dictionary = {}
 ## Dígito → o que ele é: elemento de boneco ({"1": "fogo"}, spec MUN-alvos), "cristal[:...]",
 ## "runa:<n>" ou "runa:?", "cadeado:soma", "gravura:<texto>" (spec PUZ-validacao) ou
-## "inimigo:elemental[:<elemento>]", "inimigo:enxame[:<n>]", "inimigo:guardiao" (spec COM-dano).
+## "inimigo:elemental[:<elemento>]", "inimigo:enxame[:<n>]", "inimigo:guardiao" (spec COM-dano) ou
+## "inimigo:chefe" (spec COM-chefe).
 @export var targets: Dictionary = {}
 ## {"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]} ou vazio (spec PUZ-validacao).
 @export var puzzle: Dictionary = {}
@@ -35,6 +38,8 @@ var rng: RandomNumberGenerator
 var bridge: Bridge
 ## O mago, para os inimigos reagirem a ele; o World passa antes de pôr a sala na árvore.
 var player: Node2D
+## Chefe já derrotado: a sala nasce sem ele e com a porta aberta; o World passa antes de pôr a sala na árvore.
+var boss_beaten := false
 
 var _areas: Array[Area2D] = []
 var _crystals: Dictionary = {}
@@ -58,6 +63,8 @@ func _ready() -> void:
 	_build_exits()
 	_build_targets()
 	_build_puzzle()
+	if boss_beaten and _door:
+		_door.open()
 	for cell in data.spikes:
 		_add_area(Rect2(cell.x * TILE + 2, cell.y * TILE + TILE / 2.0, TILE - 4, TILE / 2.0), hazard_touched.emit)
 	for cell in data.safe_points:
@@ -296,14 +303,30 @@ func _add_enemies(digit: String, spec: String, cell: Vector2i) -> void:
 			var guardian := Guardian.make_guardian(target_id)
 			guardian.position = RoomLayout.cell_feet(cell)
 			created.append(guardian)
+		"chefe":
+			if boss_beaten:
+				return
+			var boss := Boss.make_boss(target_id)
+			boss.position = RoomLayout.cell_feet(cell)
+			boss.bolt_hit.connect(player_attacked.emit)
+			boss.defeated.connect(_on_boss_defeated)
+			created.append(boss)
 		_:
-			errors.append("inimigo desconhecido '%s' (use elemental, enxame ou guardiao)" % parts[1])
+			errors.append("inimigo desconhecido '%s' (use elemental, enxame, guardiao ou chefe)" % parts[1])
 			return
 	for enemy in created:
 		enemy.player = player
 		enemy.touched_player.connect(func(by: Enemy) -> void: player_attacked.emit(by.global_position, by.contact_damage))
 		_enemies.append(enemy)
 		add_child(enemy)
+
+
+## Chefe derrotado: a porta abre e o World guarda para não montar o chefe de novo (COM-chefe, regra 7).
+func _on_boss_defeated() -> void:
+	boss_beaten = true
+	if _door:
+		_door.open()
+	boss_defeated.emit(room_id)
 
 
 func _add_engraving(text: String, cell: Vector2i) -> void:

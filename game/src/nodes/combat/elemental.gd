@@ -3,7 +3,6 @@ extends Enemy
 ## Elemental (spec COM-elemental): patrulha o chão em que nasceu e persegue o mago por perto.
 
 const ELEMENTS := ["fogo", "gelo", "planta"]
-const MAX_HEALTH := 12
 const BODY := Vector2(14, 20)
 
 var brain: ElementalBrain
@@ -13,7 +12,7 @@ var layout: RoomLayout
 
 static func make_elemental(p_target_id: String, p_element: String) -> Elemental:
 	var elemental := Elemental.new()
-	elemental.setup(p_target_id, p_element, MAX_HEALTH, BODY)
+	elemental.setup(p_target_id, p_element, Balance.integer("elemental", "vida"), BODY)
 	return elemental
 
 

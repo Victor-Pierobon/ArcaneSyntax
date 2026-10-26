@@ -189,7 +189,7 @@ func test_selected() -> void:
 		return
 	_commit_editor()
 	var context: Dictionary = _context.call()
-	var request := SpellRequest.make(editor.text, context["mago"], context["target"], {}, context["pieces"],
+	var request := SpellRequest.make(editor.text, context["mago"], context["target"], Balance.rules(), context["pieces"],
 			context.get("room", {}), context.get("enemies", []))
 	var spell_name := _selected
 	result_label.text = tr("GRIMORIO_TESTANDO")
@@ -208,8 +208,8 @@ func estimate_now() -> void:
 	var code := editor.text
 	var context: Dictionary = _context.call()
 	var mago := {"vida": context["mago"].get("vida", 5), "mana": ESTIMATE_MANA, "mana_max": ESTIMATE_MANA}
-	var request := SpellRequest.make(code, mago, ESTIMATE_TARGET, {}, context["pieces"], context.get("room", {}),
-			context.get("enemies", []))
+	var request := SpellRequest.make(code, mago, ESTIMATE_TARGET, Balance.rules(), context["pieces"],
+			context.get("room", {}), context.get("enemies", []))
 	var result: SpellResult = await _executor.execute(request)
 	if code != editor.text:
 		return  # o código mudou enquanto estimava; outra estimativa vem a seguir

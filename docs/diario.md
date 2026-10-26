@@ -61,3 +61,11 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 
 - Combate: elemental (fogo, gelo, planta), enxame e guardião de escudo em `sala_c01` a `sala_c03`, cada um com teste de aceitação no Python real. Decisões do Victor: forma `faisca` (custo 1) para o loop sobre o enxame caber na mana, escudo do guardião que só deixa passar a fraqueza, inimigos que reaparecem. Sentidos novos: `inimigos`, `alvo.vida`, `alvo.escudo`. Bugs com regressão: o escudo não protegia de um inimigo encostado (bloquear agora dá invencibilidade); barra de vida em cima do nome (captura de tela). Mutação: 23 de 23 depois de um teste novo (ordem dos inimigos). 325 GdUnit4 e 144 pytest verdes.
 - Próximo: Victor revisa e commita; playtest (núcleo, puzzles e combate); depois Sprint 11 (chefe e arquivo de balanceamento).
+
+## 2026-10-26 (Sprint 11)
+
+- O Victor jogou tudo até a Sprint 10 e está tudo funcionando: fecha o playtest do núcleo (M2), dos puzzles e do combate, sem ajuste de valores.
+- Chefe da Masmorra na `sala_c04`: fogo na fase 1 e gelo na fase 2. A troca acontece com vida 15; o golpe que passaria para no limite e há 1,5 s de transição invulnerável com `Fase 2!`. Lança um orbe a cada 3 s/2 s, que o escudo bloqueia. Derrotado, não volta e abre a porta. O mesmo feitiço do elemental (`vence[alvo.elemento]`) vence em 6 conjurações e 20,4 de mana (aceitação com Python real e orçamento de 21).
+- Arquivo de balanceamento `game/content/balanceamento.json`, lido por `Balance`: mago, custos do executor (vão como `regras` em toda requisição), dano, inimigos e chefe. Um pytest garante que o arquivo e o `REGRAS_PADRAO` concordam.
+- Nenhum bug no jogo (dois testes com expectativa errada foram corrigidos). Mutação: 3 de 4; o sobrevivente era uma precisão menor que um quadro, e o código foi simplificado. 354 GdUnit4 e 145 pytest verdes.
+- Próximo: Victor revisa e commita; depois Sprint 12 (progressão e sistemas da serpente).

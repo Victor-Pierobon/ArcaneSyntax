@@ -25,7 +25,7 @@ Comportamento de cada inimigo (COM-elemental, COM-enxame, COM-guardiao). XP e n�
 2. Cada inimigo tem vida inteira e nenhuma invencibilidade depois do golpe. Ao chegar a 0, é **derrotado**: sai na hora dos grupos de alvos e de inimigos (o próximo feitiço já não o vê), solta partículas e some.
 3. O golpe mostra o efeito e o dano sobre o inimigo: `Fraco! −6`, `Acertou −3`, `Resistiu −1`; com dano 0, só `Resistiu`. Um golpe bloqueado (COM-guardiao) mostra `Bloqueou`. Acima do inimigo ficam, de baixo para cima, a barra de vida, o nome do elemento e o texto do golpe, sem um cobrir o outro (nos bichos do enxame o nome fica escondido: seis nomes juntos poluíam a tela).
 4. **Contato:** encostar num inimigo tira **1** de vida do mago, como ataque (MUN-vida): o escudo do mago bloqueia, a esquiva evita, e vale a invencibilidade de 1 s. Quem continua encostado leva dano de novo quando a invencibilidade acaba. Ao levar dano de contato, o mago é empurrado para longe do inimigo (valor provisório, para ajustar no checklist de sensação).
-5. **Os inimigos reaparecem** (decisão do Victor): sair da sala e voltar, ou morrer, monta a sala de novo com todos os inimigos.
+5. **Os inimigos reaparecem** (decisão do Victor): sair da sala e voltar, ou morrer, monta a sala de novo com todos os inimigos. Exceção: o chefe derrotado não volta (COM-chefe, regra 7).
 6. **Na foto do mundo** (EXE-protocolo, regra 8):
    - `inimigos` é a lista dos inimigos vivos da sala a até **12 tiles** do mago, do mais perto para o mais longe, cada um com `id`, `elemento`, `distancia` (tiles, uma casa), `vida` e `escudo` (elemento ou `null`).
    - Quando o `alvo` é um inimigo, ele também traz `vida` e `escudo`. Bonecos e cristais não trazem esses campos e não entram em `inimigos`.

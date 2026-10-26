@@ -1,0 +1,65 @@
+{
+  "mago": {
+    "vida": 5,
+    "mana_max": 10,
+    "invencivel_s": 1.0
+  },
+  "executor": {
+    "ganho_meditar": 5,
+    "ganho_absorver": 1,
+    "custo_instrucao": 0.1,
+    "custo_inscricao": 0.1,
+    "custo_lancar": 3,
+    "custo_mover": 1,
+    "custo_levitar": 2,
+    "custo_meditar": 0,
+    "custo_absorver": 0,
+    "custo_inscrever": 1,
+    "custo_bloco": 0.5,
+    "custo_faisca": 1,
+    "limite_tempo_ms": 1000
+  },
+  "dano": {
+    "projetil": 3,
+    "faisca": 1,
+    "cajado": 1,
+    "contato": 1,
+    "fraco": 2,
+    "normal": 1,
+    "resiste": 0.5
+  },
+  "elemental": {
+    "vida": 12,
+    "patrulha_tiles": 3,
+    "velocidade_patrulha": 30,
+    "velocidade_perseguicao": 45,
+    "perseguir_x_tiles": 6,
+    "perseguir_y_tiles": 2
+  },
+  "enxame": {
+    "vida": 2,
+    "orbita_raio_tiles": 1.5,
+    "orbita_periodo_s": 2.0,
+    "mergulho_tiles": 7,
+    "velocidade": 70,
+    "recarga_mordida_s": 1.5
+  },
+  "guardiao": {
+    "vida": 18,
+    "escudo_s": 4.0,
+    "brecha_s": 1.0,
+    "pisca_s": 1.0
+  },
+  "chefe": {
+    "vida": 30,
+    "elementos": ["fogo", "gelo"],
+    "troca_vida": 15,
+    "transicao_s": 1.5,
+    "ataque_fase1_s": 3.0,
+    "ataque_fase2_s": 2.0,
+    "ataque_alcance_tiles": 12,
+    "orbe_velocidade": 90,
+    "orbe_alcance_tiles": 16,
+    "orbe_dano": 1
+  }
+}

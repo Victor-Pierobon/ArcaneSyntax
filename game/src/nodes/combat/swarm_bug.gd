@@ -4,7 +4,6 @@ extends Enemy
 
 const DEFAULT_COUNT := 6
 const MAX_COUNT := 9
-const MAX_HEALTH := 2
 const BODY := Vector2(6, 6)
 const ELEMENT := "gelo"
 ## Do centro do mago até os pés.
@@ -16,7 +15,7 @@ var brain: SwarmBugBrain
 ## `home`: centro da casa, em coordenadas da sala; `phase`: onde o bicho começa a volta.
 static func make_bug(p_target_id: String, home: Vector2, phase: float) -> SwarmBug:
 	var bug := SwarmBug.new()
-	bug.setup(p_target_id, ELEMENT, MAX_HEALTH, BODY)
+	bug.setup(p_target_id, ELEMENT, Balance.integer("enxame", "vida"), BODY)
 	bug.brain = SwarmBugBrain.new(home, phase)
 	bug.position = bug.brain.start_position() + Vector2(0, BODY.y / 2)
 	return bug

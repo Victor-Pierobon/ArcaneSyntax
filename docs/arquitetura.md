@@ -41,7 +41,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 | `game/assets/placeholder/` | Arte provisória (tileset de 3 tiles) |
 | `game/tests/fixtures/rooms/` | Salas pequenas usadas pelos testes |
 | `game/src/executor_client/` | Cliente do executor Python |
-| `game/content/` | Conteúdo de dados (hoje só `text/textos.csv`) |
+| `game/content/` | Conteúdo de dados: `text/textos.csv` e `balanceamento.json` (BAL-valores) |
 | `game/tests/` | GdUnit4: `unit/`, `scene/`, `integration/`, `acceptance/`, `support/` |
 | `game/addons/gdUnit4/` | GdUnit4 v6.2.2 (código de terceiros, não editar) |
 | `executor/` | Pacote Python `arcane_executor` + `run_worker.py` + `tests/` (pytest) |
@@ -125,7 +125,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - Passo a passo: `ActionPlayer` emite `sequence_started(codigo)` e `action_started(acao)` e espera `step_delay` entre ações; nas salas com puzzle o `World` usa 0,3 s ÷ `step_speed` e mostra o `StepView` (painel no alto com o código e a linha destacada). `World.cycle_step_speed()` (V): 1× → 2× → 0,5×.
 - Testes de aceitação de puzzle em `tests/acceptance/`: sala do jogo + Python real + soluções que passam e que falham. `tests/support/puzzle_driver.gd` (`PuzzleDriver`) joga a sala: `start`, `place`, `walk_until_x`, `set_runes`, `cast` (enche a mana antes), `run_passive`.
 
-- Salas do jogo: `content/rooms/sala_01..03.tscn` (sala_01 tem o Puzzle 1) (40–60 × 23 tiles), `sala_p02..p06.tscn` (Puzzles 2 a 6), em sequência a partir da saída `b` da sala_03, e `sala_c01..c03.tscn` (combate), depois da porta da sala_p06 (tudo provisório até a Sprint 14). As salas `sala_p0N` e `sala_c0N` foram geradas por script; se mudar uma, confira a geometria (o elevador depende de colunas de 2 tiles coladas). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
+- Salas do jogo: `content/rooms/sala_01..03.tscn` (sala_01 tem o Puzzle 1) (40–60 × 23 tiles), `sala_p02..p06.tscn` (Puzzles 2 a 6), em sequência a partir da saída `b` da sala_03, e `sala_c01..c04.tscn` (combate; a c04 é a do chefe), depois da porta da sala_p06 (tudo provisório até a Sprint 14). As salas `sala_p0N` e `sala_c0N` foram geradas por script; se mudar uma, confira a geometria (o elevador depende de colunas de 2 tiles coladas). Tileset provisório: `assets/placeholder/tiles.png` (pedra, plataforma, espinhos; ver `LEIAME.md` ali).
 
 ### Combate (specs COM-dano, COM-elemental, COM-enxame, COM-guardiao)
 
@@ -135,7 +135,21 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `Room`: cria os inimigos, `enemies()` (vivos), sinal `player_attacked(de, dano)`; `player` vem do `World` antes de a sala entrar na árvore.
 - `World`: `current_enemies()` (vivos, até 12 tiles, do mais perto para o mais longe), `_target_view` (inimigo traz `vida` e `escudo`), `_on_player_attacked` (dano `ATTACK` e `PlayerMotor.knock_back`). Os inimigos reaparecem porque `go_to` monta a sala de novo (também ao morrer).
 - `Health`: bloquear com o escudo também dá 1 s de invencibilidade (regressão da Sprint 10: sem isso, o inimigo encostado mordia no quadro seguinte).
-- Aceitação em `tests/acceptance/test_combate_01..03.gd`, com o `PuzzleDriver` (o nome ficou da Sprint 9; serve para qualquer sala).
+- Aceitação em `tests/acceptance/test_combate_01..04.gd`, com o `PuzzleDriver` (o nome ficou da Sprint 9; serve para qualquer sala).
+
+### Chefe (spec COM-chefe)
+
+- Autoria: `"inimigo:chefe"` em `targets`; a sala do jogo é `sala_c04` (depois da saída `b` da `sala_c03`), com uma porta `|` que abre quando o chefe cai.
+- `BossPhases` (`src/core/combat/`, regra pura): `phase`, `element()`, `resolve(ataque, forma, vida)` (na fase 1 o dano para no limite da troca; na transição tudo é bloqueado), `after_damage(vida)` → true quando troca, `in_transition()`, `tick(delta, mago_perto)` → true quando sai um orbe (`attack_left` é o relógio; os testes mexem nele).
+- `Boss` (`src/nodes/combat/boss.gd`, herda de `Enemy`): troca `element`, nome e cor no começo da transição, pisca entre a cor velha e a nova, `phase_label` (`Fase 2!`), `body_color()`; sinais `phase_changed` e `bolt_hit`. `BossBolt` (Area2D sem camada, grupo `orbes_chefe`): voa reto e emite `hit_player(de, dano)`.
+- `Room`: `boss_beaten` (o World passa antes de pôr a sala na árvore; a sala nasce sem chefe e com a porta aberta), sinal `boss_defeated(room_id)`; o orbe chega ao World pelo mesmo `player_attacked` do contato. `World.defeated_bosses` guarda as salas na sessão.
+
+### Balanceamento (spec BAL-valores)
+
+- `game/content/balanceamento.json`: seções `mago`, `executor`, `dano`, `elemental`, `enxame`, `guardiao`, `chefe`. **Nenhum número de dificuldade ou de custo fica em constante.** Sensação (pulo, esquiva, empurrão, velocidade dos projéteis do mago) continua nas classes.
+- `Balance` (`src/core/balance/balance.gd`, estática): carrega na primeira consulta; `number`/`integer`/`list(seção, chave)` (0 ou `[]` se faltar), `rules()` (a seção `executor`), `validate(dados)`, `errors()`, `use_file(caminho)` e `reset()` para os testes (sempre `reset()` no `after_test`).
+- Quem lê: `Damage`, `ElementTable.multiplier`, os cérebros e o escudo do guardião (em variáveis de instância, lidas na criação), os nós dos inimigos (vida), `Enemy` (contato), `MagoState` (vida, mana máxima, invencibilidade), `BossPhases`, `Boss`, `BossBolt`.
+- `World._execute` e `GrimoireUI` (Testar e estimativa) mandam `Balance.rules()` como `regras` em toda requisição. O executor mantém `REGRAS_PADRAO` como padrão; `executor/tests/test_balanceamento.py` exige que seja igual à seção `executor`.
 
 ### Cliente do executor (spec EXE-protocolo)
 

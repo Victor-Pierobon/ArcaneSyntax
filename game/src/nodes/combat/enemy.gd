@@ -8,13 +8,12 @@ signal defeated
 signal touched_player(enemy: Enemy)
 
 const ENEMY_GROUP := &"inimigos"
-const CONTACT_DAMAGE := 1
 ## Depois de derrotado, o texto do último golpe fica um instante antes de sumir.
 const DEFEAT_LINGER := 0.4
 const BAR_HEIGHT := 2.0
 
 var health: Health
-var contact_damage := CONTACT_DAMAGE
+var contact_damage := Balance.integer("dano", "contato")
 var last_damage := 0
 var last_blocked := false
 ## O mago, para quem reage a ele; null quando não há mundo (testes de sala).

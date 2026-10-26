@@ -1,6 +1,6 @@
 # Sprint 10 — Combate I: inimigos
 
-- **Status:** Concluída em 2026-10-25 · aguardando revisão e commit do Victor
+- **Status:** Concluída em 2026-10-25 · commitada (`56e9995`)
 - **Fase do plano:** 6 · **Marco:** M3 · **Estimativa:** 18–26 h
 - **Depende de:** Sprint 7
 

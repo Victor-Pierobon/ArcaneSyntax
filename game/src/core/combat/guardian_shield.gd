@@ -4,12 +4,13 @@ extends RefCounted
 ## brecha sem escudo entre um e outro. Com escudo, só passa o elemento que vence o escudo.
 
 const CYCLE := ["fogo", "planta", "gelo"]
-const SHIELD_TIME := 4.0
-const GAP_TIME := 1.0
-const BLINK_TIME := 1.0
 const BODY_ELEMENT := "pedra"
 
 var time := 0.0
+## Do balanceamento, seção `guardiao` (spec BAL-valores).
+var shield_time := Balance.number("guardiao", "escudo_s")
+var gap_time := Balance.number("guardiao", "brecha_s")
+var blink_time := Balance.number("guardiao", "pisca_s")
 
 
 func tick(delta: float) -> void:
@@ -18,15 +19,15 @@ func tick(delta: float) -> void:
 
 ## Elemento do escudo agora; vazio na brecha.
 func current() -> String:
-	var period := SHIELD_TIME + GAP_TIME
-	if fmod(time, period) >= SHIELD_TIME:
+	var period := shield_time + gap_time
+	if fmod(time, period) >= shield_time:
 		return ""
 	return CYCLE[int(time / period) % CYCLE.size()]
 
 
 func is_blinking() -> bool:
-	var within := fmod(time, SHIELD_TIME + GAP_TIME)
-	return within >= SHIELD_TIME - BLINK_TIME and within < SHIELD_TIME
+	var within := fmod(time, shield_time + gap_time)
+	return within >= shield_time - blink_time and within < shield_time
 
 
 ## {"blocked", "damage", "effect"} de um golpe agora.
