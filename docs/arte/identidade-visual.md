@@ -113,6 +113,9 @@ Regras para todos os arquivos:
   - No Aseprite: File → Export Sprite Sheet, com Layout *Horizontal Strip*, Split by *Tags* e um arquivo por tag.
 - Nome do arquivo = nome da animação, em minúsculas e sem acento: `game/assets/<pasta>/<animacao>.png`.
 - Os pés (ou a base) ficam centralizados, 2 px acima da borda de baixo do quadro.
+- Personagens desenhados **olhando para a direita**; o jogo espelha para a esquerda.
+- A paleta vai para `game/assets/paleta.png` (1 px por cor). Com ela lá, o teste acusa qualquer cor fora da paleta e qualquer pixel semitransparente (o erro mais comum de imagem gerada por IA), dizendo o arquivo e a posição do pixel.
+- O contrato também está em `game/content/arte.json`, que é o que o jogo e o teste leem; a tabela abaixo é o resumo.
 - Elementos com cor própria (fogo, gelo, raio, planta) têm **um arquivo por elemento**, feito por troca de paleta: `projetil_fogo.png`, `projetil_gelo.png`…
 
 | Pasta | Quadro | Animações (quadros sugeridos · laço?) |
@@ -121,12 +124,26 @@ Regras para todos os arquivos:
 | `serpente/` | 32×32 | `parada` (4 · sim), `falando` (4 · sim); `retrato.png` de **64×64**, um quadro só |
 | `elemental/` | 32×32 | `andar_<elemento>` (4–6 · sim) e `morrer_<elemento>` (4), para fogo, gelo e planta |
 | `enxame/` | 16×16 | `voar` (2–4 · sim), `mergulhar` (2) |
-| `guardiao/` | 48×48 | `andar` (4 · sim), `morrer` (5); `escudo_<elemento>` (32×32, 2–4 · sim) para fogo, gelo e raio |
-| `chefe/` | 96×96 | `parado_<fase>` (4 · sim), `mover_<fase>` (4 · sim), `golpe_<fase>` (preparar e bater no chão, 6), `orbe_<fase>` (4), `troca` (6), `morrer` (8); `<fase>` = fogo, gelo, planta. Também `pilar.png` (16×64, subir em 4 quadros), `aviso.png` (16×16, 2 · sim) e `orbe_<elemento>.png` (16×16, 4 · sim) |
+| `guardiao/` | 48×48 | `andar` (4 · sim), `morrer` (5); `escudo_<elemento>` (32×32, 2–4 · sim) para fogo, planta e gelo (os do escudo do guardião no jogo) |
+| `chefe/` | 96×96 | `parado_<fase>` (4 · sim), `mover_<fase>` (4 · sim), `golpe_<fase>` (preparar e bater no chão, 6), `orbe_<fase>` (4), `troca` (6), `morrer` (8); `<fase>` = fogo, gelo, planta. Também `pilar.png` (16×64, subir em 4 quadros), `aviso.png` (16×16, 2 · sim) e `orbe_voando_<elemento>.png` (16×16, 4 · sim) |
 | `magia/` | 16×16 | `projetil_<elemento>` (4 · sim), `faisca_<elemento>` (3), `impacto_<elemento>` (4); `escudo_<elemento>` de **48×48** (4 · sim); `meditar` de 48×48 (6 · sim); `runa` de 8×8 (4) |
 | `objetos/` | 16×16 | `cristal_apagado`, `cristal_aceso_<elemento>` (4 · sim), `runa_<n>` (n = 0 a 9), `cadeado`, `porta` (1 tile que se repete na vertical), `porta_abrindo` (4), `ponte`, `placa`, `placa_pisada`, `tocha` (4 · sim); `bau_fechado` e `bau_abrindo` (32×32, 4); `fonte` (32×32, 4 · sim) |
-| `cenario/` | — | `tiles.png` (do pacote, recolorido), `fundo_1.png`, `fundo_2.png`, `fundo_3.png` (640×360, do mais longe para o mais perto, emendando nas bordas esquerda e direita), `decoracao.png` (peças soltas, 16×16 ou 32×32) |
+| `cenario/` | — | `tiles.png` (64×80: as 16 formas de pedra e mais uma linha, explicado abaixo), `fundo_1.png`, `fundo_2.png`, `fundo_3.png` (640×360, do mais longe para o mais perto, emendando nas bordas esquerda e direita), `decoracao.png` (peças soltas, 16×16 ou 32×32) |
 | `ui/` | — | `fonte.ttf` ou `fonte.png` (fonte em pixel; sugestão: m5x7 ou Pixel Operator, ambas gratuitas; confira a licença), `moldura.png` (9-slice, 48×48, para o grimório, os menus e a caixa de diálogo), `vida.png` e `mana.png` (16×16, cheio e vazio lado a lado), `slot.png` (24×24), `logo.png` (até 320×120) |
+
+### O `tiles.png` (16 formas de pedra)
+
+Cada pedra escolhe o desenho pelos vizinhos: some 1 se há pedra **em cima**, 2 se há **à direita**, 4 se há **embaixo** e 8 se há **à esquerda**. O número (0 a 15) diz onde o tile fica: coluna = número % 4, linha = número ÷ 4. A quinta linha tem a plataforma (coluna 0, só os 4 px de cima contam como chão) e os espinhos (coluna 1).
+
+```
+linha 0:  0 isolada        1 só em cima      2 só à direita     3 em cima+direita
+linha 1:  4 só embaixo     5 cima+baixo      6 direita+baixo    7 cima+direita+baixo
+linha 2:  8 só à esquerda  9 cima+esquerda  10 esquerda+direita 11 sem embaixo
+linha 3: 12 baixo+esquerda 13 sem à direita 14 sem em cima (chão) 15 cercada (miolo)
+linha 4: plataforma        espinhos          (livre)            (livre)
+```
+
+O lado **sem** vizinho é o que ganha borda: o 14 é o chão visto de cima (borda só no topo, com musgo), o 15 é o miolo da parede. O provisório (`game/assets/placeholder/tiles_bordas.png`) segue esse formato e serve de molde. Se o pacote vier em outro formato, eu reorganizo.
 
 Não precisa entregar tudo. Comece pelo mago (`parado`, `andar`, `pular`), pelo `tiles.png` e pelo `fundo_1.png`: com esses três o jogo já deixa de parecer quadrados.
 

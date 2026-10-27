@@ -1,0 +1,5 @@
+  objetos/bau_abrindo: PixelLab sobrecarregado; fica para depois (refazer objetos/bau_abrindo)
+  objetos/porta_abrindo: PixelLab sobrecarregado; fica para depois (refazer objetos/porta_abrindo)
+  objetos/placa: ERRO: HTTP 402 em /create-image-pixen: {"detail":"We're seeing long queues right now and free generations are temporarily unavailable. A subscription or credits work immediately. Questions? Tell us on Discord."}
+Parei. Depois de ver o erro: refazer objetos/placa.
+saida=1

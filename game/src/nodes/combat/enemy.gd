@@ -55,12 +55,12 @@ func _ready() -> void:
 	add_child(_contact)
 	for bar: ColorRect in [_bar_back, _bar]:
 		bar.size = Vector2(body_size.x, BAR_HEIGHT)
-		bar.position = Vector2(-body_size.x / 2, -body_size.y - 4)
+		bar.position = Vector2(-body_size.x / 2, -top_height() - 4)
 		add_child(bar)
 	_bar_back.color = Color(0, 0, 0, 0.6)
 	_bar.color = Color("e05050")
 	# Nome e texto do golpe acima da barra, sem encostar nela (regressão: a barra cobria o nome).
-	name_label.position.y = -body_size.y - 4 - 1 - name_label.get_minimum_size().y
+	name_label.position.y = -top_height() - 4 - 1 - name_label.get_minimum_size().y
 	effect_label.position.y = name_label.position.y - 12
 	_activate_contact()
 
@@ -75,7 +75,11 @@ func _activate_contact() -> void:
 func _physics_process(delta: float) -> void:
 	if is_defeated():
 		return
+	var x_before := position.x
 	_think(delta)
+	# A arte olha para a direita; o inimigo vira para onde anda (ART-esteira, regra 3).
+	if art_sprite and absf(position.x - x_before) > 0.01:
+		art_sprite.flip_h = position.x < x_before
 	if not _contact.monitoring:
 		return
 	for body in _contact.get_overlapping_bodies():
@@ -83,6 +87,14 @@ func _physics_process(delta: float) -> void:
 			_on_touched_player()
 			touched_player.emit(self)
 			return
+
+
+## A animação de morte na pasta da arte (`morrer_<elemento>` no elemental); vazio: some na hora.
+func _death_animation() -> String:
+	for anim in _art().slice(1):
+		if str(anim).begins_with("morrer"):
+			return anim
+	return ""
 
 
 ## Movimento do quadro; cada tipo de inimigo implementa.
@@ -164,6 +176,14 @@ func _defeat() -> void:
 	if hurtbox:
 		hurtbox.set_deferred(&"monitorable", false)
 	_body.visible = false
+	var linger := DEFEAT_LINGER
+	var death := _death_animation()
+	if art_sprite and art_sprite.sprite_frames.has_animation(death):
+		# ART-esteira, regra 23: toca a morte e só sai da cena quando ela termina.
+		art_sprite.play(death)
+		linger = maxf(linger, ArtLibrary.duration(art_sprite.sprite_frames, death))
+	elif art_sprite:
+		art_sprite.visible = false
 	name_label.visible = false
 	_bar.visible = false
 	_bar_back.visible = false
@@ -171,6 +191,6 @@ func _defeat() -> void:
 		Fx.burst(get_parent(), position + Vector2(0, -body_size.y / 2), ELEMENT_COLORS.get(element, Color.WHITE), 24)
 	defeated.emit()
 	if is_inside_tree():
-		get_tree().create_timer(DEFEAT_LINGER, false, true).timeout.connect(queue_free)
+		get_tree().create_timer(linger, false, true).timeout.connect(queue_free)
 	else:
 		queue_free()

@@ -14,11 +14,12 @@ signal boss_defeated(room_id: String)
 ## O mago abriu um baú (spec MUN-segredos).
 signal secret_found(secret_id: String)
 
-const TILESET := preload("res://assets/placeholder/tiles.tres")
-const ATLAS_STONE := Vector2i(0, 0)
-const ATLAS_PLATFORM := Vector2i(1, 0)
-const ATLAS_SPIKES := Vector2i(2, 0)
+## Tileset provisório com bordas (ART-esteira, regra 15); `cenario/tiles.png` toma o lugar dele.
+const PLACEHOLDER_TILES := "res://assets/placeholder/tiles_bordas.png"
 const TILE := RoomLayout.TILE
+
+## Um tileset por imagem de tiles, montado por código (ART-esteira, regra 14).
+static var _tilesets: Dictionary = {}
 
 @export var room_id: String = ""
 @export_multiline var layout: String = ""
@@ -28,7 +29,7 @@ const TILE := RoomLayout.TILE
 ## "runa:<n>" ou "runa:?", "cadeado:soma", "gravura:<texto>" (spec PUZ-validacao) ou
 ## "inimigo:elemental[:<elemento>]", "inimigo:enxame[:<n>]", "inimigo:guardiao" (spec COM-dano) ou
 ## "inimigo:chefe" (spec COM-chefe) ou "serpente:<cena>" (spec NAR-dialogo) ou "segredo" (MUN-segredos) ou
-## "fonte" (MUN-vida).
+## "fonte" (MUN-vida) ou "tocha" (decoração, ART-esteira).
 @export var targets: Dictionary = {}
 ## {"id": "p01_meditar", "condicoes": [{"tipo": "cristais_acesos"}]} ou vazio (spec PUZ-validacao).
 @export var puzzle: Dictionary = {}
@@ -37,6 +38,8 @@ const TILE := RoomLayout.TILE
 
 var data: RoomLayout
 var tiles: TileMapLayer
+## De onde veio a imagem dos tiles.
+var tiles_source := ""
 var errors: Array[String] = []
 ## Sorteio das runas `?` e dos cristais mutáveis; o World passa o dele antes de pôr a sala na árvore.
 var rng: RandomNumberGenerator
@@ -245,16 +248,59 @@ func entry_feet(letter: String) -> Vector2:
 
 
 func _build_tiles() -> void:
+	var texture := ArtLibrary.texture("cenario", "tiles")
+	tiles_source = ArtLibrary.path_of("cenario", "tiles")
+	if texture == null:
+		tiles_source = PLACEHOLDER_TILES
+		texture = load(PLACEHOLDER_TILES)
 	tiles = TileMapLayer.new()
 	tiles.name = "Tiles"
-	tiles.tile_set = TILESET
+	tiles.tile_set = tileset_for(texture)
 	add_child(tiles)
+	var solids := {}
 	for cell in data.solids:
-		tiles.set_cell(cell, 0, ATLAS_STONE)
+		solids[cell] = true
+	var size := Vector2i(data.width, data.height)
+	# Cada pedra escolhe a forma pela vizinhança (ART-esteira, regra 12).
+	for cell in data.solids:
+		tiles.set_cell(cell, 0, TileShape.atlas(TileShape.mask(solids, cell, size)))
 	for cell in data.platforms:
-		tiles.set_cell(cell, 0, ATLAS_PLATFORM)
+		tiles.set_cell(cell, 0, TileShape.PLATFORM)
 	for cell in data.spikes:
-		tiles.set_cell(cell, 0, ATLAS_SPIKES)
+		tiles.set_cell(cell, 0, TileShape.SPIKES)
+
+
+## As 16 formas de pedra com colisão inteira, a plataforma com uma faixa de 4 px atravessável por baixo
+## e os espinhos sem colisão (o dano vem da área da sala).
+static func tileset_for(texture: Texture2D) -> TileSet:
+	if _tilesets.has(texture):
+		return _tilesets[texture]
+	var tile_set := TileSet.new()
+	tile_set.tile_size = Vector2i(TILE, TILE)
+	tile_set.add_physics_layer()
+	tile_set.set_physics_layer_collision_layer(0, 1)
+	tile_set.set_physics_layer_collision_mask(0, 0)
+	var source := TileSetAtlasSource.new()
+	source.texture = texture
+	source.texture_region_size = Vector2i(TILE, TILE)
+	tile_set.add_source(source, 0)
+	var half := TILE / 2.0
+	for y in TileShape.ATLAS_SIZE.y:
+		for x in TileShape.ATLAS_SIZE.x:
+			var coords := Vector2i(x, y)
+			source.create_tile(coords)
+			var tile := source.get_tile_data(coords, 0)
+			if y < 4:
+				tile.add_collision_polygon(0)
+				tile.set_collision_polygon_points(0, 0, PackedVector2Array([
+					Vector2(-half, -half), Vector2(half, -half), Vector2(half, half), Vector2(-half, half)]))
+			elif coords == TileShape.PLATFORM:
+				tile.add_collision_polygon(0)
+				tile.set_collision_polygon_points(0, 0, PackedVector2Array([
+					Vector2(-half, -half), Vector2(half, -half), Vector2(half, -half + 4), Vector2(-half, -half + 4)]))
+				tile.set_collision_polygon_one_way(0, 0, true)
+	_tilesets[texture] = tile_set
+	return tile_set
 
 
 func _build_exits() -> void:
@@ -293,6 +339,11 @@ func _build_targets() -> void:
 			continue
 		if spec == "segredo":
 			_add_chest(digit, cell)
+			continue
+		if spec == "tocha":
+			var torch := Torch.new()
+			torch.position = RoomLayout.cell_feet(cell)
+			add_child(torch)
 			continue
 		if spec == "fonte":
 			var fountain := Fountain.new()

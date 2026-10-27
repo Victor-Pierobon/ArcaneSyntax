@@ -68,7 +68,12 @@ var dialogue_box := DialogueBox.new()
 var _talk_run: DialogueRun
 var _talk_lesson := ""
 var _talk_hint_puzzle := ""
+var _talk_serpent: Serpent
 var _progress_store: ProgressStore
+## Vida do quadro anterior, para o mago mostrar o dano (ART-esteira, regra 9).
+var _last_health := 0
+## O fundo com paralaxe atrás da sala (ART-esteira, regra 16).
+var backdrop := Backdrop.new()
 
 @onready var player: Player = $Player
 @onready var hud: Hud = $Hud
@@ -83,7 +88,16 @@ var _progress_store: ProgressStore
 
 
 func _ready() -> void:
+	backdrop.name = "Backdrop"
+	add_child(backdrop)
+	move_child(backdrop, 0)
 	hud.bind(state)
+	_last_health = state.health.current
+	state.health.changed.connect(func(current: int, _maximum: int) -> void:
+		if current < _last_health:
+			player.hurt()
+		_last_health = current
+	)
 	grimoire_store = GrimoireStore.new(grimoire_path)
 	grimoire = grimoire_store.load_grimoire()
 	grimoire_ui.bind(grimoire, grimoire_store)
@@ -271,6 +285,8 @@ func talk() -> void:
 	else:
 		_talk_run = dialogues.start(_talk_lesson)
 	grimoire_ui.blocked = true
+	_talk_serpent = serpent
+	serpent.set_talking(true)
 	dialogue_box.open(_talk_run)
 
 
@@ -278,6 +294,9 @@ func talk() -> void:
 ## regra 4) e salva.
 func _on_dialogue_finished() -> void:
 	grimoire_ui.blocked = false
+	if is_instance_valid(_talk_serpent):
+		_talk_serpent.set_talking(false)
+	_talk_serpent = null
 	if _talk_run == null:
 		return
 	if _talk_run.has_seen(LESSON_LINE):
@@ -586,6 +605,7 @@ func go_to(room_id: String, entry: String) -> void:
 	_place_player(current_room.entry_feet(entry))
 	safe_point = player.global_position
 	_apply_camera_limits(current_room.bounds())
+	backdrop.fit(current_room.bounds())
 	room_changed.emit(room_id)
 	save_progress()
 

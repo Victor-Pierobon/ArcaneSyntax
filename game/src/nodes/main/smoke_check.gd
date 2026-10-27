@@ -10,6 +10,8 @@ const SPELL := "meditar()\nprint(\"fumaça\")"
 
 ## Caminho do Python; vazio usa o mesmo que o jogo (os testes trocam para simular um executor quebrado).
 var python_path := ""
+## Contrato da arte (spec ART-esteira, regra 18); os testes trocam para simular um contrato quebrado.
+var art_catalog_path := ArtCatalog.DEFAULT_PATH
 
 
 static func requested(args: PackedStringArray) -> bool:
@@ -27,6 +29,8 @@ func run() -> Array[String]:
 		problems.append("dicas: " + error)
 	for error in ReferenceBook.load_file(ReferenceBook.DEFAULT_PATH).errors:
 		problems.append("referência: " + error)
+	for error in ArtCatalog.load_file(art_catalog_path).errors:
+		problems.append("arte: " + error)
 	if tr("MENU_TITULO") == "MENU_TITULO":
 		problems.append("textos: o textos.csv não foi carregado")
 	var area := AreaMap.load_dir(ROOMS_DIR)

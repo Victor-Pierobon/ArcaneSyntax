@@ -1,0 +1,108 @@
+{
+  "mago": {
+    "quadro": 48,
+    "animacoes": {
+      "parado": {"fps": 6, "laco": true},
+      "andar": {"fps": 10, "laco": true, "reserva": "parado"},
+      "pular": {"fps": 8, "laco": false, "reserva": "parado"},
+      "cair": {"fps": 8, "laco": true, "reserva": "pular"},
+      "esquivar": {"fps": 16, "laco": false, "reserva": "andar"},
+      "conjurar": {"fps": 12, "laco": false, "reserva": "parado"},
+      "meditar": {"fps": 6, "laco": true, "reserva": "parado"},
+      "cajado": {"fps": 14, "laco": false, "reserva": "conjurar"},
+      "dano": {"fps": 10, "laco": false, "reserva": "parado"},
+      "morrer": {"fps": 8, "laco": false, "reserva": "dano"}
+    }
+  },
+  "serpente": {
+    "quadro": 32,
+    "animacoes": {
+      "parada": {"fps": 6, "laco": true},
+      "falando": {"fps": 8, "laco": true, "reserva": "parada"},
+      "retrato": {"quadro": 64, "fps": 1, "laco": false}
+    }
+  },
+  "elemental": {
+    "quadro": 32,
+    "animacoes": {
+      "andar": {"fps": 8, "laco": true, "elementos": ["fogo", "gelo", "planta"]},
+      "morrer": {"fps": 10, "laco": false, "elementos": ["fogo", "gelo", "planta"]}
+    }
+  },
+  "enxame": {
+    "quadro": 16,
+    "animacoes": {
+      "voar": {"fps": 12, "laco": true},
+      "mergulhar": {"fps": 10, "laco": true, "reserva": "voar"}
+    }
+  },
+  "guardiao": {
+    "quadro": 48,
+    "animacoes": {
+      "andar": {"fps": 8, "laco": true},
+      "morrer": {"fps": 10, "laco": false},
+      "escudo": {"quadro": 32, "fps": 8, "laco": true, "elementos": ["fogo", "planta", "gelo"]}
+    }
+  },
+  "chefe": {
+    "quadro": 96,
+    "animacoes": {
+      "parado": {"fps": 6, "laco": true, "elementos": ["fogo", "gelo", "planta"]},
+      "mover": {"fps": 8, "laco": true, "elementos": ["fogo", "gelo", "planta"]},
+      "golpe": {"fps": 10, "laco": false, "elementos": ["fogo", "gelo", "planta"]},
+      "orbe": {"fps": 10, "laco": false, "elementos": ["fogo", "gelo", "planta"]},
+      "troca": {"fps": 10, "laco": false},
+      "morrer": {"fps": 10, "laco": false},
+      "pilar": {"quadro": [16, 64], "fps": 12, "laco": false},
+      "aviso": {"quadro": 16, "fps": 8, "laco": true},
+      "orbe_voando": {"quadro": 16, "fps": 10, "laco": true, "elementos": ["fogo", "gelo", "planta"]}
+    }
+  },
+  "magia": {
+    "quadro": 16,
+    "animacoes": {
+      "projetil": {"fps": 12, "laco": true, "elementos": ["fogo", "gelo", "raio"]},
+      "faisca": {"fps": 14, "laco": true, "elementos": ["fogo", "gelo", "raio"]},
+      "impacto": {"fps": 14, "laco": false, "elementos": ["fogo", "gelo", "raio"]},
+      "escudo": {"quadro": 48, "fps": 8, "laco": true, "elementos": ["fogo", "gelo", "raio"]},
+      "meditar": {"quadro": 48, "fps": 8, "laco": true},
+      "runa": {"quadro": 8, "fps": 8, "laco": false}
+    }
+  },
+  "objetos": {
+    "quadro": 16,
+    "animacoes": {
+      "cristal_apagado": {"fps": 1, "laco": false},
+      "cristal_aceso": {"fps": 8, "laco": true, "elementos": ["fogo", "gelo", "raio"]},
+      "runa": {"fps": 1, "laco": false, "elementos": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]},
+      "cadeado": {"fps": 1, "laco": false},
+      "porta": {"fps": 1, "laco": false},
+      "porta_abrindo": {"fps": 10, "laco": false},
+      "ponte": {"fps": 1, "laco": false},
+      "placa": {"fps": 1, "laco": false},
+      "placa_pisada": {"fps": 1, "laco": false},
+      "tocha": {"fps": 8, "laco": true},
+      "bau_fechado": {"quadro": 32, "fps": 1, "laco": false},
+      "bau_abrindo": {"quadro": 32, "fps": 10, "laco": false},
+      "fonte": {"quadro": 32, "fps": 6, "laco": true}
+    }
+  },
+  "cenario": {
+    "animacoes": {
+      "tiles": {"imagem": true, "tamanho": [64, 80]},
+      "fundo_1": {"imagem": true, "tamanho": [640, 360]},
+      "fundo_2": {"imagem": true, "tamanho": [640, 360]},
+      "fundo_3": {"imagem": true, "tamanho": [640, 360]},
+      "decoracao": {"imagem": true}
+    }
+  },
+  "ui": {
+    "animacoes": {
+      "moldura": {"imagem": true, "tamanho": [48, 48]},
+      "vida": {"imagem": true, "tamanho": [32, 16]},
+      "mana": {"imagem": true, "tamanho": [32, 16]},
+      "slot": {"imagem": true, "tamanho": [24, 24]},
+      "logo": {"imagem": true}
+    }
+  }
+}

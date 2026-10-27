@@ -11,6 +11,8 @@ const SLEEP_COLOR := Color("4a5a78")
 
 var required_element := ""
 var lit := false
+## Elemento do feitiço que acendeu, para a arte `cristal_aceso_<elemento>` (ART-esteira, regra 26).
+var lit_element := ""
 ## Só nos cristais mutáveis; o símbolo atual é o `element`, que o feitiço lê em `alvo.elemento`.
 var rule: MutableCrystalRule
 
@@ -45,21 +47,49 @@ func hit(attack_element: String, form: String = "") -> void:
 		element = rule.symbol
 		_refresh_symbol()
 		if rule.lit:
-			light()
+			light(attack_element)
 	elif required_element.is_empty() or required_element == attack_element:
-		light()
+		light(attack_element)
 
 
-func light() -> void:
+func light(by_element := "") -> void:
 	if lit:
 		return
 	lit = true
+	lit_element = by_element if not by_element.is_empty() else required_element
 	_refresh_color()
 	lit_changed.emit(true)
 
 
+func _art() -> Array:
+	var names := ["objetos", "cristal_apagado"]
+	for spell_element: String in ElementTable.SPELL_ELEMENTS:
+		names.append("cristal_aceso_" + spell_element)
+	return names
+
+
 func _refresh_color() -> void:
 	_body.color = LIT_COLOR if lit else SLEEP_COLOR
+	if art_sprite == null:
+		return
+	var anim := "cristal_apagado"
+	if lit:
+		anim = "cristal_aceso_" + lit_element
+		if not art_sprite.sprite_frames.has_animation(anim):
+			anim = _any_lit_animation()
+	if anim.is_empty():
+		# Sem arte do cristal aceso: volta para o retângulo.
+		art_sprite.visible = false
+		_body.visible = true
+	elif art_sprite.animation != anim:
+		art_sprite.play(anim)
+
+
+func _any_lit_animation() -> String:
+	for spell_element: String in ElementTable.SPELL_ELEMENTS:
+		if art_sprite.sprite_frames.has_animation("cristal_aceso_" + spell_element):
+			return "cristal_aceso_" + spell_element
+	return ""
 
 
 func _refresh_symbol() -> void:

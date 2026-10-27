@@ -36,9 +36,11 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 | `docs/adr/` | Decisões de arquitetura |
 | `game/` | Projeto Godot (`res://` aponta para cá) |
 | `game/src/core/` | Regras puras, sem Node (`AreaMap.load_dir` é a exceção: instancia as cenas das salas só para ler os campos) |
-| `game/src/nodes/` | Cenas e scripts de cena (`player/`, `world/`, `ui/`, `magic/`, `puzzles/`, `combat/`, `grimoire/`, `fx/`, `dev/`) |
+| `game/src/nodes/` | Cenas e scripts de cena (`player/`, `world/`, `ui/`, `magic/`, `puzzles/`, `combat/`, `grimoire/`, `fx/`, `art/`, `dev/`) |
 | `game/content/rooms/` | Salas do jogo (cenas `Room` com layout em texto) |
-| `game/assets/placeholder/` | Arte provisória (tileset de 3 tiles) |
+| `game/assets/placeholder/` | Arte provisória gerada por `game/tools/gerar_provisorio.gd`: `tiles_bordas.png` (16 formas de pedra, plataforma, espinhos) e `fundo_1..3.png` |
+| `game/assets/<pasta>/` | Arte do Victor (`mago/`, `serpente/`, `cenario/`…), pelo contrato de `content/arte.json` (ART-esteira) |
+| `game/tools/` | Scripts de desenvolvimento rodados com `-s` (fora do build) |
 | `game/tests/fixtures/rooms/` | Salas pequenas usadas pelos testes |
 | `game/src/executor_client/` | Cliente do executor Python |
 | `game/content/` | Conteúdo de dados: `text/textos.csv` e `balanceamento.json` (BAL-valores) |
@@ -74,7 +76,7 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `Health` (`src/core/mago/health.gd`): vida inteira, `damage(amount, source)` devolve se contou, `Source.ATTACK`/`HAZARD`, 1 s de invencibilidade pós-dano (`tick(delta)`), `dodging` protege só de `ATTACK`, sinais `changed(current, maximum)` e `died`.
 - `MagoState` (`src/core/mago/mago_state.gd`): `health` (5), `mana` (0) e `mana_max` (a do nível; 10 no nível 1) com resolução 0,1; `xp`, `level`, `gain_xp(n)` (sobe níveis, aumenta e enche a mana); sinais `mana_changed`, `xp_changed`, `leveled_up`; `to_spell_mago()` gera o `mago` do protocolo. **A mana real mora aqui**; o executor só simula.
 - `RoomLayout` (`src/core/world/room_layout.gd`): lê o layout em texto (`#` pedra, `=` plataforma, `^` espinhos, `*` ponto seguro, `A–Z` entradas, `a–z` saídas, `|` porta de runas, `%` porta de atalho); `cell_feet(cell)`, `size_px()`, `errors`.
-- `Room` (`src/nodes/world/room.gd`): cena com `room_id`, `layout` e `exits` (`{"b": "sala_02:A"}`). No `_ready` monta um `TileMapLayer` com `assets/placeholder/tiles.tres` e cria `Area2D` para saídas, espinhos e pontos seguros, que **só ligam depois do primeiro quadro de física**. Sinais: `exit_touched`, `hazard_touched`, `safe_point_touched`.
+- `Room` (`src/nodes/world/room.gd`): cena com `room_id`, `layout` e `exits` (`{"b": "sala_02:A"}`). No `_ready` monta um `TileMapLayer` (cada pedra com a forma da vizinhança, `TileShape`; tileset montado por código em `Room.tileset_for` a partir de `cenario/tiles.png` ou do provisório; ver "Arte") e cria `Area2D` para saídas, espinhos e pontos seguros, que **só ligam depois do primeiro quadro de física**. Sinais: `exit_touched`, `hazard_touched`, `safe_point_touched`.
 - `World` (`src/nodes/world/world.gd` + `world.tscn`; desde a Sprint 13 quem o sobe é a cena principal `Main`, desde a Sprint 14 pelo menu inicial): tem `Player` e `Hud`; `go_to(sala, entrada)` troca a sala (sempre adiado para fora do callback de física), põe o mago na entrada, ajusta os limites da câmera e o ponto seguro. Espinho: 1 de dano (ignora a esquiva) e volta ao ponto seguro. Morte: vida cheia e volta à entrada da sala atual. `rooms_dir` configurável (testes usam `res://tests/fixtures/rooms/`); `authoring_errors` junta erros de autoria.
 - `Hud` (`src/nodes/ui/hud.gd`, CanvasLayer montado em código): `life_label`, `mana_label`, `mana_bar`, `level_label` (nível e XP), dica de controles; `bind(state)`.
 ### Grimório (specs GRI-feiticos, GRI-grimorio)
@@ -195,10 +197,21 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 
 ### Build e fumaça (spec BLD-alpha)
 
-- `game/export_presets.cfg`: preset `Windows Desktop` (x86_64, `.pck` separado, `.console.exe`), `include_filter="content/*.json"` (os JSON não são recursos importados), `exclude_filter` com `tests/`, `addons/gdUnit4/` e `reports/`.
+- `game/export_presets.cfg`: preset `Windows Desktop` (x86_64, `.pck` separado, `.console.exe`), `include_filter="content/*.json"` (os JSON não são recursos importados), `exclude_filter` com `tests/`, `addons/gdUnit4/`, `reports/` e `tools/`.
 - `scripts/build_windows.ps1`: `--import`, `--export-release`, copia `executor/run_worker.py` + `arcane_executor/` e `runtime/python/` sem o que o worker não usa, `docs/build/LEIA-ME.txt`, roda a fumaça no `.console.exe` e gera o `.zip` só se ela passar.
-- `SmokeCheck` (`src/nodes/main/smoke_check.gd`): `requested(args)`, `run()` devolve a lista de problemas (balanceamento, diálogos, dicas, referência, `tr("MENU_TITULO")`, `AreaMap.walkthrough` em todas as salas, executor com `meditar()` + `print`), `report()` imprime `FUMACA OK`. A `Main` verifica `user_args` antes de tudo, roda a fumaça e fecha com 0 ou 1 (`quit_after_smoke`); os menus só são criados depois.
+- `SmokeCheck` (`src/nodes/main/smoke_check.gd`): `requested(args)`, `run()` devolve a lista de problemas (balanceamento, diálogos, dicas, referência, `tr("MENU_TITULO")`, `AreaMap.walkthrough` em todas as salas, executor com `meditar()` + `print`), também o contrato da arte; `report()` imprime `FUMACA OK`. A `Main` verifica `user_args` antes de tudo, roda a fumaça e fecha com 0 ou 1 (`quit_after_smoke`); os menus só são criados depois.
 - No jogo exportado, `PythonSpellExecutor.base_dir()` é a pasta do `.exe`; `AreaMap.load_dir` aceita as cenas `.tscn.remap`.
+
+### Arte (spec ART-esteira)
+
+- Contrato: `content/arte.json` (pasta → quadro e animações com `fps`, `laco`, `reserva`, `elementos`; imagens paradas com `imagem`/`tamanho`). `ArtCatalog` (`src/core/art/`, puro) lê e confere um PNG (`check`: altura, largura múltipla do quadro, nome, pixel semitransparente, cor fora da `assets/paleta.png`). `test_arte_entregue.gd` varre `game/assets/` (menos `placeholder/`).
+- `ArtLibrary` (`src/nodes/art/`, estática): `texture(pasta, nome)`, `sprite_frames(pasta, nomes)` (cadeia de reservas) e `sprite(pasta, nomes)` (AnimatedSprite2D com a base do quadro na origem); null sem arquivo, e quem pediu fica no provisório. Lê pelo `ResourceLoader` (importado) ou direto do PNG; os testes trocam a pasta com `use_root` e chamam `reset()` no `after_test`.
+- Mago: `PlayerAnimation` (`src/core/player/`, puro) escolhe a animação (dano > esquivar > ação > ar > andar > parado); `Player.play_action(acao, s)` (o `WorldActions` chama em lançar, inscrever, meditar, absorver e cajado) e `Player.hurt()` (o `World` chama quando a vida cai). `PlayerVisual` (nó `Visual` do `player.tscn`): arte de `mago/` espelhada pelo `facing`, ou o mago provisório desenhado por código.
+- Paredes: `TileShape` (puro) dá o número de 4 bits da vizinhança (1 cima, 2 direita, 4 baixo, 8 esquerda; fora da sala conta como pedra) e a coordenada no atlas 4×5. `Room.tiles_source` diz de onde veio a imagem.
+- Fundo: `Backdrop` (filho do `World`, `z_index` −100): cor sólida num `CanvasLayer` −100, três `Parallax2D` (0,2, 0,45, 0,7; repetem a cada 640 px) e uma moldura escura em volta da sala (`fit`, chamado no `go_to`).
+- `TrainingTarget._art()` devolve `[pasta, principal, outras...]` (o elemental pede `andar_<elemento>` e `morrer_<elemento>`; o cristal, `cristal_apagado` e os acesos); sem a principal fica o retângulo, com contorno escuro. `top_height()` é o pixel mais alto do desenho (`ArtLibrary.drawn_height`), para o nome e a barra de vida. `Serpent`, `Projectile`, `Shield`, `Chest`, `Torch` e `RuneDoor` (`art_sprites`, uma por célula) também têm arte opcional.
+- Primeira leva de arte (regras 21 a 28): `ArtLibrary.effect(pai, pasta, nome, posição)` toca uma vez e some (impacto do projétil); `PlayerVisual.aura` (`magia/meditar`) aparece só meditando; inimigo derrotado com `morrer` fica até a animação acabar (`ArtLibrary.duration`); `SwarmBug` troca para `mergulhar`; `Guardian.shield_sprite` substitui o círculo (`draws_shield_circle()`); `Crystal.lit_element`; `tocha` em `targets` é um `Torch` (decoração, fora dos alvos).
+- Projeto: `snap_2d_transforms_to_pixel` e `snap_2d_vertices_to_pixel` ligados (sem isso, o texto pequeno do mundo embaralhava com a câmera suave).
 
 ### Referência (spec GRI-referencia)
 
@@ -307,3 +320,7 @@ Convenções:
 | `.gitignore` com `build/` sem barra | Esconde também `docs/build/` e `docs/specs/build/`; usar `/build/` (Sprint 15) |
 | Script `.ps1` com acento no PowerShell 5.1 | Gravar em UTF-8 **com BOM**; stderr de programa nativo com `ErrorActionPreference = Stop` vira erro: decidir por `$LASTEXITCODE` |
 | Menus em teste | Teclas não chegam em headless: apertar com `botão.pressed.emit()` e chamar `PauseMenu.handle_cancel()` no lugar do Esc |
+| Texto pequeno (7 px) no mundo embaralhado | A câmera suave deixava o texto entre pixels; o projeto prende o desenho 2D à grade (`rendering/2d/snap`), e `test_ART_032` confere (Sprint 16) |
+| Sala menor que a tela | Mostrava o fundo em volta e parecia flutuar; o `Backdrop.fit` põe uma moldura escura (Sprint 16, `test_ART_031`) |
+| Arte provisória nova ou mudada | Rodar `godot --headless --path game -s res://tools/gerar_provisorio.gd` e depois `--import`; o PNG só vira recurso depois do import |
+| Teste que troca a pasta de arte (`ArtLibrary.use_root`) | Chamar `ArtLibrary.reset()` e `ArtFixtures.clear()` no `after_test`, senão a pasta de teste vaza para as outras suítes |

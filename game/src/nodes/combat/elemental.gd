@@ -21,6 +21,10 @@ func _ready() -> void:
 	brain = ElementalBrain.new(position.x)
 
 
+func _art() -> Array:
+	return ["elemental", "andar_" + element, "morrer_" + element]
+
+
 func _think(delta: float) -> void:
 	var feet := position
 	var ahead := func(direction: int) -> bool:

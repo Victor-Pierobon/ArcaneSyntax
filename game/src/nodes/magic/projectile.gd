@@ -15,6 +15,8 @@ var form := "projetil"
 var direction := Vector2.RIGHT
 ## O alvo do feitiço; null se não tinha ou se ele sumiu no caminho (regra 3).
 var target: TrainingTarget
+## A arte (`magia/projetil_<elemento>` ou `faisca_<elemento>`, ART-esteira, regra 8); null: o círculo.
+var art_sprite: AnimatedSprite2D
 
 var _travelled := 0.0
 
@@ -44,9 +46,16 @@ func _ready() -> void:
 	add_child(shape)
 	area_entered.connect(_on_area_entered)
 	body_entered.connect(_on_body_entered)
+	art_sprite = ArtLibrary.sprite("magia", ["%s_%s" % [form, element]])
+	if art_sprite:
+		art_sprite.position = Vector2.ZERO
+		art_sprite.rotation = direction.angle()
+		add_child(art_sprite)
 
 
 func _draw() -> void:
+	if art_sprite:
+		return
 	var color: Color = TrainingTarget.ELEMENT_COLORS.get(element, Color.WHITE)
 	if form == "faisca":
 		draw_circle(Vector2.ZERO, 2.5, color.lightened(0.3))
@@ -62,6 +71,8 @@ func _physics_process(delta: float) -> void:
 		direction = (target.center() - global_position).normalized()
 	var step := speed_of(form) * delta
 	position += direction * step
+	if art_sprite:
+		art_sprite.rotation = direction.angle()
 	_travelled += step
 	if _travelled >= MAX_DISTANCE:
 		queue_free()
@@ -78,9 +89,16 @@ func _on_area_entered(area: Area2D) -> void:
 	if target != null and _target_alive() and touched != target:
 		return  # atravessa quem não é o alvo escolhido
 	touched.hit(element, form)
+	_impact()
 	queue_free()
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if not body is Player:
+	if not body is Player and not is_queued_for_deletion():
+		_impact()
 		queue_free()
+
+
+## `magia/impacto_<elemento>` no ponto do acerto (ART-esteira, regra 21).
+func _impact() -> void:
+	ArtLibrary.effect(get_parent(), "magia", "impacto_" + element, global_position)

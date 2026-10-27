@@ -10,7 +10,10 @@ const COLOR_SHORTCUT := Color("3f8f7a")
 
 var is_open := false
 
-var _visuals: Array[ColorRect] = []
+## A arte de cada célula (`objetos/porta`, ART-esteira, regra 27); vazio: os retângulos.
+var art_sprites: Array[AnimatedSprite2D] = []
+
+var _visuals: Array[CanvasItem] = []
 var _shapes: Array[CollisionShape2D] = []
 
 
@@ -26,6 +29,16 @@ static func make(cells: Array[Vector2i], color := COLOR_CLOSED) -> RuneDoor:
 		shape.position = RoomLayout.cell_center(cell)
 		door.add_child(shape)
 		door._shapes.append(shape)
+		var art := ArtLibrary.sprite("objetos", ["porta"])
+		if art:
+			art.position = RoomLayout.cell_center(cell)
+			# A de atalho fica tingida pela cor dela; a de runas, com a cor da arte.
+			if color != COLOR_CLOSED:
+				art.modulate = color.lightened(0.4)
+			door.add_child(art)
+			door.art_sprites.append(art)
+			door._visuals.append(art)
+			continue
 		var visual := ColorRect.new()
 		visual.color = color
 		visual.position = Vector2(cell * RoomLayout.TILE) + Vector2(3, 0)
@@ -33,6 +46,10 @@ static func make(cells: Array[Vector2i], color := COLOR_CLOSED) -> RuneDoor:
 		door.add_child(visual)
 		door._visuals.append(visual)
 	return door
+
+
+func uses_art() -> bool:
+	return not art_sprites.is_empty()
 
 
 func open() -> void:

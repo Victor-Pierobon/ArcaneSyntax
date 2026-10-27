@@ -30,6 +30,7 @@ var _control_before_flight: Callable
 
 func act_lancar(action: Dictionary) -> void:
 	var element := str(action.get("elemento", ""))
+	world.player.play_action("conjurar")
 	if action.get("forma") == "escudo":
 		_raise_shield(element)
 		world.sfx.play("escudo")
@@ -82,6 +83,7 @@ func act_meditar(_action: Dictionary) -> void:
 	var player := world.player
 	var saved := player.intent_source
 	player.intent_source = func() -> PlayerIntent: return PlayerIntent.make()
+	player.play_action("meditar", MEDITATE_TIME)
 	_flash_player(Color("b8a8ff"), MEDITATE_TIME)
 	Fx.burst(player, Vector2(0, -2), Color("b8a8ff"), 18, true)
 	world.sfx.play("mana")
@@ -93,6 +95,7 @@ func act_meditar(_action: Dictionary) -> void:
 func act_inscrever(action: Dictionary) -> void:
 	var room := world.current_room
 	var player := world.player
+	player.play_action("conjurar")
 	var status := room.inscribe(float(action.get("valor", 0)), player.global_position) if room else "sem_cadeado"
 	match status:
 		"sem_cadeado":
@@ -116,6 +119,7 @@ func act_construir_bloco(_action: Dictionary) -> void:
 
 
 func act_absorver_mana(_action: Dictionary) -> void:
+	world.player.play_action("meditar", ABSORB_TIME * 2)
 	_flash_player(Color("8fd8ff"), ABSORB_TIME * 2)
 	Fx.burst(world.player, Vector2(0, -15), Color("8fd8ff"), 6)
 	world.sfx.play("mana")
@@ -130,6 +134,7 @@ func staff_attack() -> bool:
 	_staff_ready_at = now + STAFF_COOLDOWN
 	world.sfx.play("cajado")
 	var player := world.player
+	player.play_action("cajado")
 	var swing := Area2D.new()
 	swing.collision_layer = 0
 	swing.collision_mask = Projectile.HURTBOX_LAYER
@@ -210,9 +215,7 @@ func on_attack_blocked() -> void:
 
 
 func _flash_player(color: Color, duration: float) -> void:
-	var visual: CanvasItem = world.player.get_node_or_null("Placeholder")
-	if visual == null:
-		return
+	var visual: CanvasItem = world.player.visual
 	visual.modulate = color
 	var tween := visual.create_tween()
 	tween.tween_property(visual, "modulate", Color.WHITE, duration)

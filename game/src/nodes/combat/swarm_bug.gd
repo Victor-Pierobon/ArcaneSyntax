@@ -27,10 +27,19 @@ func _ready() -> void:
 	name_label.visible = false
 
 
+func _art() -> Array:
+	return ["enxame", "voar", "mergulhar"]
+
+
 func _think(delta: float) -> void:
 	var feet: Variant = _player_feet()
 	var mago: Variant = null if feet == null else feet + PLAYER_CENTER
 	position = brain.step(position - Vector2(0, BODY.y / 2), mago, delta) + Vector2(0, BODY.y / 2)
+	# ART-esteira, regra 24.
+	if art_sprite:
+		var anim := "mergulhar" if brain.state == SwarmBugBrain.State.DIVE else "voar"
+		if art_sprite.sprite_frames.has_animation(anim) and art_sprite.animation != anim:
+			art_sprite.play(anim)
 
 
 func _on_touched_player() -> void:

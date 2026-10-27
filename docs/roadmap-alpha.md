@@ -76,8 +76,8 @@ Plano completo, decisões e verificação em [`plano-alpha-1-1.md`](plano-alpha-
 
 | Sprint | Nome | Horas | Status |
 | --- | --- | --- | --- |
-| 16 | Esteira de arte e visual provisório | 14–20 | **Próxima** |
-| 17 | Chefe 2.0 (3 fases, movimento, pilares, mais vida) | 16–24 | Planejada |
+| 16 | [Esteira de arte e visual provisório](sprints/sprint-16-esteira-arte.md) | 14–20 | Concluída |
+| 17 | Chefe 2.0 (3 fases, movimento, pilares, mais vida) | 16–24 | **Próxima** |
 | 18 | Salas I: começo e puzzles | 18–26 | Planejada |
 | 19 | Salas II: combate e fim | 14–20 | Planejada |
 | 20 | Integração da arte e brilho | 12–20 | Planejada (depende da arte) |

@@ -10,6 +10,8 @@ const COLOR := Color("6fcf5a")
 var scene_id := ""
 ## O mago, para mostrar o aviso; o World passa pela Room antes de entrar na árvore.
 var player: Node2D
+## A arte (`serpente/parada` e `falando`, ART-esteira, regra 8); null: o desenho provisório.
+var art_sprite: AnimatedSprite2D
 
 var _prompt := Label.new()
 var _time := 0.0
@@ -31,6 +33,17 @@ func _ready() -> void:
 	_prompt.position = Vector2(-18, -44)
 	_prompt.visible = false
 	add_child(_prompt)
+	art_sprite = ArtLibrary.sprite("serpente", ["parada", "falando"])
+	if art_sprite:
+		add_child(art_sprite)
+
+
+## Com o diálogo dela aberto (o jogo pausa), a arte toca `falando` mesmo pausada.
+func set_talking(talking: bool) -> void:
+	if art_sprite == null:
+		return
+	art_sprite.process_mode = Node.PROCESS_MODE_ALWAYS if talking else Node.PROCESS_MODE_INHERIT
+	art_sprite.play(&"falando" if talking else &"parada")
 
 
 func _physics_process(delta: float) -> void:
@@ -55,6 +68,8 @@ func prompt_rect() -> Rect2:
 
 ## Corpo em S que balança devagar, cabeça com olho.
 func _draw() -> void:
+	if art_sprite:
+		return
 	var points := PackedVector2Array()
 	for i in 9:
 		var t := i / 8.0

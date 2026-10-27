@@ -28,6 +28,8 @@ var effect_label := Label.new()
 var name_label := Label.new()
 ## Tamanho do corpo e da área que recebe golpes; os inimigos mudam antes de entrar na árvore.
 var body_size := SIZE
+## A arte do personagem (spec ART-esteira, regra 8); null quando ele usa o retângulo provisório.
+var art_sprite: AnimatedSprite2D
 
 var _body := ColorRect.new()
 
@@ -46,12 +48,28 @@ func _ready() -> void:
 	_body.size = body_size
 	_body.position = Vector2(-body_size.x / 2, -body_size.y)
 	add_child(_body)
+	var outline := ColorRect.new()
+	outline.name = "Contorno"
+	outline.color = Color("15121f")
+	outline.position = Vector2(-1, -1)
+	outline.size = body_size + Vector2(2, 2)
+	outline.show_behind_parent = true
+	_body.add_child(outline)
+	var art := _art()
+	if not art.is_empty():
+		art_sprite = ArtLibrary.sprite(art[0], art.slice(1))
+		# Só a arte das outras animações (sem a principal) não basta: fica o retângulo.
+		if art_sprite and not art_sprite.sprite_frames.has_animation(art[1]):
+			art_sprite = null
+		if art_sprite:
+			_body.visible = false
+			add_child(art_sprite)
 	name_label.text = element
 	name_label.add_theme_font_size_override(&"font_size", 7)
-	name_label.position = Vector2(-12, -body_size.y - 10)
+	name_label.position = Vector2(-12, -top_height() - 10)
 	add_child(name_label)
 	effect_label.add_theme_font_size_override(&"font_size", 8)
-	effect_label.position = Vector2(-16, -body_size.y - 22)
+	effect_label.position = Vector2(-16, -top_height() - 22)
 	effect_label.modulate.a = 0.0
 	add_child(effect_label)
 	var hurtbox := Area2D.new()
@@ -66,6 +84,24 @@ func _ready() -> void:
 	shape.position = Vector2(0, -body_size.y / 2)
 	hurtbox.add_child(shape)
 	add_child(hurtbox)
+
+
+## [pasta, animação, outras animações...] da arte deste personagem (toca a primeira), ou vazio para
+## ficar no retângulo (os inimigos e o cristal trocam).
+func _art() -> Array:
+	return []
+
+
+## Altura do personagem acima dos pés, para o nome e a barra de vida ficarem acima dele: o corpo ou,
+## com arte, o pixel mais alto do desenho (regressão da primeira leva de arte).
+func top_height() -> float:
+	if art_sprite == null:
+		return body_size.y
+	return maxf(body_size.y, ArtLibrary.drawn_height(art_sprite))
+
+
+func body_visible() -> bool:
+	return _body.visible
 
 
 ## Centro do corpo, para onde os projéteis miram.
@@ -90,6 +126,7 @@ func _show_hit(attack_element: String, text: String) -> void:
 	var tween := create_tween()
 	tween.tween_property(effect_label, "modulate:a", 0.0, 0.8).set_delay(0.4)
 	var flash := create_tween()
-	_body.modulate = ELEMENT_COLORS.get(attack_element, Color.WHITE).lightened(0.5)
-	flash.tween_property(_body, "modulate", Color.WHITE, 0.25)
+	var visual: CanvasItem = art_sprite if art_sprite else _body
+	visual.modulate = ELEMENT_COLORS.get(attack_element, Color.WHITE).lightened(0.5)
+	flash.tween_property(visual, "modulate", Color.WHITE, 0.25)
 	Fx.burst(self, Vector2(0, -body_size.y / 2), ELEMENT_COLORS.get(attack_element, Color.WHITE))

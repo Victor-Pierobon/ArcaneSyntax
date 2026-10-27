@@ -37,3 +37,13 @@ func test_BLD_003_pedido_pela_linha_de_comando() -> void:
 	assert_bool(SmokeCheck.requested(PackedStringArray(["--fumaca"]))).is_true()
 	assert_bool(SmokeCheck.requested(PackedStringArray([]))).is_false()
 	assert_bool(SmokeCheck.requested(PackedStringArray(["--outra"]))).is_false()
+
+
+## Spec: docs/specs/arte/ART-esteira.md (ART-050): a fumaça confere o contrato da arte.
+func test_ART_050_fumaca_confere_o_contrato_da_arte() -> void:
+	var smoke: SmokeCheck = auto_free(SmokeCheck.new())
+	smoke.art_catalog_path = "res://nao/existe/arte.json"
+	add_child(smoke)
+	var problems: Array[String] = await smoke.run()
+	assert_int(problems.size()).is_equal(1)
+	assert_str(problems[0]).starts_with("arte: ")

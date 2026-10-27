@@ -1,0 +1,431 @@
+{
+  "mago_base": {
+    "situacao": "aprovado",
+    "gasto": 1.0,
+    "quando": "2026-10-27T01:51:27",
+    "previa": "art\\ia\\previa\\mago_base.png",
+    "arquivo": null
+  },
+  "mago/parado": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T01:57:32",
+    "previa": "art\\ia\\previa\\mago__parado.png",
+    "arquivo": "game\\assets\\mago\\parado.png"
+  },
+  "mago/andar": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:00:32",
+    "previa": "art\\ia\\previa\\mago__andar.png",
+    "arquivo": "game\\assets\\mago\\andar.png"
+  },
+  "mago/pular": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:01:59",
+    "previa": "art\\ia\\previa\\mago__pular.png",
+    "arquivo": "game\\assets\\mago\\pular.png"
+  },
+  "mago/cair": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:03:38",
+    "previa": "art\\ia\\previa\\mago__cair.png",
+    "arquivo": "game\\assets\\mago\\cair.png"
+  },
+  "mago/conjurar": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:05:53",
+    "previa": "art\\ia\\previa\\mago__conjurar.png",
+    "arquivo": "game\\assets\\mago\\conjurar.png"
+  },
+  "mago/esquivar": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:07:38",
+    "previa": "art\\ia\\previa\\mago__esquivar.png",
+    "arquivo": "game\\assets\\mago\\esquivar.png"
+  },
+  "mago/cajado": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:09:12",
+    "previa": "art\\ia\\previa\\mago__cajado.png",
+    "arquivo": "game\\assets\\mago\\cajado.png"
+  },
+  "mago/meditar": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:35:29",
+    "previa": "art\\ia\\previa\\mago__meditar.png",
+    "arquivo": "game\\assets\\mago\\meditar.png"
+  },
+  "mago/dano": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:12:25",
+    "previa": "art\\ia\\previa\\mago__dano.png",
+    "arquivo": "game\\assets\\mago\\dano.png"
+  },
+  "projetil_fogo_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:13:02",
+    "previa": "art\\ia\\previa\\projetil_fogo_base.png",
+    "arquivo": null
+  },
+  "magia/projetil_fogo": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:14:25",
+    "previa": "art\\ia\\previa\\magia__projetil_fogo.png",
+    "arquivo": "game\\assets\\magia\\projetil_fogo.png"
+  },
+  "projetil_gelo_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:14:52",
+    "previa": "art\\ia\\previa\\projetil_gelo_base.png",
+    "arquivo": null
+  },
+  "magia/projetil_gelo": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:16:07",
+    "previa": "art\\ia\\previa\\magia__projetil_gelo.png",
+    "arquivo": "game\\assets\\magia\\projetil_gelo.png"
+  },
+  "projetil_raio_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:36:16",
+    "previa": "art\\ia\\previa\\projetil_raio_base.png",
+    "arquivo": null
+  },
+  "magia/projetil_raio": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:37:44",
+    "previa": "art\\ia\\previa\\magia__projetil_raio.png",
+    "arquivo": "game\\assets\\magia\\projetil_raio.png"
+  },
+  "faisca_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:18:43",
+    "previa": "art\\ia\\previa\\faisca_base.png",
+    "arquivo": null
+  },
+  "magia/faisca_fogo": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:20:23",
+    "previa": "art\\ia\\previa\\magia__faisca_fogo.png",
+    "arquivo": "game\\assets\\magia\\faisca_fogo.png"
+  },
+  "magia/faisca_gelo": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T02:20:23",
+    "previa": "art\\ia\\previa\\magia__faisca_gelo.png",
+    "arquivo": "game\\assets\\magia\\faisca_gelo.png"
+  },
+  "magia/faisca_raio": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T02:20:23",
+    "previa": "art\\ia\\previa\\magia__faisca_raio.png",
+    "arquivo": "game\\assets\\magia\\faisca_raio.png"
+  },
+  "escudo_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:21:00",
+    "previa": "art\\ia\\previa\\escudo_base.png",
+    "arquivo": null
+  },
+  "magia/escudo_fogo": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:22:10",
+    "previa": "art\\ia\\previa\\magia__escudo_fogo.png",
+    "arquivo": "game\\assets\\magia\\escudo_fogo.png"
+  },
+  "magia/escudo_gelo": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T02:22:10",
+    "previa": "art\\ia\\previa\\magia__escudo_gelo.png",
+    "arquivo": "game\\assets\\magia\\escudo_gelo.png"
+  },
+  "magia/escudo_raio": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T02:22:10",
+    "previa": "art\\ia\\previa\\magia__escudo_raio.png",
+    "arquivo": "game\\assets\\magia\\escudo_raio.png"
+  },
+  "serpente_base": {
+    "situacao": "aprovado",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:22:54",
+    "previa": "art\\ia\\previa\\serpente_base.png",
+    "arquivo": null
+  },
+  "serpente/parada": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:39:11",
+    "previa": "art\\ia\\previa\\serpente__parada.png",
+    "arquivo": "game\\assets\\serpente\\parada.png"
+  },
+  "serpente/falando": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:40:20",
+    "previa": "art\\ia\\previa\\serpente__falando.png",
+    "arquivo": "game\\assets\\serpente\\falando.png"
+  },
+  "elemental_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:06:08",
+    "previa": "art\\ia\\previa\\elemental_base.png",
+    "arquivo": null
+  },
+  "elemental/andar_fogo": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:07:30",
+    "previa": "art\\ia\\previa\\elemental__andar_fogo.png",
+    "arquivo": "game\\assets\\elemental\\andar_fogo.png"
+  },
+  "elemental/andar_gelo": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T03:07:30",
+    "previa": "art\\ia\\previa\\elemental__andar_gelo.png",
+    "arquivo": "game\\assets\\elemental\\andar_gelo.png"
+  },
+  "elemental/andar_planta": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T03:07:30",
+    "previa": "art\\ia\\previa\\elemental__andar_planta.png",
+    "arquivo": "game\\assets\\elemental\\andar_planta.png"
+  },
+  "enxame_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:42:57",
+    "previa": "art\\ia\\previa\\enxame_base.png",
+    "arquivo": null
+  },
+  "enxame/voar": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:44:19",
+    "previa": "art\\ia\\previa\\enxame__voar.png",
+    "arquivo": "game\\assets\\enxame\\voar.png"
+  },
+  "guardiao_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:44:56",
+    "previa": "art\\ia\\previa\\guardiao_base.png",
+    "arquivo": null
+  },
+  "guardiao/andar": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:46:47",
+    "previa": "art\\ia\\previa\\guardiao__andar.png",
+    "arquivo": "game\\assets\\guardiao\\andar.png"
+  },
+  "escudo_guardiao_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:47:19",
+    "previa": "art\\ia\\previa\\escudo_guardiao_base.png",
+    "arquivo": null
+  },
+  "guardiao/escudo_fogo": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:48:46",
+    "previa": "art\\ia\\previa\\guardiao__escudo_fogo.png",
+    "arquivo": "game\\assets\\guardiao\\escudo_fogo.png"
+  },
+  "guardiao/escudo_gelo": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T02:48:46",
+    "previa": "art\\ia\\previa\\guardiao__escudo_gelo.png",
+    "arquivo": "game\\assets\\guardiao\\escudo_gelo.png"
+  },
+  "objetos/cristal_apagado": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:49:12",
+    "previa": "art\\ia\\previa\\objetos__cristal_apagado.png",
+    "arquivo": "game\\assets\\objetos\\cristal_apagado.png"
+  },
+  "cristal_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:49:46",
+    "previa": "art\\ia\\previa\\cristal_base.png",
+    "arquivo": null
+  },
+  "objetos/cristal_aceso_gelo": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:51:31",
+    "previa": "art\\ia\\previa\\objetos__cristal_aceso_gelo.png",
+    "arquivo": "game\\assets\\objetos\\cristal_aceso_gelo.png"
+  },
+  "objetos/cristal_aceso_fogo": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T02:51:31",
+    "previa": "art\\ia\\previa\\objetos__cristal_aceso_fogo.png",
+    "arquivo": "game\\assets\\objetos\\cristal_aceso_fogo.png"
+  },
+  "objetos/cristal_aceso_raio": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T02:51:31",
+    "previa": "art\\ia\\previa\\objetos__cristal_aceso_raio.png",
+    "arquivo": "game\\assets\\objetos\\cristal_aceso_raio.png"
+  },
+  "tocha_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:52:03",
+    "previa": "art\\ia\\previa\\tocha_base.png",
+    "arquivo": null
+  },
+  "objetos/tocha": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T02:53:43",
+    "previa": "art\\ia\\previa\\objetos__tocha.png",
+    "arquivo": "game\\assets\\objetos\\tocha.png"
+  },
+  "objetos/porta": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:19:43",
+    "previa": "art\\ia\\previa\\objetos__porta.png",
+    "arquivo": "game\\assets\\objetos\\porta.png"
+  },
+  "objetos/bau_fechado": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:07:58",
+    "previa": "art\\ia\\previa\\objetos__bau_fechado.png",
+    "arquivo": "game\\assets\\objetos\\bau_fechado.png"
+  },
+  "enxame/mergulhar": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:09:08",
+    "previa": "art\\ia\\previa\\enxame__mergulhar.png",
+    "arquivo": "game\\assets\\enxame\\mergulhar.png"
+  },
+  "elemental/morrer_fogo": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:20:52",
+    "previa": "art\\ia\\previa\\elemental__morrer_fogo.png",
+    "arquivo": "game\\assets\\elemental\\morrer_fogo.png"
+  },
+  "elemental/morrer_gelo": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T03:20:52",
+    "previa": "art\\ia\\previa\\elemental__morrer_gelo.png",
+    "arquivo": "game\\assets\\elemental\\morrer_gelo.png"
+  },
+  "elemental/morrer_planta": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T03:20:52",
+    "previa": "art\\ia\\previa\\elemental__morrer_planta.png",
+    "arquivo": "game\\assets\\elemental\\morrer_planta.png"
+  },
+  "guardiao/morrer": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:22:49",
+    "previa": "art\\ia\\previa\\guardiao__morrer.png",
+    "arquivo": "game\\assets\\guardiao\\morrer.png"
+  },
+  "mago/morrer": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:14:38",
+    "previa": "art\\ia\\previa\\mago__morrer.png",
+    "arquivo": "game\\assets\\mago\\morrer.png"
+  },
+  "impacto_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:23:35",
+    "previa": "art\\ia\\previa\\impacto_base.png",
+    "arquivo": null
+  },
+  "magia/impacto_fogo": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:25:31",
+    "previa": "art\\ia\\previa\\magia__impacto_fogo.png",
+    "arquivo": "game\\assets\\magia\\impacto_fogo.png"
+  },
+  "magia/impacto_gelo": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T03:25:31",
+    "previa": "art\\ia\\previa\\magia__impacto_gelo.png",
+    "arquivo": "game\\assets\\magia\\impacto_gelo.png"
+  },
+  "magia/impacto_raio": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T03:25:31",
+    "previa": "art\\ia\\previa\\magia__impacto_raio.png",
+    "arquivo": "game\\assets\\magia\\impacto_raio.png"
+  },
+  "aura_base": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:25:58",
+    "previa": "art\\ia\\previa\\aura_base.png",
+    "arquivo": null
+  },
+  "magia/meditar": {
+    "situacao": "pronto",
+    "gasto": 1.0,
+    "quando": "2026-10-27T03:27:24",
+    "previa": "art\\ia\\previa\\magia__meditar.png",
+    "arquivo": "game\\assets\\magia\\meditar.png"
+  },
+  "objetos/porta_abrindo": {
+    "situacao": "pendente"
+  },
+  "objetos/bau_abrindo": {
+    "situacao": "pendente"
+  },
+  "objetos/placa": {
+    "situacao": "pendente"
+  },
+  "guardiao/escudo_planta": {
+    "situacao": "pronto",
+    "gasto": 0,
+    "quando": "2026-10-27T04:02:48",
+    "previa": "art\\ia\\previa\\guardiao__escudo_planta.png",
+    "arquivo": "game\\assets\\guardiao\\escudo_planta.png"
+  }
+}

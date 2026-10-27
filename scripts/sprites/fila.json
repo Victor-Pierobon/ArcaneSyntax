@@ -1,0 +1,132 @@
+{
+  "LEIAME": "Fila do gerador de sprites (spec ART-gerador), em ordem de prioridade. id com barra = arquivo do jogo (game/assets/<id>.png); sem barra = base para outros itens. Custo estimado: imagem 1, animacao 1, troca_cor 0. Paleta e escolas: docs/arte/ArcaneSyntax_Guia_de_Estilo_Visual.md.",
+  "estilo": "pixel art game sprite, side-scroller view, dark fantasy dungeon of an abandoned wizard tower, 1 pixel dark blue-black outline, selective detail, light coming from above, no pillow shading, crisp pixels, no anti-aliasing, no blur, no glow halo",
+  "paleta": [
+    "#10131F", "#1B2233", "#293647", "#263D3D",
+    "#39434A", "#505B60", "#6C7778", "#90958A", "#B8B29A",
+    "#D65C38", "#F2A64A", "#FFE3A1",
+    "#B94336", "#F07842", "#FFD071",
+    "#477FAD", "#83CFE0", "#D8F6F2",
+    "#6258B9", "#A59BFF", "#F0E7FF",
+    "#436B4B", "#78B86C", "#C3E69A",
+    "#5A4291", "#8A5530", "#4E2C24"
+  ],
+  "escolas": {
+    "fogo": ["#B94336", "#D65C38", "#F07842", "#F2A64A", "#FFD071", "#FFE3A1"],
+    "gelo": ["#477FAD", "#83CFE0", "#D8F6F2"],
+    "raio": ["#6258B9", "#A59BFF", "#F0E7FF"],
+    "planta": ["#436B4B", "#78B86C", "#C3E69A"]
+  },
+  "itens": [
+    {"id": "mago_base", "tipo": "imagem", "tamanho": [48, 48], "aprovar": true,
+     "prompt": "small apprentice mage about 32 pixels tall, compact tapered silhouette, a big deep indigo hood as the main shape, face hidden in shadow with two tiny cyan eye pixels, narrow shoulders, robe that flares open at the bottom, small feet, a small glowing cyan rune clasp on a spellbook at the hip, holding a short wooden staff no taller than the character, standing, facing right, empty space around the character"},
+    {"id": "mago/parado", "tipo": "animacao", "de": "mago_base", "quadros": 4, "acao": "idle breathing, only the robe hem and hood move slightly, feet stay planted"},
+    {"id": "mago/andar", "tipo": "animacao", "de": "mago_base", "quadros": 8, "acao": "walking to the right at a steady pace, robe swaying a few pixels, feet on the same ground line"},
+    {"id": "mago/pular", "tipo": "animacao", "de": "mago_base", "quadros": 4, "acao": "jumping up, crouch anticipation then rising, robe flowing downward"},
+    {"id": "mago/cair", "tipo": "animacao", "de": "mago_base", "quadros": 4, "acao": "falling down, robe fluttering upward, arms slightly raised"},
+    {"id": "mago/conjurar", "tipo": "animacao", "de": "mago_base", "quadros": 6, "acao": "casting a spell, hood tilts forward, thrusts the staff forward and a small cyan rune flashes at its tip"},
+    {"id": "mago/esquivar", "tipo": "animacao", "de": "mago_base", "quadros": 4, "acao": "quick low dash forward to dodge, body leaning forward, robe trailing behind"},
+    {"id": "mago/cajado", "tipo": "animacao", "de": "mago_base", "quadros": 4, "acao": "short anticipation then swinging the staff forward in a quick melee strike"},
+    {"id": "mago/meditar", "tipo": "animacao", "de": "mago_base", "quadros": 4, "acao": "meditating calmly with eyes closed, floating up and down one or two pixels, hood lowered, no symbols or particles above the head"},
+    {"id": "mago/dano", "tipo": "animacao", "de": "mago_base", "quadros": 4, "acao": "getting hit, recoiling backward, hood knocked back slightly"},
+
+    {"id": "projetil_fogo_base", "tipo": "imagem", "tamanho": [16, 16], "alinhar": "centro", "escola": "fogo",
+     "prompt": "small round fireball projectile flying to the right, compact bright yellow core, orange flame body, short flame tail behind it"},
+    {"id": "magia/projetil_fogo", "tipo": "animacao", "de": "projetil_fogo_base", "quadros": 4, "acao": "flame tail flickering while flying"},
+    {"id": "projetil_gelo_base", "tipo": "imagem", "tamanho": [16, 16], "alinhar": "centro", "escola": "gelo",
+     "prompt": "sharp angular ice shard projectile pointing to the right, pale cyan facets, white tip, straight and rigid"},
+    {"id": "magia/projetil_gelo", "tipo": "animacao", "de": "projetil_gelo_base", "quadros": 4, "acao": "spinning slightly with a facet glint while flying straight"},
+    {"id": "projetil_raio_base", "tipo": "imagem", "tamanho": [16, 16], "alinhar": "centro", "escola": "raio",
+     "prompt": "jagged zigzag lightning bolt projectile pointing to the right, thin sharp violet and lavender electric arcs, small near-white core, no orange, no round bullet shape"},
+    {"id": "magia/projetil_raio", "tipo": "animacao", "de": "projetil_raio_base", "quadros": 4, "acao": "crackling, the zigzag arcs jumping between shapes"},
+
+    {"id": "faisca_base", "tipo": "imagem", "tamanho": [16, 16], "alinhar": "centro", "escola": "fogo",
+     "prompt": "tiny magic spark, small four-pointed star ember, orange with a yellow center"},
+    {"id": "magia/faisca_fogo", "tipo": "animacao", "de": "faisca_base", "quadros": 4, "acao": "twinkling, the points growing and shrinking"},
+    {"id": "magia/faisca_gelo", "tipo": "troca_cor", "de": "magia/faisca_fogo", "escola": "gelo"},
+    {"id": "magia/faisca_raio", "tipo": "troca_cor", "de": "magia/faisca_fogo", "escola": "raio"},
+
+    {"id": "escudo_base", "tipo": "imagem", "tamanho": [48, 48], "alinhar": "centro", "escola": "fogo", "opcoes": {"direction": "south"},
+     "prompt": "round magic shield ring, thin orange fire ring made of small geometric rune symbols like brackets and connected dots, empty transparent center, front view"},
+    {"id": "magia/escudo_fogo", "tipo": "animacao", "de": "escudo_base", "quadros": 4, "acao": "runes on the ring slowly rotating and pulsing"},
+    {"id": "magia/escudo_gelo", "tipo": "troca_cor", "de": "magia/escudo_fogo", "escola": "gelo"},
+    {"id": "magia/escudo_raio", "tipo": "troca_cor", "de": "magia/escudo_fogo", "escola": "raio"},
+
+    {"id": "serpente_base", "tipo": "imagem", "tamanho": [32, 32], "aprovar": true,
+     "prompt": "wise old snake mentor, S-shaped body with the head raised high and the tail coiled on the ground, dark teal-blue scales, pale rune-like markings following the curve of the body, one expressive amber eye, elongated snout, scholarly calm posture, facing right"},
+    {"id": "serpente/parada", "tipo": "animacao", "de": "serpente_base", "quadros": 4, "acao": "slow deliberate idle, head swaying gently, coil breathing"},
+    {"id": "serpente/falando", "tipo": "animacao", "de": "serpente_base", "quadros": 4, "acao": "talking, head tilting as if explaining something, mouth opening and closing"},
+
+    {"id": "elemental_base", "tipo": "imagem", "tamanho": [32, 32], "escola": "fogo",
+     "prompt": "small angular living flame creature, asymmetric jagged flame body, dark ember outline, two fierce yellow eyes, standing on the ground, facing right, isolated character on a plain empty background, no scenery, no cave, no walls"},
+    {"id": "elemental/andar_fogo", "tipo": "animacao", "de": "elemental_base", "quadros": 6, "acao": "walking forward, jagged flames flickering"},
+    {"id": "elemental/andar_gelo", "tipo": "troca_cor", "de": "elemental/andar_fogo", "escola": "gelo"},
+    {"id": "elemental/andar_planta", "tipo": "troca_cor", "de": "elemental/andar_fogo", "escola": "planta"},
+
+    {"id": "enxame_base", "tipo": "imagem", "tamanho": [16, 16], "alinhar": "centro",
+     "prompt": "tiny flying ice creature, compact round body with wide wings, pale cyan and dark blue, angular wing tips, facing right"},
+    {"id": "enxame/voar", "tipo": "animacao", "de": "enxame_base", "quadros": 4, "acao": "clear wing beats while hovering, not too fast"},
+
+    {"id": "guardiao_base", "tipo": "imagem", "tamanho": [48, 48],
+     "prompt": "rune sentinel guardian, blocky stone body with hard corners, dark grey basalt stone, one glowing cyan rune at the center of the chest, a round stone shield on the front arm, heavy legs, standing, facing right, about 40 pixels tall"},
+    {"id": "guardiao/andar", "tipo": "animacao", "de": "guardiao_base", "quadros": 4, "acao": "slow heavy walk forward, body shifting weight"},
+
+    {"id": "escudo_guardiao_base", "tipo": "imagem", "tamanho": [32, 32], "alinhar": "centro", "escola": "fogo", "opcoes": {"direction": "south"},
+     "prompt": "round stone shield with a glowing orange geometric rune in the center and an orange glowing rim, front view"},
+    {"id": "guardiao/escudo_fogo", "tipo": "animacao", "de": "escudo_guardiao_base", "quadros": 4, "acao": "rune glow pulsing slowly"},
+    {"id": "guardiao/escudo_gelo", "tipo": "troca_cor", "de": "guardiao/escudo_fogo", "escola": "gelo"},
+    {"id": "guardiao/escudo_planta", "tipo": "troca_cor", "de": "guardiao/escudo_fogo", "escola": "planta"},
+
+    {"id": "objetos/cristal_apagado", "tipo": "imagem", "tamanho": [16, 16], "opcoes": {"direction": null},
+     "prompt": "small angular crystal cluster on the ground, dull dark blue, unlit, no glow"},
+    {"id": "cristal_base", "tipo": "imagem", "tamanho": [16, 16], "escola": "gelo", "opcoes": {"direction": null},
+     "prompt": "small angular crystal cluster on the ground, lit, bright cyan core and one or two pale facets"},
+    {"id": "objetos/cristal_aceso_gelo", "tipo": "animacao", "de": "cristal_base", "quadros": 4, "acao": "core glow pulsing gently, one small facet glint"},
+    {"id": "objetos/cristal_aceso_fogo", "tipo": "troca_cor", "de": "objetos/cristal_aceso_gelo", "escola": "fogo"},
+    {"id": "objetos/cristal_aceso_raio", "tipo": "troca_cor", "de": "objetos/cristal_aceso_gelo", "escola": "raio"},
+
+    {"id": "tocha_base", "tipo": "imagem", "tamanho": [16, 16], "opcoes": {"direction": null},
+     "prompt": "wall torch, dark iron holder, compact orange flame with a few yellow pixels in the core"},
+    {"id": "objetos/tocha", "tipo": "animacao", "de": "tocha_base", "quadros": 4, "acao": "flame flickering gently"},
+
+    {"id": "objetos/porta", "tipo": "imagem", "tamanho": [16, 16], "opaco": true, "opcoes": {"direction": null},
+     "prompt": "seamless repeating texture tile of a dark stone dungeon door surface, flat front view filling the whole square edge to edge, vertical iron bands at the sides, faint carved geometric runes like brackets and arrows, no arch, no frame, no top or bottom edge"},
+    {"id": "objetos/bau_fechado", "tipo": "imagem", "tamanho": [32, 32],
+     "prompt": "closed old wooden treasure chest with dark iron bands and a small cyan rune on the lock, on the ground"},
+
+    {"id": "enxame/mergulhar", "tipo": "animacao", "de": "enxame_base", "quadros": 4, "acao": "diving down and forward to attack, wings folded back"},
+    {"id": "elemental/morrer_fogo", "tipo": "animacao", "de": "elemental_base", "quadros": 4, "acao": "dying: the flame body flickers, shrinks smaller each frame and breaks into a few embers, by the last frame almost nothing is left"},
+    {"id": "elemental/morrer_gelo", "tipo": "troca_cor", "de": "elemental/morrer_fogo", "escola": "gelo"},
+    {"id": "elemental/morrer_planta", "tipo": "troca_cor", "de": "elemental/morrer_fogo", "escola": "planta"},
+    {"id": "guardiao/morrer", "tipo": "animacao", "de": "guardiao_base", "quadros": 4, "acao": "dying: the chest rune goes dark, the stone body cracks, falls apart and collapses down into a low pile of rocks on the ground by the last frame"},
+    {"id": "mago/morrer", "tipo": "animacao", "de": "mago_base", "quadros": 6, "acao": "collapsing to the ground, the hood falls and the robe lies flat, the staff drops"},
+
+    {"id": "impacto_base", "tipo": "imagem", "tamanho": [16, 16], "alinhar": "centro", "escola": "fogo", "opcoes": {"direction": null},
+     "prompt": "small fire hit burst effect only, a compact star-shaped orange explosion with a yellow center and a few flying sparks, nothing else, no object, no container, no stone, isolated on a plain empty background"},
+    {"id": "magia/impacto_fogo", "tipo": "animacao", "de": "impacto_base", "quadros": 4, "acao": "the burst expands quickly, then breaks into a few sparks that fade away to nothing"},
+    {"id": "magia/impacto_gelo", "tipo": "troca_cor", "de": "magia/impacto_fogo", "escola": "gelo"},
+    {"id": "magia/impacto_raio", "tipo": "troca_cor", "de": "magia/impacto_fogo", "escola": "raio"},
+
+    {"id": "aura_base", "tipo": "imagem", "tamanho": [48, 48], "alinhar": "centro", "opcoes": {"direction": "south"},
+     "prompt": "magic effect only: a thin circle of small floating cyan rune symbols like brackets and dots, empty transparent center, isolated on a plain empty background, no scenery, no character, no floor, no walls"},
+    {"id": "magia/meditar", "tipo": "animacao", "de": "aura_base", "quadros": 6, "acao": "rune symbols slowly rising and circling, soft pulse"},
+
+    {"id": "objetos/bau_abrindo", "tipo": "animacao", "de": "objetos/bau_fechado", "quadros": 4, "acao": "the lid opens upward and a small cyan glow comes out"},
+    {"id": "objetos/porta_abrindo", "tipo": "animacao", "de": "objetos/porta", "quadros": 4, "acao": "the door slides up and disappears into the ceiling"},
+    {"id": "objetos/placa", "tipo": "imagem", "tamanho": [16, 16], "opcoes": {"direction": null},
+     "prompt": "raised square stone pressure plate on the floor with a faint carved rune, side view, flat slab two pixels above the floor"},
+    {"id": "objetos/placa_pisada", "tipo": "imagem", "tamanho": [16, 16], "opcoes": {"direction": null},
+     "prompt": "pressed down square stone pressure plate flush with the floor, the carved rune glowing cyan, side view"},
+    {"id": "objetos/cadeado", "tipo": "imagem", "tamanho": [16, 16], "opcoes": {"direction": null},
+     "prompt": "magic stone rune lock with three small dials, each dial marked with a geometric symbol, faint cyan glow"},
+    {"id": "fonte_base", "tipo": "imagem", "tamanho": [32, 32], "opcoes": {"direction": null},
+     "prompt": "small old stone fountain basin with glowing cyan magical water, carved runes on the rim"},
+    {"id": "objetos/fonte", "tipo": "animacao", "de": "fonte_base", "quadros": 4, "acao": "water rippling and gently glowing, a few small droplets"},
+    {"id": "serpente/retrato", "tipo": "imagem", "tamanho": [64, 64], "opcoes": {"direction": "south-east"},
+     "prompt": "dialogue portrait bust of a wise old snake mentor, dark teal-blue scales, pale rune-like markings, one expressive amber eye, elongated snout, calm scholarly expression"},
+
+    {"id": "cenario/fundo_1", "tipo": "imagem", "tamanho": [640, 360], "alinhar": "nenhum", "opaco": true,
+     "opcoes": {"no_background": false, "direction": null, "outline": "lineless", "detail": "low detail"},
+     "prompt": "far background of a dark dungeon at the bottom of an abandoned wizard tower, distant stone arches, pillars, hanging chains and broken gothic windows, desaturated deep blues and greys, very low contrast, misty depth, no characters, no platforms in the foreground, seamless horizontally tileable"}
+  ]
+}

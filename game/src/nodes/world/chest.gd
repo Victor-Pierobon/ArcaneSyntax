@@ -8,6 +8,8 @@ const COLOR_GOLD := Color("ffd27a")
 
 var secret_id := ""
 var is_open := false
+## `objetos/bau_fechado` e `bau_abrindo` (ART-esteira, regra 27); null: o baú desenhado.
+var art_sprite: AnimatedSprite2D
 
 
 static func make(p_secret_id: String, opened: bool) -> Chest:
@@ -18,17 +20,42 @@ static func make(p_secret_id: String, opened: bool) -> Chest:
 	return chest
 
 
+func _ready() -> void:
+	art_sprite = ArtLibrary.sprite("objetos", ["bau_fechado", "bau_abrindo"])
+	if art_sprite and not art_sprite.sprite_frames.has_animation("bau_fechado"):
+		art_sprite = null
+	if art_sprite:
+		add_child(art_sprite)
+		_refresh_art(false)
+
+
+## Aberto: o último quadro de `bau_abrindo` (tocado ao abrir) ou o fechado escurecido.
+func _refresh_art(animate: bool) -> void:
+	if art_sprite == null or not is_open:
+		return
+	if art_sprite.sprite_frames.has_animation("bau_abrindo"):
+		art_sprite.play("bau_abrindo")
+		if not animate:
+			art_sprite.frame = art_sprite.sprite_frames.get_frame_count("bau_abrindo") - 1
+			art_sprite.pause()
+	else:
+		art_sprite.modulate = Color(0.55, 0.55, 0.55)
+
+
 ## Devolve false se já estava aberto.
 func open() -> bool:
 	if is_open:
 		return false
 	is_open = true
+	_refresh_art(true)
 	queue_redraw()
 	Fx.burst(self, Vector2(0, -10), COLOR_GOLD, 14, true)
 	return true
 
 
 func _draw() -> void:
+	if art_sprite:
+		return
 	draw_rect(Rect2(-6, -9, 12, 9), COLOR_WOOD)
 	draw_rect(Rect2(-6, -9, 12, 9), COLOR_GOLD, false, 1.0)
 	if is_open:

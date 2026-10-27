@@ -115,3 +115,14 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 - Plano da Alpha 1.1 (`docs/plano-alpha-1-1.md`, Sprints 16 a 21): esteira de arte e provisório melhor, chefe 2.0 (três fases, movimento, pilares do chão, ~90 de vida, "parado perde"), as 13 salas refeitas, luz e partículas, build 1.1.
 - Arte mista (decisão do Victor): cenário de pacote recolorido; mago, serpente, inimigos, chefe, efeitos e interface próprios. Roteiro e contrato dos arquivos em `docs/arte/identidade-visual.md`.
 - Próximo: Victor revisa e commita; começa a paleta e a ficha de estilo. Assistente: Sprint 16.
+
+## 2026-10-27 (Sprint 16)
+
+- A Sprint 15 e o plano da 1.1 foram commitados (`8f037f4`). O Victor está pensando em fazer toda a arte com IA; a esteira serve para os dois caminhos.
+- Esteira de arte (ART-esteira): o jogo procura `game/assets/<pasta>/<animação>.png` pelo contrato de `content/arte.json` e usa o provisório quando falta. Um teste confere cada PNG entregue: tamanho do quadro, nome, pixel semitransparente e cor fora da paleta (os erros típicos de IA).
+- Provisório novo: paredes com bordas (16 formas pela vizinhança, tileset montado por código), fundo em três camadas com paralaxe e um mago desenhado por código que anima (parado, andar, pular, cair, esquivar, conjurar, meditar, cajado, dano), por uma regra pura.
+- Bugs com regressão, achados por captura de tela: o fundo aparecia em volta das salas menores que a tela (moldura escura); o nome "fogo" sobre o inimigo saía embaralhado (desenho preso aos pixels). Mutação: 14 de 14 (um teste reforçado). 494 GdUnit4 e 145 pytest verdes.
+- Primeira leva de arte do Victor (PixelLab, `scripts/sprites/gerar.py`): 47 arquivos, todos dentro do contrato. Ligado o que faltava: impacto, aura de meditar, morte e mergulho dos inimigos, escudo do guardião, cristal, porta, baú e tocha (regras 21 a 28).
+- Bugs com regressão: o contrato pedia o escudo do guardião em raio, mas o jogo usa planta (o `escudo_planta` saiu por troca de cor, sem gastar geração); nome e barra de vida caíam em cima da arte (altura pelo desenho). Mutação da leva: 14 de 14 (dois testes reforçados). 508 GdUnit4, 145 pytest e 32 do gerador verdes.
+- A porta gerada veio com moldura e não se repete bem na vertical: sugerido `refazer objetos/porta`.
+- Próximo: Victor revisa e commita; Sprint 17 (chefe 2.0).
