@@ -45,14 +45,14 @@ func _assert_solved(expected: bool, label: String) -> void:
 
 ## Percorre a sala: cadeado, ponte, cristal e colunas, cada etapa com o seu feitiço.
 func _play_room(lock: String, bridge: String, crystal: Array, climb: Array, cross_walking := true) -> void:
-	await driver.place(Vector2i(10, 13))
+	await driver.place(Vector2i(10, 19))
 	await driver.cast(lock)
-	await driver.place(Vector2i(14, 13))
+	await driver.place(Vector2i(14, 19))
 	await driver.cast(bridge)
 	if cross_walking:
 		await driver.walk_until_x(26 * 16.0 + 8)
 	else:
-		await driver.place(Vector2i(26, 13))
+		await driver.place(Vector2i(26, 19))
 	for code: String in crystal:
 		await driver.cast(code)
 	await driver.walk_until_x(35 * 16.0)
@@ -80,9 +80,9 @@ func test_PUZ_070_B_detalhada() -> void:
 
 
 func test_PUZ_070_C_passivo_e_funcoes() -> void:
-	await driver.place(Vector2i(10, 13))
+	await driver.place(Vector2i(10, 19))
 	await driver.cast("inscrever(ler_runa(1) + ler_runa(2) + ler_runa(3))")
-	await driver.place(Vector2i(14, 13))
+	await driver.place(Vector2i(14, 19))
 	await driver.cast("def ponte(n):\n    for i in range(n):\n        construir_bloco()\nponte(8)")
 	await driver.walk_until_x(26 * 16.0 + 8)
 	await driver.run_passive(CRISTAL_IF, 4.0)

@@ -427,5 +427,51 @@
     "quando": "2026-10-27T04:02:48",
     "previa": "art\\ia\\previa\\guardiao__escudo_planta.png",
     "arquivo": "game\\assets\\guardiao\\escudo_planta.png"
+  },
+  "chefe_base": {
+    "situacao": "erro",
+    "erro": "HTTP 402 em /create-image-pixen: {\"detail\":\"We're seeing long queues right now and free generations are temporarily unavailable. A subscription or credits work immediately. Questions? Tell us on Discord.\"}"
+  },
+  "chefe/parado_planta": {
+    "situacao": "pendente"
+  },
+  "chefe/parado_gelo": {
+    "situacao": "pendente"
+  },
+  "chefe/golpe_planta": {
+    "situacao": "pendente"
+  },
+  "chefe/mover_gelo": {
+    "situacao": "pendente"
+  },
+  "chefe/orbe_fogo": {
+    "situacao": "pendente"
+  },
+  "chefe/morrer": {
+    "situacao": "pendente"
+  },
+  "chefe/golpe_gelo": {
+    "situacao": "pendente"
+  },
+  "chefe/golpe_fogo": {
+    "situacao": "pendente"
+  },
+  "chefe/troca": {
+    "situacao": "pendente"
+  },
+  "chefe/orbe_planta": {
+    "situacao": "pendente"
+  },
+  "chefe/orbe_gelo": {
+    "situacao": "pendente"
+  },
+  "chefe/mover_planta": {
+    "situacao": "pendente"
+  },
+  "chefe/parado_fogo": {
+    "situacao": "pendente"
+  },
+  "chefe/mover_fogo": {
+    "situacao": "pendente"
   }
 }

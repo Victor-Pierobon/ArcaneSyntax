@@ -68,6 +68,8 @@ var _enemies: Array[Enemy] = []
 var _serpents: Array[Serpent] = []
 var _chests: Array[Chest] = []
 var _fountains: Array[Fountain] = []
+var _moving: Array[MovingPlatform] = []
+var _falling: Array[FallingPlatform] = []
 
 
 func _ready() -> void:
@@ -76,6 +78,7 @@ func _ready() -> void:
 	data = RoomLayout.parse(layout)
 	errors.append_array(data.errors)
 	_build_tiles()
+	_build_platforms()
 	_build_exits()
 	_build_targets()
 	_build_puzzle()
@@ -160,6 +163,14 @@ func fountains() -> Array[Fountain]:
 
 
 ## A porta de atalho (`%`) está aberta; true se a sala não tem uma.
+func moving_platforms() -> Array[MovingPlatform]:
+	return _moving
+
+
+func falling_platforms() -> Array[FallingPlatform]:
+	return _falling
+
+
 func shortcut_open() -> bool:
 	return _shortcut_door == null or _shortcut_door.is_open
 
@@ -270,6 +281,27 @@ func _build_tiles() -> void:
 		tiles.set_cell(cell, 0, TileShape.PLATFORM)
 	for cell in data.spikes:
 		tiles.set_cell(cell, 0, TileShape.SPIKES)
+
+
+## Plataformas que se movem e que caem, desenhadas com a plataforma do tileset (MUN-plataformas).
+func _build_platforms() -> void:
+	var texture: Texture2D = (tiles.tile_set.get_source(0) as TileSetAtlasSource).texture
+	var region := Rect2(Vector2(TileShape.PLATFORM * TILE), Vector2(TILE, TILE))
+	for mover in data.moving_platforms:
+		var start: Vector2i = mover["start"]
+		var end: Vector2i = mover["end"]
+		var platform := MovingPlatform.make(Vector2(start * TILE), Vector2(end * TILE), mover["width"])
+		platform.tile_texture = texture
+		platform.tile_region = region
+		_moving.append(platform)
+		add_child(platform)
+	for rect in data.falling_platforms:
+		var faller := FallingPlatform.make(Vector2(rect.position * TILE), rect.size.x)
+		faller.player = player as CharacterBody2D
+		faller.tile_texture = texture
+		faller.tile_region = region
+		_falling.append(faller)
+		add_child(faller)
 
 
 ## As 16 formas de pedra com colisão inteira, a plataforma com uma faixa de 4 px atravessável por baixo

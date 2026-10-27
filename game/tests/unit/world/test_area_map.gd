@@ -89,5 +89,6 @@ func test_MUN_083_licoes_declaradas_existem() -> void:
 			assert_bool(scenes.has(lesson)).override_failure_message("%s: lição %s não existe" % [room_id, lesson]).is_true()
 
 
-func test_MUN_090_a_area_tem_dois_segredos() -> void:
-	assert_array(_game().secret_ids()).contains_exactly_in_any_order(["sala_02_8", "sala_03_8"])
+func test_MUN_090_a_area_tem_cinco_segredos() -> void:
+	assert_array(_game().secret_ids()).contains_exactly_in_any_order(
+			["sala_01_8", "sala_02_8", "sala_03_8", "sala_p03_8", "sala_p06_8"])

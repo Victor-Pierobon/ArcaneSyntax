@@ -411,3 +411,76 @@ def test_ART_114_maximo_conta_as_tentativas_com_sobrecarga(tmp_path, monkeypatch
     monkeypatch.setattr(gerar, "token", lambda: "x")
     gerar.main(["rodar", "--maximo", "1"])
     assert falso.chamadas == ["imagem"]
+
+
+def _usar_fila(gerar, tmp_path, monkeypatch, itens, cliente):
+    fila_json = tmp_path / "fila.json"
+    config = sprites.carregar_config(PASTA / "fila.json")
+    config["itens"] = itens
+    fila_json.write_text(json.dumps(config), encoding="utf-8")
+    for nome_var, valor in {"FILA": fila_json, "ASSETS": tmp_path / "assets", "RAIZ": tmp_path,
+                            "ESTADO": tmp_path / "ia/estado.json", "BRUTOS": tmp_path / "ia/b",
+                            "PRONTOS": tmp_path / "ia/p", "PREVIA": tmp_path / "ia/v"}.items():
+        monkeypatch.setattr(gerar, nome_var, valor)
+    monkeypatch.setattr(gerar.pixellab, "Cliente", lambda *a, **k: cliente)
+    monkeypatch.setattr(gerar, "token", lambda: "x")
+
+
+class ClienteDoPilar(ClienteFalso):
+    """Desenha uma coluna no meio e marca as bordas, para ver o recorte; anima sumindo."""
+
+    def criar_imagem(self, descricao, tamanho, opcoes):
+        self.chamadas.append(("imagem", tuple(tamanho)))
+        img = bloco(tuple(tamanho), 12, 4, 19, tamanho[1] - 3)
+        img.putpixel((0, 10), (255, 255, 255, 255))
+        img.putpixel((tamanho[0] - 1, 10), (255, 255, 255, 255))
+        return img, 1
+
+    def animar(self, primeiro, acao, quadros):
+        self.chamadas.append(("animar", primeiro.size))
+        vazio = Image.new("RGBA", primeiro.size, (0, 0, 0, 0))
+        return [primeiro.copy()] + [vazio.copy() for _ in range(quadros - 1)], 1
+
+
+PILAR = [
+    {"id": "pilar_base", "tipo": "imagem", "tamanho": [16, 64], "gerar": [32, 64], "prompt": "p"},
+    {"id": "chefe/pilar", "tipo": "animacao", "de": "pilar_base", "acao": "a", "quadros": 4, "inverter": True},
+]
+
+
+# ART-115
+def test_ART_115_gera_maior_e_recorta_o_meio(tmp_path, monkeypatch):
+    import gerar
+
+    falso = ClienteDoPilar()
+    _usar_fila(gerar, tmp_path, monkeypatch, PILAR[:1], falso)
+    assert gerar.main(["rodar"]) == 0
+    assert falso.chamadas[0] == ("imagem", (32, 64))
+    base = Image.open(tmp_path / "ia/p" / "pilar_base.png").convert("RGBA")
+    assert base.size == (16, 64)
+    brancos = [p for p in sprites.pixels(base) if p[3] and p[:3] == (255, 255, 255)]
+    assert brancos == []  # as bordas da imagem gerada ficaram de fora
+    assert caixa(base)[2] - caixa(base)[0] == 8  # a coluna inteira ficou
+
+
+def test_ART_115_gerar_menor_que_o_tamanho_e_erro():
+    fila = [{"id": "pilar_base", "tipo": "imagem", "tamanho": [16, 64], "gerar": [16, 32], "prompt": "p"}]
+    assert "gerar" in " ".join(sprites.validar_fila(fila, set()))
+
+
+# ART-116
+def test_ART_116_animacao_invertida_termina_na_imagem_pronta(tmp_path, monkeypatch):
+    import gerar
+
+    falso = ClienteDoPilar()
+    _usar_fila(gerar, tmp_path, monkeypatch, PILAR, falso)
+    assert gerar.main(["rodar"]) == 0
+    tira = Image.open(tmp_path / "assets/chefe/pilar.png").convert("RGBA")
+    quadros = sprites.quadros_da_tira(tira, (16, 64))
+    assert quadros[0].getchannel("A").getbbox() is None
+    assert quadros[-1].getchannel("A").getbbox() is not None
+
+    assert gerar.main(["relimpar", "chefe/pilar"]) == 0  # a limpeza de novo também inverte
+    tira = Image.open(tmp_path / "assets/chefe/pilar.png").convert("RGBA")
+    assert tira.size == (64, 64)
+    assert sprites.quadros_da_tira(tira, (16, 64))[0].getchannel("A").getbbox() is None

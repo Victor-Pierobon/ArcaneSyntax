@@ -24,6 +24,15 @@ var exits: Dictionary = {}
 ## Dígito → célula de um boneco de treino (spec MUN-alvos).
 var targets: Dictionary = {}
 var errors: Array[String] = []
+## Plataformas que se movem: {"start": primeira célula, "width", "end": primeira célula no outro extremo}
+## (MUN-plataformas, regra 1).
+var moving_platforms: Array[Dictionary] = []
+## Plataformas que caem: um retângulo de uma linha por plataforma.
+var falling_platforms: Array[Rect2i] = []
+
+var _movers: Array[Vector2i] = []
+var _path_ends: Array[Vector2i] = []
+var _fallers: Array[Vector2i] = []
 
 
 static func parse(text: String) -> RoomLayout:
@@ -37,6 +46,7 @@ static func parse(text: String) -> RoomLayout:
 		layout.width = maxi(layout.width, line.length())
 		for x in line.length():
 			layout._read(line[x], Vector2i(x, y))
+	layout._build_platforms()
 	return layout
 
 
@@ -82,6 +92,12 @@ func _read(c: String, cell: Vector2i) -> void:
 			bridge_cells.append(cell)
 		"_":
 			plates.append(cell)
+		"-":
+			_fallers.append(cell)
+		">":
+			_movers.append(cell)
+		"+":
+			_path_ends.append(cell)
 		".", " ":
 			pass
 		_:
@@ -101,3 +117,56 @@ func _read(c: String, cell: Vector2i) -> void:
 				exits[c].append(cell)
 			else:
 				errors.append("caractere desconhecido '%s' na linha %d, coluna %d" % [c, cell.y + 1, cell.x + 1])
+
+
+## Junta as células `-` e `>` em plataformas e dá a cada `>` o `+` dela (MUN-plataformas, regras 1 e 2).
+func _build_platforms() -> void:
+	for run in _runs(_fallers):
+		falling_platforms.append(Rect2i(run[0], Vector2i(run[1], 1)))
+	var free_ends := _path_ends.duplicate()
+	for run in _runs(_movers):
+		var start: Vector2i = run[0]
+		var width: int = run[1]
+		var best: Variant = null
+		var best_distance := 0
+		for end in free_ends:
+			var distance := -1
+			if end.y == start.y and end.x > start.x + width - 1:
+				distance = end.x - (start.x + width - 1)
+			elif end.y == start.y and end.x < start.x:
+				distance = start.x - end.x
+			elif end.x == start.x and end.y != start.y:
+				distance = absi(end.y - start.y)
+			if distance > 0 and (best == null or distance < best_distance):
+				best = end
+				best_distance = distance
+		var destination := start
+		if best == null:
+			errors.append("plataforma que se move sem + no caminho na linha %d, coluna %d" % [start.y + 1, start.x + 1])
+		else:
+			free_ends.erase(best)
+			var end: Vector2i = best
+			if end.y != start.y:
+				destination = Vector2i(start.x, end.y)
+			elif end.x > start.x:
+				destination = Vector2i(end.x - width + 1, start.y)
+			else:
+				destination = end
+		moving_platforms.append({"start": start, "width": width, "end": destination})
+	for end in free_ends:
+		errors.append("+ sem plataforma que se move na linha %d, coluna %d" % [end.y + 1, end.x + 1])
+
+
+## Sequências na mesma linha: [[primeira célula, largura], ...], em ordem de leitura.
+static func _runs(cells: Array[Vector2i]) -> Array:
+	var sorted := cells.duplicate()
+	sorted.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y < b.y or (a.y == b.y and a.x < b.x))
+	var runs := []
+	for cell: Vector2i in sorted:
+		if not runs.is_empty():
+			var last: Array = runs[-1]
+			if last[0].y == cell.y and last[0].x + last[1] == cell.x:
+				last[1] += 1
+				continue
+		runs.append([cell, 1])
+	return runs

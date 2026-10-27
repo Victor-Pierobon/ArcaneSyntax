@@ -12,7 +12,7 @@ func before_test() -> void:
 	driver = auto_free(PuzzleDriver.new())
 	add_child(driver)
 	await driver.start("sala_p04", GRIMOIRE_PATH)
-	await driver.place(Vector2i(6, 5))
+	await driver.place(Vector2i(10, 20))
 
 
 func after_test() -> void:
@@ -31,8 +31,8 @@ func _assert_stars(expected: int, cost: float, label: String) -> void:
 
 ## Atravessa a ponte andando até a porta (já aberta) e confere que não caiu.
 func _cross() -> void:
-	await driver.walk_until_x(26 * 16.0)
-	assert_float(driver.world.player.global_position.x).is_greater(24 * 16.0)
+	await driver.walk_until_x(31 * 16.0)
+	assert_float(driver.world.player.global_position.x).is_greater(27 * 16.0)
 	assert_int(driver.world.state.health.current).is_equal(5)
 
 

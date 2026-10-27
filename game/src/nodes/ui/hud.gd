@@ -11,6 +11,8 @@ var level_label := Label.new()
 var slots_label := Label.new()
 ## Feitiço passivo e se está ligado (spec MAG-passivo, MAG-057).
 var passive_label := Label.new()
+## Teclas do jogo, no fundo da tela.
+var hint_label := Label.new()
 
 var _grimoire: Grimoire
 
@@ -30,20 +32,20 @@ func _init() -> void:
 	box.add_child(mana_label)
 	box.add_child(mana_bar)
 	box.add_child(level_label)
-	# Dica de controles enquanto não há menu nem tutorial.
-	var hint := Label.new()
-	hint.text = "PROTOTIPO_DICA"
-	hint.position = Vector2(8, 344)
-	hint.add_theme_font_size_override(&"font_size", 8)
-	hint.modulate = Color(1, 1, 1, 0.6)
-	add_child(hint)
-	slots_label.position = Vector2(8, 330)
-	slots_label.add_theme_font_size_override(&"font_size", 8)
-	add_child(slots_label)
+	# Dica de controles enquanto não há tutorial, na última faixa da tela: sobre a pedra do chão ou a
+	# moldura, nunca sobre o mago (UI-hud, regra 5).
+	hint_label.text = "PROTOTIPO_DICA"
+	hint_label.position = Vector2(8, 349)
+	hint_label.add_theme_font_size_override(&"font_size", 8)
+	hint_label.modulate = Color(1, 1, 1, 0.6)
+	add_child(hint_label)
 	# No bloco do topo: perto do chão o texto cobria o mago (regressão MAG-057).
 	passive_label.add_theme_font_size_override(&"font_size", 8)
 	passive_label.text = "HUD_PASSIVO_VAZIO"
 	box.add_child(passive_label)
+	# Também no topo: com as salas do tamanho da tela, os atalhos ficavam nos pés do mago (UI-018).
+	slots_label.add_theme_font_size_override(&"font_size", 8)
+	box.add_child(slots_label)
 
 
 func bind(state: MagoState) -> void:

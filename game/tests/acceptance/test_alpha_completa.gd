@@ -126,7 +126,7 @@ func test_MUN_085_a_alpha_inteira() -> void:
 	assert_str(await _leave("b")).is_equal("sala_p04")
 	# P4: loops.
 	await _listen("9")
-	await driver.place(Vector2i(6, 5))
+	await driver.place(Vector2i(10, 20))
 	await driver.cast("for i in range(12):\n    construir_bloco()")
 	_assert_solved("p04_ponte")
 	assert_str(await _leave("b")).is_equal("sala_p05")
@@ -139,9 +139,9 @@ func test_MUN_085_a_alpha_inteira() -> void:
 	assert_str(await _leave("b")).is_equal("sala_p06")
 	# P6: revisão.
 	await _listen("9")
-	await driver.place(Vector2i(10, 13))
+	await driver.place(Vector2i(10, 19))
 	await driver.cast(SOMA_RUNAS)
-	await driver.place(Vector2i(14, 13))
+	await driver.place(Vector2i(14, 19))
 	await driver.cast("for i in range(8):\n    construir_bloco()")
 	await driver.walk_until_x(26 * 16.0 + 8)
 	for i in 2:
@@ -171,6 +171,7 @@ func test_MUN_085_a_alpha_inteira() -> void:
 			break
 		# Em cima da plataforma alta: nada acima do mago para parar o projétil.
 		await driver.place(Vector2i(12, 16))
+		await driver.wait_boss_above(boss)
 		await driver.cast(CHEFE, true, 150)
 		while is_instance_valid(boss) and not boss.is_defeated() and boss.phases.in_transition():
 			await driver.frames(1)
@@ -182,7 +183,7 @@ func test_MUN_085_a_alpha_inteira() -> void:
 	var text := main.end_screen.summary_text()
 	assert_str(text).contains(tr("FIM_PUZZLES") % [6, 6])
 	assert_str(text).contains(tr("FIM_LICOES") % [6, 6])
-	assert_str(text).contains(tr("FIM_SEGREDOS") % [2, 2])
+	assert_str(text).contains(tr("FIM_SEGREDOS") % [2, 5])
 	assert_array(visited).contains(["sala_01", "sala_02", "sala_03", "sala_p02", "sala_p03", "sala_p04", "sala_p05",
 			"sala_p06", "sala_c01", "sala_c02", "sala_c03", "sala_c04", "sala_fim"])
 	main.end_screen.confirm()

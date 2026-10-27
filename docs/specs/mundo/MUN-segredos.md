@@ -6,6 +6,9 @@
 
 ## Contexto
 
+> Sprint 18: as salas 02 e 03 foram refeitas e ganharam baús novos no lugar dos velhos (mesmo id), e entraram baús na `sala_01`, `sala_p03` e `sala_p06`. Cada um está descrito no relatório da Sprint 18; a regra 5 abaixo vale para a geometria da Sprint 14.
+
+
 Os corredores `sala_02` e `sala_03` ganharam um segredo cada. O Victor pediu (Sprint 14) que o jogador seja **recompensado por resolver o problema de várias formas, não de uma forma específica**. Por isso o baú não olha *como* o mago chegou, só *se* chegou: o mesmo pilar dos puzzles, que validam o estado do mundo e nunca o código.
 
 ## Fora do escopo
@@ -55,6 +58,12 @@ Itens e equipamentos (a Alpha não tem inventário). Segredos que exigem peças 
 ### MUN-095 — sala_03 só com movimento (aceitação)
 
 - Como MUN-093, na `sala_03`
+
+### MUN-096 a MUN-098 — Segredos da Alpha 1.1 (aceitação)
+
+- **Dado** a `sala_01`, a `sala_p03` e a `sala_p06` refeitas (Sprint 18), cada uma com um baú
+- **Então** cada baú abre com um feitiço (Python de verdade) e, em outro teste, só com movimento (pulo, esquiva, plataformas)
+- **E** a área tem 5 segredos (MUN-090 de `test_area_map`)
 
 ## Perguntas em aberto
 

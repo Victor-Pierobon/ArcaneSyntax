@@ -135,3 +135,12 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 - Aceitação com Python real, uma ação por segundo, vida 5 e mana 14: o mago parado morre aos 33 s (o chefe com 12 de 90); o que sai das marcas e esquiva vence aos 32 s com 3 de vida. O feitiço do dicionário vence as três fases em 15 conjurações (51 de mana).
 - Bugs com regressão: o projétil sumia depois de 12 tiles e não alcançava o chefe longe na arena (lendo o código); a marca do pilar ficava atrás do mago parado em cima dela (captura ampliada; agora o contorno do pilar pisca na frente). Mutação: 16 de 16.
 - Próximo: Victor revisa e commita, joga a luta (os 2 a 4 minutos e a margem do "parado perde" são para o playtest); depois Sprint 18 (salas I).
+
+## 2026-10-27 (Sprint 18)
+
+- O Victor jogou a luta do chefe 2.0 e commitou a Sprint 17 (`d8d36e6`). Escolheu as duas plataformas novas (a que se move e a que cai).
+- Plataformas no layout (`>` e `+`, `-`), com regras puras (`PlatformPath`, `FallingPlatformRule`) e nós que levam o mago. `WalkMap`: alcance a pé com os limites do pulo, para pegar degrau alto e sala sem volta.
+- As oito primeiras salas refeitas por script (`scripts/salas/salas18.py`): todas com pelo menos 40×22, altura, plataformas novas, espinhos, inimigos no caminho (elemental de fogo na `sala_02`, enxame na `sala_03`, elemental de gelo na chegada da `sala_p03`) e três baús novos (5 no total), cada um com caminho com feitiço e só com movimento. Os puzzles e as aceitações continuam os mesmos.
+- A HUD saiu do chão (atalhos no topo). Bugs com regressão: a HUD em cima dos pés do mago; a plataforma que cai igual à fixa (captura de tela); e um teste intermitente da Sprint 17 (na investida o chefe vai ao chão e o golpe de quem está na plataforma batia nela; os testes esperam a linha livre). Mutação: 15 de 17 (2 equivalentes). 578 GdUnit4, 145 pytest e 32 do gerador verdes.
+- Próximo: Victor revisa e commita, joga as salas novas; depois Sprint 19 (combate e fim).
+

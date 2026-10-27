@@ -205,7 +205,7 @@ func test_UI_017_fim_da_demo() -> void:
 	var text := main.end_screen.summary_text()
 	assert_str(text).contains(tr("FIM_PUZZLES") % [2, 6])
 	assert_str(text).contains(tr("FIM_ESTRELAS") % 4)
-	assert_str(text).contains(tr("FIM_SEGREDOS") % [1, 2])
+	assert_str(text).contains(tr("FIM_SEGREDOS") % [1, 5])
 	main.end_screen.confirm()
 	await _frames(2)
 	assert_object(main.world).is_null()

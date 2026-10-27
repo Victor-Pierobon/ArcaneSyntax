@@ -95,6 +95,7 @@ func test_COM_093_camera_parada() -> void:
 ## Conjura do lugar de sempre e espera a transição acabar, se ela começou.
 func _cast(code: String, boss: Boss) -> SpellResult:
 	await driver.place(HIGH_SPOT)
+	await driver.wait_boss_above(boss)
 	var result := await driver.cast(code, true, 150)
 	while is_instance_valid(boss) and not boss.is_defeated() and boss.phases.in_transition():
 		await driver.frames(1)

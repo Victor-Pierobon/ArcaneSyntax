@@ -94,7 +94,7 @@ def limpar(img, paleta):
 
 
 def fazer_imagem(cliente, item, config):
-    bruto, gasto = cliente.criar_imagem(item["prompt"], item["tamanho"], item.get("opcoes"))
+    bruto, gasto = cliente.criar_imagem(item["prompt"], item.get("gerar", item["tamanho"]), item.get("opcoes"))
     salvar(bruto, BRUTOS / nome(item["id"]))
     if not item.get("opaco") and sprites.sem_fundo(bruto):
         raise pixellab.ErroApi("a imagem veio com fundo (os cantos são opacos); refaça o item")
@@ -102,6 +102,10 @@ def fazer_imagem(cliente, item, config):
 
 
 def limpar_imagem(bruto, item, config):
+    largura, altura = item["tamanho"]
+    if bruto.size != (largura, altura):  # gerada maior (`gerar`): fica o meio
+        x, y = (bruto.width - largura) // 2, (bruto.height - altura) // 2
+        bruto = bruto.crop((x, y, x + largura, y + altura))
     img = limpar(bruto, config["paleta"])
     dx, dy = sprites.deslocamento(img, item.get("alinhar", "pes"))
     return sprites.deslocar(img, dx, dy)
@@ -112,11 +116,13 @@ def fazer_animacao(cliente, item, config):
     tela, _ = sprites.para_tela(base)
     quadros, gasto = cliente.animar(tela, item["acao"], item["quadros"])
     salvar(sprites.tira(quadros), BRUTOS / nome(item["id"]))
-    return limpar_quadros(quadros, base, config), gasto
+    return limpar_quadros(quadros, base, config, item.get("inverter")), gasto
 
 
-def limpar_quadros(quadros, base, config):
+def limpar_quadros(quadros, base, config, inverter=False):
     tela, origem = sprites.para_tela(base)
+    if inverter:
+        quadros = list(reversed(quadros))
     limpos = []
     for q in quadros:
         if q.size != tela.size:  # a API pode devolver outra tela: centraliza
@@ -299,7 +305,10 @@ def cmd_relimpar(args):
         img = limpar_imagem(bruto, item, config)
     else:
         base = primeiro_quadro(Image.open(PRONTOS / nome(item["de"])).convert("RGBA"))
-        img = limpar_quadros(sprites.quadros_da_tira(bruto, (bruto.height, bruto.height)), base, config)
+        tela, _ = sprites.para_tela(base)
+        quadro = tela.size if bruto.width % tela.width == 0 and bruto.height == tela.height \
+            else (bruto.height, bruto.height)
+        img = limpar_quadros(sprites.quadros_da_tira(bruto, quadro), base, config, item.get("inverter"))
     salvar(img, PRONTOS / nome(args.id))
     salvar(sprites.previa(img), PREVIA / nome(args.id))
     if sprites.instalavel(item) and feito_por_mim(estado, args.id):

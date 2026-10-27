@@ -36,6 +36,23 @@ func frames(count: int) -> void:
 		await get_tree().physics_frame
 
 
+## Espera `condition` ficar verdadeira, no máximo `max_frames` quadros.
+func wait_until(condition: Callable, max_frames := 600) -> void:
+	for i in max_frames:
+		if condition.call():
+			return
+		await get_tree().physics_frame
+
+
+## A plataforma em que o mago está para o projétil que desce (COM-chefe, Sprint 17): espera o chefe
+## ficar acima do mago, como um jogador espera a linha livre (regressão: na investida da fase 3 o
+## chefe vai ao chão e o golpe batia na plataforma).
+func wait_boss_above(boss: Boss) -> void:
+	await wait_until(func() -> bool:
+		return not is_instance_valid(boss) or boss.is_defeated() \
+				or boss.global_position.y < world.player.global_position.y - 24.0)
+
+
 func stand_still() -> void:
 	world.player.intent_source = func() -> PlayerIntent: return PlayerIntent.make()
 

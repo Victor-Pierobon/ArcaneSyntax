@@ -12,7 +12,6 @@ O Victor não desenha os sprites e tem uma cota de **40 gerações por mês** no
 
 - Cenário (`tiles.png`, fundos): vem de um pacote pronto (identidade visual, passo 2).
 - Interface e fonte.
-- Chefe: a Sprint 17 refaz os ataques; a arte vem depois.
 - Garantir qualidade artística: a IA erra; a ferramenta deixa revisar e refazer.
 
 ## Regras
@@ -21,8 +20,8 @@ O Victor não desenha os sprites e tem uma cota de **40 gerações por mês** no
 
 1. A fila fica em `scripts/sprites/fila.json`, **na ordem de prioridade**. Cada item tem um `id`. Um `id` com barra (`mago/andar`) é um arquivo do jogo e, pronto, vai para `game/assets/<id>.png`; um `id` sem barra (`mago_base`) é só uma base para outros itens.
 2. Tipos de item:
-   - `imagem`: uma imagem gerada do texto (`prompt`), no `tamanho` [largura, altura] (custa ~1 geração).
-   - `animacao`: anima a imagem do item `de` com a `acao` em `quadros` quadros (par, de 4 a 16; custa ~1 geração).
+   - `imagem`: uma imagem gerada do texto (`prompt`), no `tamanho` [largura, altura] (custa ~1 geração). Com `gerar` [largura, altura], o PixelLab desenha nesse tamanho e a ferramenta recorta o meio no `tamanho`: serve para quadros que a API não aceita, como o pilar do chefe (16×64; lado menor que 32 só vale em imagem quadrada).
+   - `animacao`: anima a imagem do item `de` com a `acao` em `quadros` quadros (par, de 4 a 16; custa ~1 geração até 64 px, mais em quadros maiores: o item diz o `custo` estimado). Com `inverter: true`, os quadros ficam na ordem contrária: a animação sempre começa na imagem pronta, então o que **aparece** (o pilar que sobe do chão) é pedido sumindo e invertido.
    - `troca_cor`: copia o item `de` girando a cor para a `matiz` (0 a 360) e não custa geração. É assim que saem as variantes de elemento (`projetil_gelo` a partir do `projetil_fogo`).
 3. Um item só roda quando o item `de` está **pronto** ou **aprovado**.
 4. Item com `aprovar: true` para em **revisar** depois de gerado; os que dependem dele esperam o `aprovar <id>`. As bases dos personagens usam isso, para uma base ruim não estragar várias animações.
@@ -128,6 +127,18 @@ O Victor não desenha os sprites e tem uma cota de **40 gerações por mês** no
 
 - **Dado** uma animação que falha por "heavy load"
 - **Então** ela fica com erro e o próximo item roda
+
+### ART-115 — Gerar maior e recortar
+
+- **Dado** um item `imagem` com `tamanho` [16, 64] e `gerar` [32, 64]
+- **Quando** a fila roda
+- **Então** a API recebe 32×64 e o arquivo instalado tem 16×64, com o meio da imagem gerada
+- **E** `gerar` menor que o `tamanho` é erro na validação da fila
+
+### ART-116 — Animação invertida
+
+- **Dado** uma animação com `inverter: true`
+- **Então** o último quadro instalado é o primeiro que a API devolveu (a imagem pronta)
 
 ## Decisões
 

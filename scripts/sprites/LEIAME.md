@@ -39,6 +39,10 @@ py -3 scripts/sprites/gerar.py rodar             # gera até a cota acabar ou um
 
 Ficaram de fora desta leva (o jogo ainda não usa): morte do mago, retrato da serpente, placa, cadeado, runas, chefe (Sprint 17), cenário (pacote pronto) e interface.
 
+**Segunda leva (segunda chave):** mortes, mergulho do enxame, impacto, aura de meditar e, depois delas, o **chefe**: base (para aprovar), `parado`, `golpe`, `orbe` e `mover` nas três fases (gelo e planta saem do fogo por troca de rampa), `troca`, `morrer`, o orbe voando, a marca de aviso e o pilar. O chefe custa ~19 gerações: as animações de 96 px saem por ~2 cada (`custo` no item). Os objetos que faltam (baú abrindo, placa, cadeado, fonte) vêm depois.
+
+Campos especiais de um item: `gerar` [largura, altura] desenha maior e recorta o meio (o pilar tem 16×64, e a API só aceita lado menor que 32 em imagem quadrada); `inverter: true` põe a animação de trás para frente (o pilar é pedido afundando e vira um pilar subindo); `opaco: true` aceita imagem que preenche o quadro (tile); `alinhar` (`pes`, `centro` ou `nenhum`).
+
 Para mudar a ordem ou um prompt, edite `fila.json`. O teste confere se a fila continua válida: `py -3 -m pytest scripts/sprites/tests`.
 
 ## Arquivos

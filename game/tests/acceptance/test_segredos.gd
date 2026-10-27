@@ -76,3 +76,94 @@ func test_MUN_095_sala_03_so_com_movimento() -> void:
 	await driver.place(Vector2i(10, 8))
 	await _jump_and_dodge(1.0)
 	assert_bool(_found("sala_03")).override_failure_message("o mago parou em %s" % driver.world.player.global_position).is_true()
+
+
+# --- Segredos da Alpha 1.1 (Sprint 18, MUN-096 a MUN-098) ---
+
+
+## Pula sem esquivar na direção `direction` e anda por 100 quadros.
+func _jump_without_dodge(direction: float) -> void:
+	var frame := [0]
+	driver.world.player.intent_source = func() -> PlayerIntent:
+		frame[0] += 1
+		return PlayerIntent.make(direction, frame[0] == 1, true)
+	for i in 100:
+		await get_tree().physics_frame
+	driver.stand_still()
+
+
+## Põe o mago em `cell` em cima da plataforma que se move e espera ela chegar ao alto.
+func _ride_to_top(cell: Vector2i) -> void:
+	var platform: MovingPlatform = driver.room().moving_platforms()[0]
+	await driver.place(cell)
+	var top := platform.path.end.y
+	for i in 600:
+		await get_tree().physics_frame
+		if platform.position.y - platform.origin.y <= top + 0.5:
+			break
+	await driver.frames(2)
+
+
+func test_MUN_096_sala_01_com_feitico() -> void:
+	await driver.start("sala_01", GRIMOIRE_PATH)
+	await driver.place(Vector2i(16, 20))
+	await driver.cast("levitar(10)\nmover(4)", true, 90)
+	assert_bool(_found("sala_01")).is_true()
+
+
+func test_MUN_096_sala_01_so_com_movimento() -> void:
+	await driver.start("sala_01", GRIMOIRE_PATH)
+	# A plataforma mais alta da escada, na beirada da esquerda.
+	await driver.place(Vector2i(30, 10))
+	await _jump_and_dodge(-1.0)
+	assert_bool(_found("sala_01")).override_failure_message("o mago parou em %s" % driver.world.player.global_position).is_true()
+
+
+func test_MUN_096_sala_01_sem_esquiva_nao_alcanca() -> void:
+	await driver.start("sala_01", GRIMOIRE_PATH)
+	await driver.place(Vector2i(30, 10))
+	await _jump_without_dodge(-1.0)
+	assert_bool(_found("sala_01")).is_false()
+
+
+func test_MUN_097_sala_p03_com_feitico() -> void:
+	await driver.start("sala_p03", GRIMOIRE_PATH)
+	await driver.place(Vector2i(22, 20))
+	await driver.cast("levitar(14)\nmover(4)", true, 90)
+	assert_bool(_found("sala_p03")).is_true()
+
+
+func test_MUN_097_sala_p03_so_com_movimento() -> void:
+	await driver.start("sala_p03", GRIMOIRE_PATH)
+	# Na beirada da direita da plataforma que sobe; lá em cima, salta para a prateleira.
+	await _ride_to_top(Vector2i(17, 18))
+	await _jump_and_dodge(1.0)
+	assert_bool(_found("sala_p03")).override_failure_message("o mago parou em %s" % driver.world.player.global_position).is_true()
+
+
+func test_MUN_097_sala_p03_sem_esquiva_nao_alcanca() -> void:
+	await driver.start("sala_p03", GRIMOIRE_PATH)
+	await _ride_to_top(Vector2i(17, 18))
+	await _jump_without_dodge(1.0)
+	assert_bool(_found("sala_p03")).is_false()
+
+
+func test_MUN_098_sala_p06_com_feitico() -> void:
+	await driver.start("sala_p06", GRIMOIRE_PATH)
+	await driver.place(Vector2i(5, 19))
+	await driver.cast("levitar(12)\nmover(-3)", true, 90)
+	assert_bool(_found("sala_p06")).is_true()
+
+
+func test_MUN_098_sala_p06_so_com_movimento() -> void:
+	await driver.start("sala_p06", GRIMOIRE_PATH)
+	await _ride_to_top(Vector2i(10, 17))
+	await _jump_and_dodge(-1.0)
+	assert_bool(_found("sala_p06")).override_failure_message("o mago parou em %s" % driver.world.player.global_position).is_true()
+
+
+func test_MUN_098_sala_p06_sem_esquiva_nao_alcanca() -> void:
+	await driver.start("sala_p06", GRIMOIRE_PATH)
+	await _ride_to_top(Vector2i(10, 17))
+	await _jump_without_dodge(-1.0)
+	assert_bool(_found("sala_p06")).is_false()

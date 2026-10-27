@@ -123,6 +123,8 @@ def validar_fila(fila, nomes, escolas=None):
         if item.get("tipo") == "imagem":
             if base or not item.get("prompt") or not item.get("tamanho"):
                 problemas.append(f"{i}: imagem precisa de prompt e tamanho, sem 'de'")
+            elif item.get("gerar") and any(g < t for g, t in zip(item["gerar"], item["tamanho"])):
+                problemas.append(f"{i}: gerar {item['gerar']} menor que o tamanho {item['tamanho']}")
         elif base not in vistos:
             problemas.append(f"{i}: 'de' ({base}) precisa ser um item antes dele")
         if item.get("tipo") == "animacao":

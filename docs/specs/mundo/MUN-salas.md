@@ -25,6 +25,9 @@ A torre é um mapa contínuo dividido em salas. Enquanto não há arte definitiv
    | `%` | porta de atalho: sólida até o mago entrar pela entrada do atalho (Sprint 14, MUN-mapa) |
    | `~` | vão de ponte: vazio até `construir_bloco()` pôr um bloco sólido ali (Sprint 9, PUZ-validacao) |
    | `_` | placa de pressão no fundo da célula (Sprint 9, PUZ-validacao) |
+   | `-` | plataforma que cai (Sprint 18, MUN-plataformas) |
+   | `>` | plataforma que se move, no lugar de partida (Sprint 18, MUN-plataformas) |
+   | `+` | o outro extremo do caminho de uma `>` (Sprint 18, MUN-plataformas) |
    | `.` ou espaço | vazio |
 
 2. Cada sala é uma cena em `res://content/rooms/<id>.tscn` com o script `Room`: `layout` (texto), `exits` (mapa letra → `"sala:Entrada"`, ex.: `{"b": "sala_02:A"}`).
@@ -34,6 +37,8 @@ A torre é um mapa contínuo dividido em salas. Enquanto não há arte definitiv
 6. Uma entrada deve ficar a pelo menos 2 tiles da saída que leva de volta, para o mago não voltar sem querer.
 7. As áreas da sala (saídas, espinhos, pontos seguros) só passam a detectar o mago **depois do primeiro quadro de física** da sala. No quadro em que a sala entra, o servidor de física ainda pode ter o mago na posição antiga e disparar uma área por engano (bug encontrado pelo MUN-027 na Sprint 3).
 8. **Física do level design:** o pulo alcança 3 tiles (48 px) quase no limite; degraus que o jogador precisa subir devem ter **no máximo 2 tiles** de altura. Toda sala precisa permitir voltar para a entrada.
+9. **Alcance a pé** (`WalkMap`, regra pura, Sprint 18): o chão é a célula vazia (não pedra, não espinho, não porta fechada) com pedra, plataforma (`=`, `-`), porta fechada ou o caminho de uma `>` logo abaixo. A pé, o mago anda para o lado no mesmo chão, cai de uma beirada até o primeiro chão abaixo, e pula por cima de um vão (tiles vazios entre as beiradas) de até **4 tiles** para um chão na mesma altura ou abaixo, de até **3 tiles** para um chão 1 acima e de até **2 tiles** para um chão 2 acima; nada mais alto que 2. O pulo não atravessa pedra (a linha da cabeça de um lugar ao outro não pode passar por pedra), e o mago precisa de 2 tiles livres (pés e cabeça). São limites um pouco abaixo do pulo de verdade (3 tiles de altura e cerca de 4,7 de distância), para sobrar folga.
+10. **Salas da Alpha 1.1** (Sprint 18 em diante): as salas refeitas têm pelo menos **40×22** tiles (o tamanho da tela). Em cada uma, com as portas abertas, de toda entrada se volta **a pé** até a entrada da sala de onde se veio (a que fica ao lado da saída para a sala anterior), e a partir dela, com a porta ainda fechada (a ponte, que é parte do puzzle, conta como feita), se chega a pé a todos os elementos do puzzle da sala (serpente, runas, cadeado, cristal, gravuras e placas; o que depende de `levitar`, como o elevador, conta a partir da base dele).
 
 ## Critérios de aceite
 
@@ -73,3 +78,15 @@ A torre é um mapa contínuo dividido em salas. Enquanto não há arte definitiv
 
 - **Dado** todas as cenas em `res://content/rooms/`
 - **Então** cada uma tem layout sem erros, ao menos uma entrada, e toda saída aponta para uma sala e uma entrada que existem
+
+### MUN-110 — Alcance a pé (regra pura)
+
+- **Dado** um layout com chão, um degrau de 2 tiles, um de 3 tiles, um vão de 4 tiles e um de 5 tiles na mesma altura
+- **Então** o `WalkMap` alcança o degrau de 2 e o vão de 4, e não alcança o degrau de 3 nem o vão de 5; descer de uma beirada sempre alcança o chão de baixo; uma parede até o teto bloqueia; sem 2 tiles livres não é chão
+- **E** espinho não é chão; `-` é chão; o caminho de uma `>` horizontal é chão; as duas pontas de uma `>` vertical são chão e ligadas
+
+### MUN-111 — As salas refeitas deixam voltar a pé e chegar ao puzzle
+
+- **Dado** cada sala refeita na Sprint 18 (`sala_01` a `03`, `sala_p02` a `p06`), com as portas abertas
+- **Então** tem pelo menos 40×22 tiles; de toda entrada se chega a pé à entrada que fica ao lado da saída para a sala anterior (na `sala_01`, à entrada `A`); e dessa entrada se chega a pé a cada elemento do puzzle
+

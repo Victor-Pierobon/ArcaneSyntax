@@ -42,3 +42,11 @@ func test_UI_002_acompanha_mudancas() -> void:
 	assert_str(hud.life_label.text).contains("3/5")
 	assert_str(hud.mana_label.text).contains("4.9/10.0")
 	assert_float(hud.mana_bar.value).is_equal_approx(49.0, 0.01)
+
+
+## Regressão (Sprint 17, captura da arena): com as salas do tamanho da tela, os atalhos ficavam em
+## cima dos pés do mago.
+func test_UI_018_a_hud_nao_cobre_o_chao() -> void:
+	assert_object(hud.slots_label.get_parent()).is_same(hud.passive_label.get_parent())
+	assert_int(hud.slots_label.get_index()).is_greater(hud.passive_label.get_index())
+	assert_float(hud.hint_label.position.y).is_greater_equal(348.0)
