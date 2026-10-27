@@ -29,7 +29,7 @@ func _init() -> void:
 	style.border_color = BORDER
 	style.set_border_width_all(2)
 	style.set_content_margin_all(10)
-	_panel.add_theme_stylebox_override(&"panel", style)
+	_panel.add_theme_stylebox_override(&"panel", UiSkin.panel_style(style))
 	_panel.custom_minimum_size = Vector2(200, 0)
 	center.add_child(_panel)
 	column.add_theme_constant_override(&"separation", 4)
@@ -39,6 +39,11 @@ func _init() -> void:
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(title_label)
 	_root.visible = false
+
+
+## O estilo do painel: a moldura do Victor ou o provisório (ART-brilho, regra 10).
+func panel_style() -> StyleBox:
+	return _panel.get_theme_stylebox(&"panel")
 
 
 func is_showing() -> bool:

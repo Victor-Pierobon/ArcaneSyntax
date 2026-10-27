@@ -2,6 +2,9 @@ extends GdUnitTestSuite
 ## Spec: docs/specs/combate/COM-chefe.md (regras 4 e 7 a 13; COM-082, COM-083, COM-089 a COM-091)
 
 const STEP := 1.0 / 60.0
+## Velocidade e descansos do balanceamento do jogo (calibrados na Sprint 20: o mago parado vencia por pouco).
+const SPEED := 100.0
+const RESTS := [1.0, 0.8, 0.6]
 ## Um quadro de folga nas contas de tempo.
 const SLACK := 0.03
 const START := Vector2(320, 200)
@@ -57,7 +60,7 @@ func test_COM_083_espera_2_s_antes_de_comecar() -> void:
 func test_COM_083_fase_1_move_avisa_lanca_e_descansa() -> void:
 	var brain := _brain()
 	var log := _run(brain, 12.0)
-	var first_leg := START.distance_to(POINTS[0]) / 60.0
+	var first_leg := START.distance_to(POINTS[0]) / SPEED
 	var warn: Array = _of(log, "aviso")
 	assert_dict(warn[0][1]).is_equal({"tipo": "aviso", "ataque": "leque"})
 	assert_float(warn[0][0]).is_equal_approx(2.0 + first_leg, SLACK)
@@ -65,16 +68,16 @@ func test_COM_083_fase_1_move_avisa_lanca_e_descansa() -> void:
 	assert_float(fans[0][0]).is_equal_approx(2.0 + first_leg + 0.6, SLACK)
 	# Descansa 1,5 s e vai ao próximo ponto.
 	var moves: Array = _of(log, "mover")
-	assert_float(moves[1][0]).is_equal_approx(2.0 + first_leg + 0.6 + 1.5, SLACK)
+	assert_float(moves[1][0]).is_equal_approx(2.0 + first_leg + 0.6 + RESTS[0], SLACK)
 	assert_vector(moves[1][1]["destino"]).is_equal(POINTS[1])
 	assert_str(moves[1][1]["ataque"]).is_equal("leque")
 
 
-func test_COM_083_voa_a_60_px_por_segundo() -> void:
+func test_COM_083_voa_na_velocidade_do_balanceamento() -> void:
 	var brain := _brain()
-	_run(brain, 2.0 + 0.5)
-	# Meio segundo de voo: 30 px na direção do ponto 1.
-	assert_float(brain.position.distance_to(START)).is_equal_approx(30.0, 1.5)
+	_run(brain, 2.0 + 0.25)
+	# Um quarto de segundo de voo na direção do ponto 1.
+	assert_float(brain.position.distance_to(START)).is_equal_approx(SPEED * 0.25, 1.5)
 	_run(brain, 1.0)
 	assert_vector(brain.position).is_equal(POINTS[0])
 
@@ -107,7 +110,7 @@ func test_COM_083_descanso_por_fase() -> void:
 		var log := _run(brain, 30.0)
 		var fan_at: float = _of(log, "leque")[0][0]
 		var next_moves := _of(log, "mover").filter(func(entry: Array) -> bool: return entry[0] > fan_at)
-		var expected: float = [1.5, 1.2, 1.0][phase - 1]
+		var expected: float = RESTS[phase - 1]
 		assert_float(next_moves[0][0] - fan_at).override_failure_message("fase %d" % phase) \
 				.is_equal_approx(expected, SLACK)
 
@@ -136,7 +139,7 @@ func test_COM_089_orbes_por_fase() -> void:
 
 func test_COM_089_mira_no_fim_do_aviso() -> void:
 	var brain := _brain()
-	var first_leg := START.distance_to(POINTS[0]) / 60.0
+	var first_leg := START.distance_to(POINTS[0]) / SPEED
 	var warn_at := 2.0 + first_leg
 	# O mago está à esquerda durante o aviso e pula para a direita antes do fim dele.
 	var player := func(elapsed: float) -> Vector2:
@@ -219,7 +222,7 @@ func test_COM_091_investida_sai_do_lado_de_la() -> void:
 	# Atravessa a 240 px/s e só então descansa.
 	var crossing := CHARGE[0].distance_to(CHARGE[1]) / 240.0
 	var next_move: Array = moves[1]
-	assert_float(next_move[0] - charge[0][0]).is_equal_approx(crossing + 1.0, SLACK * 2)
+	assert_float(next_move[0] - charge[0][0]).is_equal_approx(crossing + RESTS[2], SLACK * 2)
 
 
 func test_COM_091_investida_pelo_outro_lado() -> void:
@@ -261,7 +264,7 @@ func test_COM_082_troca_cancela_marcas_e_recomeca_pela_fase_nova() -> void:
 
 func test_COM_082_troca_no_aviso_nao_solta_o_leque() -> void:
 	var brain := _brain()
-	var first_leg := START.distance_to(POINTS[0]) / 60.0
+	var first_leg := START.distance_to(POINTS[0]) / SPEED
 	_run(brain, 2.0 + first_leg + 0.3)
 	assert_int(brain.state).is_equal(BossBrain.State.WARN)
 	brain.after_damage(60)

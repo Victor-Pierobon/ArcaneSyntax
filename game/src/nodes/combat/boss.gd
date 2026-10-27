@@ -7,6 +7,8 @@ extends Enemy
 ## Um orbe ou um pilar acertou o mago; a Room repassa como `player_attacked`.
 signal bolt_hit(from: Vector2, amount: int)
 signal phase_changed(phase: int)
+## Pede para a câmera tremer (ART-brilho, regra 6): troca de fase, pilar perto do mago, derrota.
+signal rumble(amount: float)
 
 const BODY := Vector2(28, 36)
 ## Pisca 5 vezes por segundo na transição, entre a cor da fase velha e a da nova.
@@ -16,6 +18,11 @@ const PLAYER_CENTER := Vector2(0, -15)
 ## Tremida da investida e brilho do aviso.
 const SHAKE := 1.5
 const STRIPE_HEIGHT := 2.0
+## Quanto a câmera treme (ART-brilho, regra 6).
+const RUMBLE_PHASE := 0.5
+const RUMBLE_PILLAR := 0.2
+const RUMBLE_DEFEAT := 0.8
+const PILLAR_RUMBLE_TILES := 3.0
 
 var brain := BossBrain.new(Vector2.ZERO, [] as Array[Vector2], [] as Array[Vector2])
 var phases: BossPhases:
@@ -39,6 +46,7 @@ static func make_boss(p_target_id: String) -> Boss:
 	boss.setup(p_target_id, boss.phases.element(), "chefe", BODY)
 	# A arena é grande: o chefe é alvo a qualquer distância (regra 6).
 	boss.any_distance = true
+	boss.light_radius = 64.0
 	return boss
 
 
@@ -58,6 +66,7 @@ func _ready() -> void:
 	phase_label.add_theme_color_override(&"font_color", Color("ffd27a"))
 	phase_label.position = Vector2(-20, effect_label.position.y - 12)
 	phase_label.visible = false
+	Lighting.keep_readable(phase_label)
 	add_child(phase_label)
 
 
@@ -95,6 +104,9 @@ func _apply(event: Dictionary) -> void:
 		"pilar":
 			if _pillars.has(event["id"]):
 				_pillars[event["id"]].rise()
+				var feet: Variant = _player_feet()
+				if feet != null and absf(feet.x - _pillars[event["id"]].position.x) <= PILLAR_RUMBLE_TILES * RoomLayout.TILE:
+					rumble.emit(RUMBLE_PILLAR)
 		"pilar_fim":
 			if _pillars.has(event["id"]):
 				_pillars[event["id"]].queue_free()
@@ -156,15 +168,18 @@ func _start_transition() -> void:
 	element = phases.element()
 	name_label.text = element
 	_body.color = body_color_of(element)
+	light.color = body_color_of(element)
 	phase_label.text = tr("CHEFE_FASE") % phases.phase
 	phase_label.visible = true
 	if get_parent():
-		Fx.burst(get_parent(), position + Vector2(0, -body_size.y / 2), body_color_of(element), 32)
+		Fx.element_burst(get_parent(), position + Vector2(0, -body_size.y / 2), element, 32)
 	phase_changed.emit(phases.phase)
+	rumble.emit(RUMBLE_PHASE)
 
 
 ## Derrotado: somem as marcas, os pilares e os orbes (regra 15).
 func _defeat() -> void:
+	rumble.emit(RUMBLE_DEFEAT)
 	_clear_attacks()
 	if is_inside_tree():
 		for bolt in get_tree().get_nodes_in_group(BossBolt.GROUP):

@@ -15,6 +15,8 @@ var quit_button: Button
 var confirm_label: Label
 var confirm_yes: Button
 var confirm_no: Button
+## O logo do Victor (`ui/logo`), no lugar do título em texto; null sem o arquivo (ART-brilho, regra 11).
+var logo: TextureRect
 
 var _main_buttons: Array[Button] = []
 var _confirming := false
@@ -24,6 +26,14 @@ var _has_save := false
 func _init() -> void:
 	super._init()
 	title_label.text = "MENU_TITULO"
+	var logo_texture := UiSkin.logo()
+	if logo_texture:
+		logo = TextureRect.new()
+		logo.texture = logo_texture
+		logo.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
+		column.add_child(logo)
+		column.move_child(logo, title_label.get_index())
+		title_label.visible = false
 	add_label("MENU_SUBTITULO")
 	continue_button = add_button("MENU_CONTINUAR")
 	new_game_button = add_button("MENU_NOVO_JOGO")

@@ -27,6 +27,8 @@ var column := ColorRect.new()
 ## A arte (`chefe/aviso` e `chefe/pilar`, regra 18); null: os retângulos.
 var mark_art: AnimatedSprite2D
 var column_art: AnimatedSprite2D
+## Luz na cor da fase, só com o pilar de pé (ART-brilho, regra 2).
+var light: PointLight2D
 var _clock := 0.0
 
 
@@ -68,6 +70,10 @@ func _ready() -> void:
 	if mark_art:
 		mark.visible = false
 		add_child(mark_art)
+	light = Lighting.make(color, 24)
+	light.position = Vector2(0, -height / 2)
+	light.enabled = false
+	add_child(light)
 	column_art = ArtLibrary.sprite("chefe", ["pilar"])
 	if column_art:
 		column_art.visible = false
@@ -76,6 +82,7 @@ func _ready() -> void:
 
 func rise() -> void:
 	risen = true
+	light.enabled = true
 	mark.visible = false
 	preview.visible = false
 	if mark_art:

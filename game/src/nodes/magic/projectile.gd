@@ -18,6 +18,8 @@ var direction := Vector2.RIGHT
 var target: TrainingTarget
 ## A arte (`magia/projetil_<elemento>` ou `faisca_<elemento>`, ART-esteira, regra 8); null: o círculo.
 var art_sprite: AnimatedSprite2D
+## Luz na cor do elemento (ART-brilho, regra 2); some com o projétil.
+var light: PointLight2D
 
 var _travelled := 0.0
 
@@ -38,6 +40,8 @@ static func speed_of(p_form: String) -> float:
 
 func _ready() -> void:
 	add_to_group(GROUP)
+	light = Lighting.make(TrainingTarget.ELEMENT_COLORS.get(element, Color.WHITE), 32)
+	add_child(light)
 	collision_layer = 0
 	collision_mask = 1 | HURTBOX_LAYER
 	var shape := CollisionShape2D.new()
@@ -66,7 +70,9 @@ func _draw() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if target != null and not _target_alive():
+	# Um alvo liberado não passa no `target != null`: confere se ainda existe (regressão da Sprint 20,
+	# o chefe liberado no meio do voo quando o mago morre).
+	if not _target_alive():
 		target = null
 	if target != null:
 		direction = (target.center() - global_position).normalized()

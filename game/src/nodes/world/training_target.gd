@@ -65,6 +65,8 @@ func _ready() -> void:
 			_body.visible = false
 			add_child(art_sprite)
 	name_label.text = element
+	Lighting.keep_readable(name_label)
+	Lighting.keep_readable(effect_label)
 	name_label.add_theme_font_size_override(&"font_size", 7)
 	name_label.position = Vector2(-12, -top_height() - 10)
 	add_child(name_label)
@@ -129,4 +131,4 @@ func _show_hit(attack_element: String, text: String) -> void:
 	var visual: CanvasItem = art_sprite if art_sprite else _body
 	visual.modulate = ELEMENT_COLORS.get(attack_element, Color.WHITE).lightened(0.5)
 	flash.tween_property(visual, "modulate", Color.WHITE, 0.25)
-	Fx.burst(self, Vector2(0, -body_size.y / 2), ELEMENT_COLORS.get(attack_element, Color.WHITE))
+	Fx.element_burst(self, Vector2(0, -body_size.y / 2), attack_element)

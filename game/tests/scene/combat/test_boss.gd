@@ -386,3 +386,21 @@ func test_COM_096_chefe_usa_a_arte() -> void:
 	_hit_to(boss, "gelo", 60)
 	await _seconds(1.7)
 	assert_str(boss.art_sprite.animation).is_equal("parado_gelo")
+
+
+## Regressão (Sprint 20): o projétil que perseguia o chefe dava erro ("previously freed instance") quando
+## o chefe era liberado no meio do voo (o mago morre e a sala é montada de novo).
+func test_COM_092_projetil_segue_quando_o_chefe_some() -> void:
+	await _start()
+	var boss := _boss()
+	var from := player.global_position + Vector2(0, -15)
+	var projectile := Projectile.make("gelo", Vector2.RIGHT, "projetil", boss)
+	projectile.global_position = from
+	world.current_room.add_child(projectile)
+	await _frames(2)
+	boss.free()
+	var before := projectile.position
+	await _frames(3)
+	assert_bool(is_instance_valid(projectile)).is_true()
+	assert_object(projectile.target).is_null()
+	assert_vector(projectile.position).is_not_equal(before)

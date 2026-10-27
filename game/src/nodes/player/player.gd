@@ -9,7 +9,16 @@ var intent_source: Callable = PlayerIntent.from_input
 var animation := PlayerAnimation.new()
 var current_animation := "parado"
 
+## Luz fraca em volta do mago: ele nunca some no escuro (ART-brilho, regra 2).
+var light: PointLight2D
+
 @onready var visual: PlayerVisual = $Visual
+
+
+func _ready() -> void:
+	light = Lighting.make(Lighting.MAGE, 56, 0.6)
+	light.position = Vector2(0, -15)
+	add_child(light)
 
 
 func _physics_process(delta: float) -> void:

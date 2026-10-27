@@ -16,6 +16,8 @@ var max_distance := Balance.number("chefe", "orbe_alcance_tiles") * RoomLayout.T
 var damage := Balance.integer("chefe", "orbe_dano")
 ## A arte (`chefe/orbe_voando_<elemento>`, COM-chefe, regra 18); null: o círculo.
 var art_sprite: AnimatedSprite2D
+## Luz na cor da fase (ART-brilho, regra 2).
+var light: PointLight2D
 
 var _travelled := 0.0
 
@@ -29,6 +31,8 @@ static func make(p_element: String, p_direction: Vector2) -> BossBolt:
 
 func _ready() -> void:
 	add_to_group(GROUP)
+	light = Lighting.make(TrainingTarget.ELEMENT_COLORS.get(element, Color.WHITE), 24)
+	add_child(light)
 	# Nenhuma camada: os projéteis do mago não acertam o orbe.
 	collision_layer = 0
 	collision_mask = 1

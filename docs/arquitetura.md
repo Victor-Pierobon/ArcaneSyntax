@@ -216,6 +216,14 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - Primeira leva de arte (regras 21 a 28): `ArtLibrary.effect(pai, pasta, nome, posição)` toca uma vez e some (impacto do projétil); `PlayerVisual.aura` (`magia/meditar`) aparece só meditando; inimigo derrotado com `morrer` fica até a animação acabar (`ArtLibrary.duration`); `SwarmBug` troca para `mergulhar`; `Guardian.shield_sprite` substitui o círculo (`draws_shield_circle()`); `Crystal.lit_element`; `tocha` em `targets` é um `Torch` (decoração, fora dos alvos).
 - Projeto: `snap_2d_transforms_to_pixel` e `snap_2d_vertices_to_pixel` ligados (sem isso, o texto pequeno do mundo embaralhava com a câmera suave).
 
+### Brilho (spec ART-brilho, Sprint 20)
+
+- `Lighting` (`src/nodes/fx/lighting.gd`): `AMBIENT` (o `World` põe um `CanvasModulate` com ela), `make(cor, raio, energia)` (um `PointLight2D` com a textura radial compartilhada), `radius_of`, `keep_readable(item)` (`self_modulate = READABLE`, para os textos do mundo não escurecerem; todo `Label` novo dentro da sala precisa chamar). Nós com luz: `Torch`, `Crystal.glow` (o nome `light` já é o de acender), `Projectile`, `Shield`, `Serpent`, `Fountain`, `Enemy` (`light_radius`; o `Boss` usa 64 e troca a cor na fase), `BossBolt`, `BossPillar` (só de pé), `Player`.
+- `ParticleStyle` (`src/core/fx/`, regra pura) e `Fx.element_burst(pai, posição, elemento)`.
+- `CameraShake` (`src/core/fx/`, regra pura): `add`, `tick`, `offset`. `World.camera_shake`, `shake_enabled` (da opção `Settings.screen_shake`), `shake(trauma)`, `hit_stop()` (`Engine.time_scale` 0 por 0,06 s; volta no `_exit_tree`). A `Room` emite `boss_struck` (golpes do chefe) e `camera_rumble` (o `Boss.rumble`).
+- `CodeRune` (`src/nodes/fx/code_rune.gd`, grupo `runas_codigo`): o `World` solta uma no `action_started` de cada ação com `linha`.
+- `UiSkin` (`src/nodes/ui/ui_skin.gd`): `panel_style(fallback)` (moldura `ui/moldura` em 9-slice) e `logo()`; `MenuPanel`, `DialogueBox` e `GrimoireUI` têm `panel_style()`; `TitleMenu.logo`.
+
 ### Referência (spec GRI-referencia)
 
 - `content/referencia.json`: lista `[{"id", "requer": [peças]}]` (13 páginas de peças e, desde a Sprint 13, 5 de conceito); título e texto são `REF_<ID>_TITULO`/`REF_<ID>_TEXTO` (BBCode, `\n` no CSV vira quebra de linha).

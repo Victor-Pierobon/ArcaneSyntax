@@ -183,6 +183,21 @@ func test_UI_016_opcoes_do_menu_inicial_valem_no_jogo() -> void:
 	assert_int(main.world.grimoire_ui.editor.get_theme_font_size(&"font_size")).is_equal(9 + 3)
 
 
+func test_ART_064_opcao_tremer_a_tela() -> void:
+	await _open_main()
+	main.new_game()
+	await _hold_still()
+	assert_bool(main.world.shake_enabled).is_true()
+	main.pause_menu.handle_cancel()
+	main.pause_menu.options_button.pressed.emit()
+	assert_str(main.options_menu.shake_button.text).is_equal(tr("OPCOES_TREMER") % tr("OPCOES_SIM"))
+	main.options_menu.shake_button.pressed.emit()
+	assert_str(main.options_menu.shake_button.text).is_equal(tr("OPCOES_TREMER") % tr("OPCOES_NAO"))
+	assert_bool(main.world.shake_enabled).is_false()
+	assert_bool(Settings.load_file(PROFILE + "/opcoes.json").screen_shake).is_false()
+	main.options_menu.back_button.pressed.emit()
+
+
 func test_UI_017_fim_da_demo() -> void:
 	await _open_main()
 	main.new_game()

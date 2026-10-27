@@ -25,13 +25,13 @@ Arte, animação e música definitivas (a arte entra pelo contrato quando chegar
 
 ### Movimento e ciclo de ataques
 
-7. **Pontos da arena:** em `targets`, `chefe:ponto` marca os pontos onde o chefe para no ar e `chefe:investida` marca os dois pontos no chão de onde a investida sai (um de cada lado). O chefe **voa**: vai em linha reta de um ponto ao outro a **60 px/s**, atravessando paredes e plataformas, sem gravidade. Ele pode ser atingido enquanto se move.
+7. **Pontos da arena:** em `targets`, `chefe:ponto` marca os pontos onde o chefe para no ar e `chefe:investida` marca os dois pontos no chão de onde a investida sai (um de cada lado). O chefe **voa**: vai em linha reta de um ponto ao outro a **100 px/s**, atravessando paredes e plataformas, sem gravidade. Ele pode ser atingido enquanto se move.
 8. **Início:** a luta começa quando a sala é montada: o chefe espera **2 s** parado no lugar do `1` e só então começa o ciclo.
 9. **Ciclo** (`BossBrain`, regra pura): repete, sem sorteio, **mover → aviso → ataque → descanso**. Os ataques de cada fase seguem uma lista fixa, em ordem e em volta:
    - fase 1: leque;
    - fase 2: pilares, leque;
    - fase 3: investida, pilares, leque.
-   A lista da fase nova começa do primeiro item, que é o ataque que a fase apresenta. Para o leque e os pilares, o chefe vai ao **próximo ponto** da lista de `chefe:ponto` (na ordem dos dígitos, em volta). Para a investida, vai ao ponto `chefe:investida` **mais longe do mago**. O descanso depois do ataque é de **1,5 s**, **1,2 s** e **1,0 s** nas fases 1, 2 e 3.
+   A lista da fase nova começa do primeiro item, que é o ataque que a fase apresenta. Para o leque e os pilares, o chefe vai ao **próximo ponto** da lista de `chefe:ponto` (na ordem dos dígitos, em volta). Para a investida, vai ao ponto `chefe:investida` **mais longe do mago**. O descanso depois do ataque é de **1,0 s**, **0,8 s** e **0,6 s** nas fases 1, 2 e 3. (Calibrados na Sprint 20: com 60 px/s e 1,5/1,2/1,0 s, o mago parado vencia ou perdia por pouco, com o chefe em 12 de 90; agora morre aos ~20 s com o chefe em ~48, e quem se protege vence com 3 de vida.)
 10. **Todo ataque tem aviso** antes de machucar: quem presta atenção sempre tem tempo de sair. Nenhum ataque sai durante a transição ou o descanso.
 
 ### Ataques
@@ -79,9 +79,9 @@ Arte, animação e música definitivas (a arte entra pelo contrato quando chegar
 ### COM-083 — Ciclo de ataques
 
 - **Dado** um `BossBrain` novo, com 4 pontos e 2 de investida
-- **Então** fica parado 2 s; depois vai ao ponto 1, avisa por 0,6 s, lança o leque, descansa 1,5 s, vai ao ponto 2 e repete
+- **Então** fica parado 2 s; depois vai ao ponto 1, avisa por 0,6 s, lança o leque, descansa 1,0 s, vai ao ponto 2 e repete
 - **E** na fase 2 a ordem é pilares, leque, pilares…; na fase 3, investida, pilares, leque, investida…
-- **E** o tempo de ida é a distância dividida por 60 px/s; os descansos são 1,5 / 1,2 / 1,0 s
+- **E** o tempo de ida é a distância dividida por 100 px/s; os descansos são 1,0 / 0,8 / 0,6 s
 
 ### COM-089 — Direções do leque
 
@@ -187,8 +187,8 @@ Balanceamento (`chefe`), valores iniciais:
   "troca_vida": [60, 30],
   "transicao_s": 1.5,
   "inicio_s": 2.0,
-  "velocidade": 60,
-  "descanso_s": [1.5, 1.2, 1.0],
+  "velocidade": 100,
+  "descanso_s": [1.0, 0.8, 0.6],
   "ataques": [["leque"], ["pilares", "leque"], ["investida", "pilares", "leque"]],
   "leque_aviso_s": 0.6,
   "leque_orbes": [3, 5, 7],

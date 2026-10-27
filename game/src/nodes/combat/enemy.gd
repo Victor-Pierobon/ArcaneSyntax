@@ -22,6 +22,9 @@ var last_blocked := false
 var player: Node2D
 ## Alvo a qualquer distância, fora do alcance de 12 tiles (o chefe na arena; COM-chefe, regra 6).
 var any_distance := false
+## Luz na cor do corpo (ART-brilho, regra 2); o chefe usa um raio maior.
+var light: PointLight2D
+var light_radius := 32.0
 
 var _contact := Area2D.new()
 var _bar_back := ColorRect.new()
@@ -43,6 +46,9 @@ func setup(p_target_id: String, p_element: String, kind: String, size: Vector2) 
 func _ready() -> void:
 	super._ready()
 	add_to_group(ENEMY_GROUP)
+	light = Lighting.make(ELEMENT_COLORS.get(element, Color("9a96a8")), light_radius)
+	light.position = Vector2(0, -body_size.y / 2)
+	add_child(light)
 	_contact.name = "Contact"
 	_contact.collision_layer = 0
 	_contact.collision_mask = 1
@@ -171,6 +177,7 @@ func apply_damage(amount: int) -> void:
 
 ## Sai dos grupos na hora (o próximo feitiço já não vê) e some depois de um instante (regra 2).
 func _defeat() -> void:
+	light.enabled = false
 	remove_from_group(TrainingTarget.GROUP)
 	remove_from_group(ENEMY_GROUP)
 	_contact.set_deferred(&"monitoring", false)
@@ -190,7 +197,7 @@ func _defeat() -> void:
 	_bar.visible = false
 	_bar_back.visible = false
 	if get_parent():
-		Fx.burst(get_parent(), position + Vector2(0, -body_size.y / 2), ELEMENT_COLORS.get(element, Color.WHITE), 24)
+		Fx.element_burst(get_parent(), position + Vector2(0, -body_size.y / 2), element, 24)
 	defeated.emit()
 	if is_inside_tree():
 		get_tree().create_timer(linger, false, true).timeout.connect(queue_free)

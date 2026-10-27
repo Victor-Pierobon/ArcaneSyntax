@@ -152,3 +152,11 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 - O teste de alcance a pé passou a conferir também a ida (toda saída a pé, menos as do elevador) e achou a escada do atalho da `c01` com a cabeça batendo na quina. Mutação: 5 de 5. 581 GdUnit4, 145 pytest e 32 do gerador verdes.
 - Próximo: Victor revisa e commita, joga do fim da `p06` até a `sala_fim`; Sprint 20 (arte e brilho) depende do que chegou de arte.
 
+## 2026-10-27 (Sprint 20)
+
+- O Victor testou e commitou a Sprint 19 (`bcd2792`). Nenhuma arte nova chegou (~28 gerações pendentes no gerador); não gastei gerações sem ele pedir.
+- Sala escura com luz nas tochas, cristais, feitiços, serpente, fonte, inimigos e no mago; partículas por elemento; tremida de câmera e um congelamento de 0,06 s nos golpes do chefe, com a opção "Tremer a tela"; a linha de cada ação vira uma runa acima do mago; moldura e logo prontos para quando os arquivos chegarem.
+- Bugs com regressão: os textos do mundo escureciam com a sala (captura); o projétil que perseguia o chefe dava erro quando o chefe sumia no meio do voo (desde a Sprint 17); e o congelamento fez o mago parado vencer o chefe, porque a margem da luta era fina demais. O chefe foi calibrado (voo a 100 px/s, descansos de 1,0/0,8/0,6 s): o parado morre com o chefe em ~48 de 90, quem se protege vence com 3 de vida.
+- Mutação: 15 de 15 (um teste reforçado). 612 GdUnit4, 145 pytest e 32 do gerador verdes.
+- Próximo: Victor revisa e commita, joga (a luta do chefe mudou de ritmo); Sprint 21 (fechamento da 1.1).
+

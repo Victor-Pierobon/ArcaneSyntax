@@ -9,13 +9,19 @@ const COLOR_WATER := Color("8fd8ff")
 
 ## O mago, para mostrar o aviso; o World passa pela Room antes de entrar na árvore.
 var player: Node2D
+## Luz azul da água (ART-brilho, regra 2).
+var light: PointLight2D
 
 var _prompt := Label.new()
 var _time := 0.0
 
 
 func _ready() -> void:
+	light = Lighting.make(Lighting.FOUNTAIN, 48)
+	light.position = Vector2(0, -12)
+	add_child(light)
 	_prompt.text = "FONTE_BEBER"
+	Lighting.keep_readable(_prompt)
 	_prompt.add_theme_font_size_override(&"font_size", 8)
 	_prompt.add_theme_color_override(&"font_color", Color("ffd27a"))
 	# Acima da cabeça do mago, como o aviso da serpente.

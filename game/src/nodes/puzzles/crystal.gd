@@ -15,6 +15,9 @@ var lit := false
 var lit_element := ""
 ## Só nos cristais mutáveis; o símbolo atual é o `element`, que o feitiço lê em `alvo.elemento`.
 var rule: MutableCrystalRule
+## Luz na cor do elemento que o acendeu; apagado, desligada (ART-brilho, regra 2). Não é `light`: esse
+## nome já é o de acender.
+var glow: PointLight2D
 
 
 ## `spec`: "cristal", "cristal:<elemento>" ou "cristal:mutavel[:<cargas>]".
@@ -34,6 +37,9 @@ static func make_crystal(p_target_id: String, spec: String, rng: RandomNumberGen
 
 func _ready() -> void:
 	super._ready()
+	glow = Lighting.make(LIT_COLOR, 48)
+	glow.position = Vector2(0, -body_size.y / 2)
+	add_child(glow)
 	_refresh_color()
 	_refresh_symbol()
 
@@ -58,6 +64,8 @@ func light(by_element := "") -> void:
 	lit = true
 	lit_element = by_element if not by_element.is_empty() else required_element
 	_refresh_color()
+	if is_inside_tree():
+		Fx.element_burst(self, Vector2(0, -body_size.y / 2), lit_element, 18)
 	lit_changed.emit(true)
 
 
@@ -70,6 +78,9 @@ func _art() -> Array:
 
 func _refresh_color() -> void:
 	_body.color = LIT_COLOR if lit else SLEEP_COLOR
+	if glow:
+		glow.enabled = lit
+		glow.color = ELEMENT_COLORS.get(lit_element, LIT_COLOR)
 	if art_sprite == null:
 		return
 	var anim := "cristal_apagado"

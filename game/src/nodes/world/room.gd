@@ -9,6 +9,10 @@ signal safe_point_touched(feet: Vector2)
 signal puzzle_solved(puzzle_id: String)
 ## Um inimigo encostou no mago (spec COM-dano, regra 4); `from` é a posição do inimigo.
 signal player_attacked(from: Vector2, amount: int)
+## Um golpe do chefe (orbe, pilar ou encostar) acertou o mago: o World aplica e congela (ART-brilho, regra 7).
+signal boss_struck(from: Vector2, amount: int)
+## Algo pede para a câmera tremer (ART-brilho, regra 6).
+signal camera_rumble(amount: float)
 ## O chefe da sala foi derrotado (spec COM-chefe, regra 7).
 signal boss_defeated(room_id: String)
 ## O mago abriu um baú (spec MUN-segredos).
@@ -447,7 +451,8 @@ func _add_enemies(digit: String, spec: String, cell: Vector2i) -> void:
 			var boss := Boss.make_boss(target_id)
 			boss.position = RoomLayout.cell_feet(cell)
 			boss.arena(_cells_of("chefe:ponto"), _cells_of("chefe:investida"), data)
-			boss.bolt_hit.connect(player_attacked.emit)
+			boss.bolt_hit.connect(boss_struck.emit)
+			boss.rumble.connect(camera_rumble.emit)
 			boss.defeated.connect(_on_boss_defeated)
 			created.append(boss)
 		_:
@@ -455,7 +460,8 @@ func _add_enemies(digit: String, spec: String, cell: Vector2i) -> void:
 			return
 	for enemy in created:
 		enemy.player = player
-		enemy.touched_player.connect(func(by: Enemy) -> void: player_attacked.emit(by.global_position, by.contact_damage))
+		var hit_signal := boss_struck if enemy is Boss else player_attacked
+		enemy.touched_player.connect(func(by: Enemy) -> void: hit_signal.emit(by.global_position, by.contact_damage))
 		_enemies.append(enemy)
 		add_child(enemy)
 
@@ -502,6 +508,7 @@ func _add_chest(digit: String, cell: Vector2i) -> void:
 func _add_engraving(text: String, cell: Vector2i) -> void:
 	var label := Label.new()
 	label.text = text
+	Lighting.keep_readable(label)
 	label.add_theme_font_size_override(&"font_size", 10)
 	label.add_theme_color_override(&"font_color", Color("ffd27a"))
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

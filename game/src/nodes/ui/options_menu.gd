@@ -1,6 +1,6 @@
 class_name OptionsMenu
 extends MenuPanel
-## Opções (spec UI-menus, regra 5): tamanho do texto e volume. Cada mudança grava e avisa na hora;
+## Opções (spec UI-menus, regra 5): tamanho do texto, volume e tremer a tela (ART-brilho, regra 8). Cada mudança grava e avisa na hora;
 ## o mesmo painel serve ao menu inicial e à pausa. Esc ou Voltar fecha.
 
 signal changed
@@ -9,6 +9,7 @@ signal closed
 var text_button: Button
 var volume_label: Label
 var volume_slider := HSlider.new()
+var shake_button: Button
 var back_button: Button
 
 var _settings: Settings
@@ -25,9 +26,11 @@ func _init() -> void:
 	volume_slider.step = Settings.VOLUME_STEP
 	volume_slider.custom_minimum_size = Vector2(160, 12)
 	column.add_child(volume_slider)
+	shake_button = add_button("")
 	back_button = add_button("OPCOES_VOLTAR")
 	text_button.pressed.connect(_on_text_pressed)
 	volume_slider.value_changed.connect(_on_volume_changed)
+	shake_button.pressed.connect(_on_shake_pressed)
 	back_button.pressed.connect(close)
 
 
@@ -57,6 +60,11 @@ func _on_text_pressed() -> void:
 	_commit()
 
 
+func _on_shake_pressed() -> void:
+	_settings.screen_shake = not _settings.screen_shake
+	_commit()
+
+
 func _on_volume_changed(value: float) -> void:
 	if _settings == null or int(value) == _settings.volume:
 		return
@@ -76,6 +84,7 @@ func _refresh() -> void:
 	text_button.text = tr("OPCOES_TEXTO") % tr(Settings.LABELS[_settings.text_size])
 	volume_label.text = tr("OPCOES_VOLUME") % _settings.volume
 	volume_slider.set_value_no_signal(_settings.volume)
+	shake_button.text = tr("OPCOES_TREMER") % tr("OPCOES_SIM" if _settings.screen_shake else "OPCOES_NAO")
 
 
 func _unhandled_input(event: InputEvent) -> void:

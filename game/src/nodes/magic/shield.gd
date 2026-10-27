@@ -7,6 +7,7 @@ signal expired
 const DURATION := 2.0
 
 var element := ""
+var light: PointLight2D
 var time_left := DURATION
 ## A arte (`magia/escudo_<elemento>`, ART-esteira, regra 8); null: o círculo desenhado.
 var art_sprite: AnimatedSprite2D
@@ -20,6 +21,10 @@ static func make(p_element: String) -> Shield:
 
 
 func _ready() -> void:
+	# Luz na cor do elemento (ART-brilho, regra 2).
+	light = Lighting.make(TrainingTarget.ELEMENT_COLORS.get(element, Color.WHITE), 40)
+	light.position = Vector2(0, -15)
+	add_child(light)
 	art_sprite = ArtLibrary.sprite("magia", ["escudo_" + element])
 	if art_sprite:
 		art_sprite.position = Vector2(0, -15)

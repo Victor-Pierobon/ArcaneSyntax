@@ -14,6 +14,11 @@ const TARGET_RANGE_TILES := 12.0
 ## Pausa base entre ações nas salas com puzzle, dividida pela velocidade (spec PUZ-passo-a-passo).
 const STEP_DELAY := 0.3
 const STEP_SPEEDS := [1.0, 2.0, 0.5]
+## Trauma da câmera quando o mago se machuca, e o congelamento dos golpes do chefe (ART-brilho, 6 e 7).
+const SHAKE_HURT := 0.3
+const HIT_STOP := 0.06
+## Onde a runa do código nasce, a partir dos pés do mago.
+const RUNE_OFFSET := Vector2(0, -40)
 ## A fala que faz a lição contar como vista (spec NAR-serpente, regra 2).
 const LESSON_LINE := "licao"
 ## A cena da serpente na `sala_fim` e a fala que encerra a demonstração (UI-menus, regra 7).
@@ -34,6 +39,9 @@ var passive_scheduler := PassiveScheduler.new()
 var solved_puzzles: Dictionary = {}
 ## Salas cujo chefe foi derrotado: o chefe não volta (spec COM-chefe, regra 7). Vai para o save.
 var defeated_bosses: Dictionary = {}
+## Tremida da câmera e a opção de desligar (ART-brilho, regras 6 e 8).
+var camera_shake := CameraShake.new()
+var shake_enabled := true
 ## Lições da serpente já vistas (cena → true) e dicas usadas por puzzle (NAR-serpente, NAR-dicas).
 var seen_lessons: Dictionary = {}
 var hints_used: Dictionary = {}
@@ -91,6 +99,11 @@ func _ready() -> void:
 	backdrop.name = "Backdrop"
 	add_child(backdrop)
 	move_child(backdrop, 0)
+	# A sala fica escura; a HUD, os menus e o grimório são CanvasLayer e não escurecem (ART-brilho, regra 1).
+	var shade := CanvasModulate.new()
+	shade.name = "Escuro"
+	shade.color = Lighting.AMBIENT
+	add_child(shade)
 	hud.bind(state)
 	_last_health = state.health.current
 	state.health.changed.connect(func(current: int, _maximum: int) -> void:
@@ -215,6 +228,8 @@ static func _string_set(value: Variant) -> Dictionary:
 
 
 func _physics_process(delta: float) -> void:
+	camera_shake.tick(delta)
+	(player.get_node("Camera2D") as Camera2D).offset = camera_shake.offset() if shake_enabled else Vector2.ZERO
 	state.health.tick(delta)
 	state.health.dodging = player.motor.is_dodging()
 	if grimoire.passive() != "" and passive_scheduler.tick(delta):
@@ -409,6 +424,17 @@ func _on_sequence_started(code: String) -> void:
 func _on_action_started(action: Dictionary) -> void:
 	if _in_puzzle_room() and step_view.is_showing():
 		step_view.highlight(int(action.get("linha", -1)))
+	_release_rune(action)
+
+
+## A linha que gerou a ação vira uma runa acima do mago (ART-brilho, regra 9).
+func _release_rune(action: Dictionary) -> void:
+	var line := int(action.get("linha", -1))
+	if line < 1 or current_room == null:
+		return
+	var rune := CodeRune.make(line, str(action.get("elemento", "")))
+	rune.position = current_room.to_local(player.global_position) + RUNE_OFFSET
+	current_room.add_child(rune)
 
 
 func _on_actions_finished() -> void:
@@ -466,10 +492,36 @@ func spell_context() -> Dictionary:
 			"enemies": current_enemies()}
 
 
-## Encostar num inimigo: dano de ataque e um empurrão para longe dele (spec COM-dano, regra 4).
-func _on_player_attacked(from: Vector2, amount: int) -> void:
-	if state.health.damage(amount, Health.Source.ATTACK):
-		player.motor.knock_back(1 if player.global_position.x >= from.x else -1)
+## Encostar num inimigo: dano de ataque e um empurrão para longe dele (spec COM-dano, regra 4); a câmera
+## treme (ART-brilho, regra 6). Devolve se machucou.
+func _on_player_attacked(from: Vector2, amount: int) -> bool:
+	if not state.health.damage(amount, Health.Source.ATTACK):
+		return false
+	player.motor.knock_back(1 if player.global_position.x >= from.x else -1)
+	shake(SHAKE_HURT)
+	return true
+
+
+## Golpe do chefe que machuca congela o quadro por um instante (ART-brilho, regra 7).
+func _on_boss_struck(from: Vector2, amount: int) -> void:
+	if _on_player_attacked(from, amount):
+		hit_stop()
+
+
+func shake(amount: float) -> void:
+	if shake_enabled:
+		camera_shake.add(amount)
+
+
+## Para o jogo por HIT_STOP segundos de relógio (o relógio ignora a escala de tempo e a pausa).
+func hit_stop() -> void:
+	Engine.time_scale = 0.0
+	get_tree().create_timer(HIT_STOP, true, false, true).timeout.connect(func() -> void: Engine.time_scale = 1.0)
+
+
+func _exit_tree() -> void:
+	# Sair no meio do congelamento não deixa o jogo parado (ART-brilho, regra 7).
+	Engine.time_scale = 1.0
 
 
 ## Todo inimigo derrotado dá XP, mesmo os que reaparecem (spec PRO-xp, regra 2).
@@ -588,6 +640,8 @@ func go_to(room_id: String, entry: String) -> void:
 	current_room.safe_point_touched.connect(func(feet: Vector2) -> void: safe_point = feet)
 	current_room.puzzle_solved.connect(_on_puzzle_solved)
 	current_room.player_attacked.connect(_on_player_attacked)
+	current_room.boss_struck.connect(_on_boss_struck)
+	current_room.camera_rumble.connect(shake)
 	current_room.boss_defeated.connect(_on_boss_defeated)
 	current_room.secret_found.connect(_on_secret_found)
 	if current_room.has_puzzle() and solved_puzzles.has(current_room.puzzle_id()):

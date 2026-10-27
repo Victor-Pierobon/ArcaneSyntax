@@ -165,6 +165,7 @@ func show_visions(texts: PackedStringArray) -> void:
 	if label == null:
 		label = Label.new()
 		label.name = "Visions"
+		Lighting.keep_readable(label)
 		label.add_theme_font_size_override(&"font_size", 8)
 		label.add_theme_color_override(&"font_color", Color("e8e0ff"))
 		label.add_theme_color_override(&"font_shadow_color", Color(0, 0, 0, 0.8))

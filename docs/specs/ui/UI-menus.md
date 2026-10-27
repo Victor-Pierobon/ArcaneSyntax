@@ -21,7 +21,8 @@ Tela de perfis e vários slots (a Alpha tem o perfil `padrao`). Remapear teclas.
 5. **Opções**, iguais no menu inicial e na pausa:
    - **Tamanho do texto:** Normal, Grande, Muito grande, que somam 0, 2 ou 3 pontos à fonte do grimório (lista, editor, referência, resultado) e da caixa de diálogo. Vale na hora.
    - **Volume:** de 0% a 100%, de 10 em 10, no som do jogo todo.
-   - Guardadas em `<perfil>/opcoes.json`; arquivo ilegível ou valor fora da faixa usa o padrão (Normal, 80%).
+   - **Tremer a tela:** Sim ou Não (desde a Sprint 20, ART-brilho regra 8). Vale na hora.
+   - Guardadas em `<perfil>/opcoes.json`; arquivo ilegível ou valor fora da faixa usa o padrão (Normal, 80%, tremer ligado).
 6. **A caixa de diálogo cabe em qualquer tamanho de texto:** com Muito grande, toda fala e dica do jogo continua acima da metade da tela (NAR-005). Para isso, com texto maior que Normal a caixa sobe para o alto da tela e cobre o HUD enquanto está aberta (o jogo está pausado). Com texto Normal, ela continua abaixo do HUD.
 7. **Fim da demo:** atrás da porta do chefe, a `sala_fim` tem a serpente com a cena `fim_demo`. Quando a fala `fim` aparece e o diálogo termina, o jogo salva e mostra a tela de fim com o resumo: nível e XP, puzzles resolvidos (de 6), estrelas, lições vistas e segredos encontrados (do total da área). Enter volta ao menu inicial; Continuar leva de volta à `sala_fim`.
 8. Textos de todos os menus vêm do `textos.csv`.

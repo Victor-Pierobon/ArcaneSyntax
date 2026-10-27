@@ -382,7 +382,7 @@ func _build() -> void:
 	style.border_color = Color("8a6d3b")
 	style.set_border_width_all(2)
 	style.set_content_margin_all(8)
-	_root.add_theme_stylebox_override(&"panel", style)
+	_root.add_theme_stylebox_override(&"panel", UiSkin.panel_style(style))
 
 	var column := VBoxContainer.new()
 	_root.add_child(column)
@@ -506,3 +506,8 @@ func _build_reference() -> void:
 	reference_text.add_theme_font_size_override(&"mono_font_size", 9)
 	reference_text.add_theme_color_override(&"default_color", Color("e8e2d0"))
 	split.add_child(reference_text)
+
+
+## O estilo do painel: a moldura do Victor ou o provisório (ART-brilho, regra 10).
+func panel_style() -> StyleBox:
+	return _root.get_theme_stylebox(&"panel")

@@ -1,6 +1,7 @@
 class_name Settings
 extends RefCounted
-## As opções do jogador (spec UI-menus, regra 5): tamanho do texto e volume, em `<perfil>/opcoes.json`.
+## As opções do jogador (spec UI-menus, regra 5): tamanho do texto, volume e, desde a Sprint 20, tremer a
+## tela (ART-brilho, regra 8), em `<perfil>/opcoes.json`.
 ## Arquivo ilegível ou valor fora da faixa usa o padrão; a gravação é atômica, como a do grimório.
 
 enum TextSize { NORMAL, LARGE, HUGE }
@@ -17,6 +18,8 @@ const VOLUME_STEP := 10
 var text_size: TextSize = TextSize.NORMAL
 ## De 0 a 100, de 10 em 10.
 var volume := DEFAULT_VOLUME
+## A câmera treme nos golpes (ART-brilho, regra 8).
+var screen_shake := true
 var path := ""
 
 
@@ -35,6 +38,9 @@ static func load_file(p_path: String) -> Settings:
 	var saved_volume: Variant = data.get("volume")
 	if saved_volume is int or saved_volume is float:
 		settings.set_volume(int(saved_volume))
+	var shake: Variant = data.get("tremer_tela")
+	if shake is bool:
+		settings.screen_shake = shake
 	return settings
 
 
@@ -45,7 +51,8 @@ func save() -> bool:
 	var file := FileAccess.open(temporary, FileAccess.WRITE)
 	if file == null:
 		return false
-	file.store_string(JSON.stringify({"versao": 1, "tamanho_texto": NAMES[text_size], "volume": volume}, "  "))
+	file.store_string(JSON.stringify({"versao": 1, "tamanho_texto": NAMES[text_size], "volume": volume,
+			"tremer_tela": screen_shake}, "  "))
 	file.close()
 	return DirAccess.rename_absolute(ProjectSettings.globalize_path(temporary), ProjectSettings.globalize_path(path)) == OK
 

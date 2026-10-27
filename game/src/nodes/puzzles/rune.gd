@@ -22,6 +22,7 @@ func _ready() -> void:
 	add_child(stone)
 	var label := Label.new()
 	label.name = "Value"
+	Lighting.keep_readable(label)
 	label.text = str(value)
 	label.add_theme_font_size_override(&"font_size", 9)
 	label.add_theme_color_override(&"font_color", COLOR)

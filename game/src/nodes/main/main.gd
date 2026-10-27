@@ -142,6 +142,7 @@ func _apply_settings() -> void:
 	if world:
 		world.grimoire_ui.set_text_delta(settings.text_delta())
 		world.dialogue_box.set_text_delta(settings.text_delta())
+		world.shake_enabled = settings.screen_shake
 
 
 func _apply_volume() -> void:

@@ -186,6 +186,9 @@ OPCOES_TEXTO_GRANDE,Grande
 OPCOES_TEXTO_MUITO_GRANDE,Muito grande
 OPCOES_VOLUME,Volume: %d%%
 OPCOES_VOLTAR,Voltar
+OPCOES_TREMER,Tremer a tela: %s
+OPCOES_SIM,Sim
+OPCOES_NAO,Não
 FIM_TITULO,Fim da demonstração
 FIM_NIVEL,Nível %d · %d XP
 FIM_PUZZLES,Puzzles resolvidos: %d de %d

@@ -87,3 +87,13 @@ func test_UI_015_valores_ruins_usam_o_padrao() -> void:
 	settings = Settings.load_file(PATH)
 	assert_int(settings.text_size).is_equal(Settings.TextSize.LARGE)
 	assert_int(settings.volume).is_equal(100)
+
+
+func test_ART_064_tremer_a_tela_ligado_por_padrao_e_gravado() -> void:
+	var settings := Settings.load_file(PATH)
+	assert_bool(settings.screen_shake).is_true()
+	settings.screen_shake = false
+	assert_bool(settings.save()).is_true()
+	assert_bool(Settings.load_file(PATH).screen_shake).is_false()
+	var saved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PATH))
+	assert_bool(saved["tremer_tela"]).is_false()

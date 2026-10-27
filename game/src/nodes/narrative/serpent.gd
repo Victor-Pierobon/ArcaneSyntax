@@ -13,6 +13,9 @@ var player: Node2D
 ## A arte (`serpente/parada` e `falando`, ART-esteira, regra 8); null: o desenho provisório.
 var art_sprite: AnimatedSprite2D
 
+## Luz verde-água em volta (ART-brilho, regra 2).
+var light: PointLight2D
+
 var _prompt := Label.new()
 var _time := 0.0
 
@@ -26,7 +29,11 @@ static func make(p_scene_id: String) -> Serpent:
 
 func _ready() -> void:
 	add_to_group(GROUP)
+	light = Lighting.make(Lighting.SERPENT, 40)
+	light.position = Vector2(0, -10)
+	add_child(light)
 	_prompt.text = "DIALOGO_FALAR"
+	Lighting.keep_readable(_prompt)
 	_prompt.add_theme_font_size_override(&"font_size", 8)
 	_prompt.add_theme_color_override(&"font_color", Color("ffd27a"))
 	# Acima da cabeça do mago (30 px) ao lado dela; mais baixo, o mago cobria o aviso (regressão).

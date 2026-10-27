@@ -28,6 +28,7 @@ func _ready() -> void:
 	add_child(_body)
 	var label := Label.new()
 	label.text = "Σ"
+	Lighting.keep_readable(label)
 	label.add_theme_font_size_override(&"font_size", 9)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.size = Vector2(12, 16)

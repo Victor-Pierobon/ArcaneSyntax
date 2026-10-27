@@ -10,6 +10,8 @@ const CORE := Color("ffe08a")
 
 ## A arte da tocha; null: a chama desenhada.
 var art_sprite: AnimatedSprite2D
+## Luz da chama (ART-brilho, regra 2).
+var light: PointLight2D
 
 var _time := 0.0
 
@@ -18,11 +20,16 @@ func _ready() -> void:
 	art_sprite = ArtLibrary.sprite("objetos", ["tocha"])
 	if art_sprite:
 		add_child(art_sprite)
+	light = Lighting.make(Lighting.TORCH, 80)
+	light.position = Vector2(0, -10)
+	add_child(light)
 
 
 func _process(delta: float) -> void:
+	_time += delta
+	# A chama cintila (sensação; não muda nada no jogo).
+	light.energy = 1.0 + sin(_time * 9.0) * 0.08 + sin(_time * 23.0) * 0.05
 	if art_sprite == null:
-		_time += delta
 		queue_redraw()
 
 
