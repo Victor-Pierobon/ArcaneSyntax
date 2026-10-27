@@ -1,6 +1,6 @@
 # Sprint 14 — Montagem da área
 
-- **Status:** Concluída em 2026-10-26 · aguardando revisão e commit do Victor
+- **Status:** Concluída em 2026-10-26 · commitada (`bec8f75`)
 - **Fase do plano:** 8 · **Marco:** M4 · **Estimativa:** 14–21 h
 - **Depende de:** Sprint 13 (mapa no papel)
 

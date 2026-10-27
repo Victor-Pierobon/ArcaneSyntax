@@ -1,0 +1,27 @@
+ArcaneSyntax - Alpha (Ato I: a Masmorra)
+=======================================
+
+Um jogo em que cada feitiço é código Python de verdade.
+
+Como abrir
+----------
+Descompacte a pasta inteira e abra ArcaneSyntax.exe.
+Não separe o .exe das pastas "executor" e "runtime": elas rodam os seus feitiços.
+Se o Windows avisar que o programa não é conhecido, clique em "Mais informações" e "Executar assim mesmo".
+
+Teclas
+------
+A/D andar · Espaço pular · Shift esquivar · J cajado · E falar
+Tab abre o grimório (onde você escreve os feitiços) · 1-5 conjuram · Esc pausa
+
+Dica: fale com a serpente verde (E). Ela ensina e, depois da lição, dá dicas.
+
+Seu progresso
+-------------
+O jogo salva sozinho. Os arquivos ficam em
+%APPDATA%\Godot\app_userdata\ArcaneSyntax\perfis\padrao\
+  save.json      o progresso (Novo jogo, no menu, apaga só este)
+  grimorio.json  os seus feitiços
+  opcoes.json    tamanho do texto e volume
+
+Obrigado por jogar!

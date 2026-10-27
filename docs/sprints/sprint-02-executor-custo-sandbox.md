@@ -1,6 +1,6 @@
 # Sprint 2 — Executor: custo, limites e sandbox
 
-- **Status:** Concluída em 2026-10-25 · aguardando revisão e commit do Victor · build de fumaça pendente (templates de exportação)
+- **Status:** Concluída em 2026-10-25 · aguardando revisão e commit do Victor · build de fumaça feito na Sprint 15 (BLD-alpha)
 - **Fase do plano:** 1 · **Marco:** fecha o M1 · **Estimativa:** 15–23 h
 - **Depende de:** Sprint 1
 

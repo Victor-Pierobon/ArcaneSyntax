@@ -4,6 +4,9 @@ extends Node
 ## traz o grimório de antes da Sprint 13, abre no menu inicial e sobe o World com o save ligado. Também
 ## cuida da pausa, das opções e da tela de fim. Os testes sobem o World direto, sem save.
 
+## O teste de fumaça terminou (BLD-alpha); vazio = tudo certo.
+signal smoke_finished(problems: Array[String])
+
 const WORLD := preload("res://src/nodes/world/world.tscn")
 
 @export var profile_root := "user://perfis"
@@ -15,15 +18,28 @@ const WORLD := preload("res://src/nodes/world/world.tscn")
 ## O mundo em jogo; null no menu inicial.
 var world: World
 var settings: Settings
-var title_menu := TitleMenu.new()
-var pause_menu := PauseMenu.new()
-var options_menu := OptionsMenu.new()
-var end_screen := EndScreen.new()
+## Criados no `_ready`, depois da fumaça: criados antes, vazavam no modo fumaça (regressão, Sprint 15).
+var title_menu: TitleMenu
+var pause_menu: PauseMenu
+var options_menu: OptionsMenu
+var end_screen: EndScreen
+## Argumentos depois de `--` na linha de comando; os testes trocam.
+var user_args := OS.get_cmdline_user_args()
+## Os testes rodam a fumaça sem fechar o Godot.
+var quit_after_smoke := true
 
 var _folder := ""
 
 
 func _ready() -> void:
+	# Build: `--fumaca` confere o jogo exportado e sai, sem abrir o menu (BLD-alpha, regra 4).
+	if SmokeCheck.requested(user_args):
+		_run_smoke()
+		return
+	title_menu = TitleMenu.new()
+	pause_menu = PauseMenu.new()
+	options_menu = OptionsMenu.new()
+	end_screen = EndScreen.new()
 	_folder = profile_root.path_join(profile)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_folder))
 	if FileAccess.file_exists(legacy_grimoire) and not FileAccess.file_exists(grimoire_path()):
@@ -45,6 +61,18 @@ func _ready() -> void:
 	options_menu.closed.connect(_on_options_closed)
 	end_screen.done.connect(return_to_menu)
 	title_menu.open(has_save())
+
+
+func _run_smoke() -> void:
+	var smoke := SmokeCheck.new()
+	add_child(smoke)
+	var problems: Array[String] = await smoke.run()
+	SmokeCheck.report(problems)
+	smoke_finished.emit(problems)
+	if quit_after_smoke:
+		# Um quadro para o executor sair da árvore antes de fechar.
+		await get_tree().process_frame
+		get_tree().quit(0 if problems.is_empty() else 1)
 
 
 func grimoire_path() -> String:

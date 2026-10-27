@@ -98,3 +98,20 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 - Menu inicial (Continuar, Novo jogo que pergunta antes e não apaga o grimório, Opções, Sair), pausa com Esc, opções de tamanho do texto e volume por perfil, tela de fim com resumo.
 - Bugs com regressão: dava para voar com `levitar` por cima da porta do P1 (as portas agora vão do chão ao teto); com texto grande, as lições passavam da metade da tela (a caixa sobe e cobre o HUD enquanto está aberta). Mutação: 10 de 10. 458 GdUnit4 e 145 pytest verdes.
 - Próximo: Victor revisa e commita, joga a seção 4h do começo ao fim; depois Sprint 15 (testes com iniciantes e build).
+
+## 2026-10-26 (Sprint 15, parte do assistente)
+
+- O Victor jogou a Sprint 14 e está funcionando. Sprint 14 commitada (`bec8f75`).
+- O jogo inteiro virou um teste de aceitação (MUN-085): do menu ao fim, com Python real, ouvindo as seis lições, resolvendo os seis puzzles, abrindo os dois baús, usando atalho e fonte, vencendo o chefe e saindo de cada sala andando pela saída. Passou de primeira (cerca de 1 min).
+- Build da Alpha para Windows: templates de exportação instalados (com o aval do Victor), preset versionado, `scripts/build_windows.ps1` com Python enxuto e `LEIA-ME.txt`, e um teste de fumaça que roda dentro do `.exe` exportado (`--fumaca`: conteúdo, textos, mapa e executor). `FUMACA OK`; `.zip` de 49 MB.
+- Bug com regressão: no modo fumaça os menus vazavam (criados e nunca postos na árvore). Também: o `.gitignore` com `build/` escondia `docs/build/` e `docs/specs/build/` (virou `/build/`). Mutação: 4 de 4 (um mutante fraco refeito). 463 GdUnit4 e 145 pytest verdes.
+- Roteiro dos testes com iniciantes em `docs/playtest/roteiro-alpha.md`.
+- Próximo: Victor revisa e commita; testes com 3 a 5 iniciantes; ajustes com o que aparecer.
+
+## 2026-10-26 (fim da Alpha 1.0, plano da 1.1)
+
+- O Victor jogou o jogo inteiro no editor e o `.exe` do build: tudo funcionando. A Sprint 15 fecha; os testes com outras pessoas ficam para o fim da 1.1.
+- Jogando, ele achou o visual (só quadrados), as salas e o chefe simples demais. O chefe morre para quem só repete magia, sem reagir.
+- Plano da Alpha 1.1 (`docs/plano-alpha-1-1.md`, Sprints 16 a 21): esteira de arte e provisório melhor, chefe 2.0 (três fases, movimento, pilares do chão, ~90 de vida, "parado perde"), as 13 salas refeitas, luz e partículas, build 1.1.
+- Arte mista (decisão do Victor): cenário de pacote recolorido; mago, serpente, inimigos, chefe, efeitos e interface próprios. Roteiro e contrato dos arquivos em `docs/arte/identidade-visual.md`.
+- Próximo: Victor revisa e commita; começa a paleta e a ficha de estilo. Assistente: Sprint 16.

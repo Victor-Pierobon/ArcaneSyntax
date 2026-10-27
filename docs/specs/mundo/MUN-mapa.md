@@ -64,6 +64,13 @@ Mapa na tela (minimapa). Teletransporte entre pontos. Salas de outros atos.
 - **Quando** o mago entra na `sala_01` pela entrada `C` (vindo da `sala_c01`)
 - **Então** a porta de atalho abre, o save guarda o atalho, e ela já nasce aberta quando o mago volta à `sala_01` por outra entrada
 
+### MUN-085 — A Alpha inteira, do menu ao fim (aceitação, Sprint 15)
+
+- **Dado** a cena principal, um perfil vazio e o Python de verdade
+- **Quando** o jogo começa por Novo jogo e o mago, sala por sala, ouve a lição de cada serpente, resolve cada puzzle com um feitiço, abre os dois baús, usa o atalho e a fonte, vence o chefe e fala com a serpente da `sala_fim`, **saindo de cada sala andando pela saída** (a porta precisa estar aberta)
+- **Então** a tela de fim mostra 6 de 6 puzzles, 6 de 6 lições e 2 de 2 segredos, e Enter volta ao menu com Continuar
+- Dentro de cada sala, o teste põe o mago direto no lugar de conjurar (como os outros testes de aceitação); o que ele confere é que o caminho inteiro fecha.
+
 ## Perguntas em aberto
 
 - [ ] Um minimapa ajudaria iniciantes? (depois da Alpha)

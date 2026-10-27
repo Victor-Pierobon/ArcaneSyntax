@@ -67,8 +67,22 @@ Os quatro marcos abaixo foram inferidos das fases, porque o diagrama de marcos d
 | 12 | [Progressão e sistemas da serpente](sprints/sprint-12-progressao.md) | 7 | 12–18 | M3 | Concluída |
 | 13 | [Conteúdo da serpente e save](sprints/sprint-13-serpente-save.md) | 7, 8 | 14–21 | M4 · Alpha | Concluída |
 | 14 | [Montagem da área](sprints/sprint-14-montagem-area.md) | 8 | 14–21 | M4 | Concluída |
-| 15 | [Testes com iniciantes e build](sprints/sprint-15-testes-build.md) | 9 | 15–25 | M4 | **Próxima** |
+| 15 | [Testes com iniciantes e build](sprints/sprint-15-testes-build.md) | 9 | 15–25 | M4 | Concluída (build e teste do jogo inteiro; o Victor jogou tudo, no editor e no `.exe`; os testes com outras pessoas passaram para o fim da 1.1) |
 | | **Total** | | **~238–359** | | |
+
+### Alpha 1.1 (visual, salas e chefe)
+
+Plano completo, decisões e verificação em [`plano-alpha-1-1.md`](plano-alpha-1-1.md). A arte é do Victor, em paralelo ([`arte/identidade-visual.md`](arte/identidade-visual.md)).
+
+| Sprint | Nome | Horas | Status |
+| --- | --- | --- | --- |
+| 16 | Esteira de arte e visual provisório | 14–20 | **Próxima** |
+| 17 | Chefe 2.0 (3 fases, movimento, pilares, mais vida) | 16–24 | Planejada |
+| 18 | Salas I: começo e puzzles | 18–26 | Planejada |
+| 19 | Salas II: combate e fim | 14–20 | Planejada |
+| 20 | Integração da arte e brilho | 12–20 | Planejada (depende da arte) |
+| 21 | Fechamento da 1.1 e testes com outras pessoas | 8–12 | Planejada |
+| | **Total** | **~82–122** | |
 
 O total sobe um pouco em relação ao plano (226–344 h) pela esteira de testes e pelas specs. Parte disso volta na Fase 9, com menos bugs para caçar no fim.
 

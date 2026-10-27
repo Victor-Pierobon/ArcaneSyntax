@@ -46,7 +46,8 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 | `game/addons/gdUnit4/` | GdUnit4 v6.2.2 (código de terceiros, não editar) |
 | `executor/` | Pacote Python `arcane_executor` + `run_worker.py` + `tests/` (pytest) |
 | `tests/contract/` | Fixtures JSON do protocolo, usadas pelas duas suítes |
-| `scripts/` | `test.sh` (roda tudo), `fetch_python.sh` (baixa o Python embutido) |
+| `scripts/` | `test.sh` (roda tudo), `fetch_python.sh` (baixa o Python embutido), `build_windows.ps1` (build da Alpha) |
+| `build/` | Saída do build (fora do git): `ArcaneSyntax/` e `ArcaneSyntax-alpha.zip` |
 | `runtime/` | Python standalone baixado (fora do git) |
 
 ## Godot
@@ -192,6 +193,13 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - `MenuPanel` (`src/nodes/ui/menu_panel.gd`): base dos menus, `CanvasLayer` com `PROCESS_MODE_ALWAYS`, foco no primeiro botão. As opções ficam depois da pausa na árvore para receber o Esc primeiro.
 - `Settings` (`src/core/settings/settings.gd`): `TextSize` (Normal/Grande/Muito grande = +0/+2/+3), `volume` de 10 em 10, `<perfil>/opcoes.json` com gravação atômica. `FontScale.apply(nó, pontos)` soma pontos a todo `font_size` sobrescrito, guardando o original em metadado; `GrimoireUI.set_text_delta` e `DialogueBox.set_text_delta` (que sobe a caixa para `TOP_LARGE_TEXT` com texto maior).
 
+### Build e fumaça (spec BLD-alpha)
+
+- `game/export_presets.cfg`: preset `Windows Desktop` (x86_64, `.pck` separado, `.console.exe`), `include_filter="content/*.json"` (os JSON não são recursos importados), `exclude_filter` com `tests/`, `addons/gdUnit4/` e `reports/`.
+- `scripts/build_windows.ps1`: `--import`, `--export-release`, copia `executor/run_worker.py` + `arcane_executor/` e `runtime/python/` sem o que o worker não usa, `docs/build/LEIA-ME.txt`, roda a fumaça no `.console.exe` e gera o `.zip` só se ela passar.
+- `SmokeCheck` (`src/nodes/main/smoke_check.gd`): `requested(args)`, `run()` devolve a lista de problemas (balanceamento, diálogos, dicas, referência, `tr("MENU_TITULO")`, `AreaMap.walkthrough` em todas as salas, executor com `meditar()` + `print`), `report()` imprime `FUMACA OK`. A `Main` verifica `user_args` antes de tudo, roda a fumaça e fecha com 0 ou 1 (`quit_after_smoke`); os menus só são criados depois.
+- No jogo exportado, `PythonSpellExecutor.base_dir()` é a pasta do `.exe`; `AreaMap.load_dir` aceita as cenas `.tscn.remap`.
+
 ### Referência (spec GRI-referencia)
 
 - `content/referencia.json`: lista `[{"id", "requer": [peças]}]` (13 páginas de peças e, desde a Sprint 13, 5 de conceito); título e texto são `REF_<ID>_TITULO`/`REF_<ID>_TEXTO` (BBCode, `\n` no CSV vira quebra de linha).
@@ -296,4 +304,6 @@ Convenções:
 | `await get_tree().physics_frame` continua chegando com o jogo pausado | Para esperar em tempo de jogo: `create_timer(t, false, true)` ou pular quadros com `get_tree().paused` |
 | O grimório aberto faz uma estimativa de custo (requisição com mana 1000) mesmo com o jogo pausado | Em testes que contam requisições, filtrar as de estimativa (`GrimoireUI.ESTIMATE_MANA`) |
 | Porta baixa numa sala alta | Com `levitar` o mago voa por cima; toda porta vai do chão ao teto, e `test_area_map.gd` confere (Sprint 14) |
+| `.gitignore` com `build/` sem barra | Esconde também `docs/build/` e `docs/specs/build/`; usar `/build/` (Sprint 15) |
+| Script `.ps1` com acento no PowerShell 5.1 | Gravar em UTF-8 **com BOM**; stderr de programa nativo com `ErrorActionPreference = Stop` vira erro: decidir por `$LASTEXITCODE` |
 | Menus em teste | Teclas não chegam em headless: apertar com `botão.pressed.emit()` e chamar `PauseMenu.handle_cancel()` no lugar do Esc |

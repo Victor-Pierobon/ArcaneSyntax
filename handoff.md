@@ -1,7 +1,7 @@
 # Handoff — ArcaneSyntax
 
 > Contexto para começar uma conversa nova sem reler toda a documentação.
-> **Atualizado em:** 2026-10-26, fim da Sprint 14.
+> **Atualizado em:** 2026-10-26, Sprint 15 concluída; Alpha 1.1 planejada.
 > **Atualizar** ao fim de cada sprint (ou quando algo aqui deixar de ser verdade).
 
 ## 1. O projeto em 30 segundos
@@ -14,11 +14,11 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 
 | | |
 | --- | --- |
-| Sprint atual | **Sprint 14 concluída**: área montada do começo ao fim (13 salas, com a `sala_fim`), baús que aceitam vários caminhos, fonte antes do chefe, atalho de mão única, teste do mapa (`AreaMap`), menu inicial, pausa, opções (tamanho do texto e volume) e tela de fim da demo. A próxima é a **Sprint 15** (testes com iniciantes e build). O Victor jogou até a Sprint 13 e está funcionando |
-| Commits | Sprints 0 a 13 commitadas (último: `99628d4`). **A Sprint 14 ainda não**; o Victor revisa e commita |
-| Testes | 145 pytest + 458 GdUnit4 (inclui aceitação dos 6 puzzles, dos 3 inimigos, do chefe e dos dois caminhos de cada baú, com Python real), todos verdes localmente |
+| Sprint atual | **Alpha 1.0 pronta** (Sprints 0 a 15; o Victor jogou tudo, no editor e no `.exe`). **Próxima: Sprint 16**, a primeira da **Alpha 1.1** (`docs/plano-alpha-1-1.md`): visual, salas refeitas e um chefe mais difícil. O Victor faz a arte em paralelo (`docs/arte/identidade-visual.md`). Os testes com outras pessoas ficaram para o fim da 1.1 (Sprint 21) |
+| Commits | Sprints 0 a 14 commitadas (último: `bec8f75`). **A Sprint 15 ainda não**; o Victor revisa e commita |
+| Testes | 145 pytest + 463 GdUnit4 (inclui aceitação dos 6 puzzles, dos 3 inimigos, do chefe, dos baús e **da Alpha inteira**, com Python real, e a fumaça do build), todos verdes localmente |
 | CI | Configurado, **ainda não confirmado verde no GitHub** |
-| Pendências do Victor | **Jogar do começo ao fim pelo F5** (seção 4h de `docs/feiticos-exemplo.md`) antes da Sprint 15; revisar as decisões das Sprints 12, 13 e 14 tomadas por recomendação (ver os relatórios); calibrar valores no `balanceamento.json` se quiser (estrelas do Puzzle 6 continuam na cena da sala); Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); preencher o checklist de sensação da Sprint 3; conferir o CI; instalar templates de exportação para o build de fumaça; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
+| Pendências do Victor | **Arte da 1.1** seguindo `docs/arte/identidade-visual.md` (paleta e ficha de estilo primeiro, depois o pacote de cenário e o mago); revisar as decisões por recomendação do `plano-alpha-1-1.md`; revisar as decisões das Sprints 12 a 15 tomadas por recomendação (ver os relatórios); calibrar valores no `balanceamento.json` se quiser (estrelas do Puzzle 6 continuam na cena da sala); Tutorial 2D do Godot; escolher assets provisórios (hoje o jogo usa um tileset provisório de 3 tiles gerado por script); preencher o checklist de sensação da Sprint 3; conferir o CI; arte conceitual (guia em `docs/arte/guia-de-arte.md`) |
 
 ## 3. Regras de trabalho (combinadas com o Victor)
 
@@ -73,6 +73,7 @@ Pilares que guiam decisões: código real; o jogador cria os feitiços livrement
 - **Mapa (Sprint 14, MUN-mapa, MUN-segredos)**: 13 salas; caminho `sala_01` → `02` → `03` → `p02`…`p06` → `c01`…`c04` → `sala_fim`; atalho de mão única `sala_c01` → `sala_01` (porta `%`, abre quando o mago entra pela `atalho_entrada`; `World.opened_shortcuts`). Toda porta vai do chão ao teto (com `levitar`, o mago voa). Cada puzzle declara `licoes`. `AreaMap` (flood fill sem gravidade) testa volta, portas e ordem dos conceitos. `segredo` em `targets` = baú (`Chest`, +`xp.segredo` uma vez, `World.found_secrets`); `fonte` = `Fountain` (E enche vida e mana). Todo baú tem um caminho com feitiço e um só com movimento (pedido do Victor).
 - **Menus (Sprint 14, UI-menus)**: `Main` abre no `TitleMenu` (Continuar só com save; Novo jogo pergunta e apaga só o `save.json`); `PauseMenu` (Esc com o jogo correndo); `OptionsMenu` + `Settings` (`<perfil>/opcoes.json`; texto +0/+2/+3 via `FontScale`, volume); `EndScreen` (sinal `World.demo_finished` da cena `fim_demo`, `World.summary()`). Com texto maior que Normal, a caixa de diálogo sobe e cobre o HUD.
 - **Save (Sprint 13, SAV-progresso)**: cena principal `Main` (`main.tscn`) usa `user://perfis/padrao/` (`grimorio.json`, copiado do antigo, e `save.json` com `versao` 1). `World.save_path` vazio = sem save (os testes sobem o `World` direto e nunca tocam no progresso). `ProgressStore` grava de forma atômica; ilegível ou versão nova → `.bak` e jogo do zero. Grava ao entrar em sala, resolver puzzle, vencer chefe, subir de nível, terminar diálogo, abrir baú, beber na fonte, voltar ao menu e fechar; desde a Sprint 14 guarda `segredos` e `atalhos`. Para ir direto a uma sala no editor: **F6 no `world.tscn`** (sem save, sem menu e sem pausa; F5 abre o menu).
+- **Build (Sprint 15, BLD-alpha)**: `game/export_presets.cfg` (Windows Desktop, `.pck` separado, `.console.exe`, leva `content/*.json`, sem `tests/` e `addons/gdUnit4/`). `scripts/build_windows.ps1` exporta, copia `executor/` e `runtime/python/` enxuto, roda `ArcaneSyntax.console.exe --headless -- --fumaca` e gera o `.zip`. `SmokeCheck` (`src/nodes/main/smoke_check.gd`) confere conteúdo, textos, mapa e executor; a `Main` cria os menus só depois da fumaça. Aceitação da Alpha inteira: `tests/acceptance/test_alpha_completa.gd` (MUN-085).
 - **Grimório**: Tab abre (pausa o mundo), Esc fecha. `Grimoire` (modelo; nomes até 24, únicos sem diferenciar maiúsculas; sinais de renomear/apagar para os slots), `GrimoireStore` (`user://grimorio.json`, gravação atômica, `.bak` se o arquivo estiver ilegível), `GrimoireUI` (lista + `CodeEdit` com realce de Python e das peças do jogo). Ainda não executa feitiços.
 - **Contrato**: `tests/contract/*.json` é verificado pelas duas suítes.
 
@@ -92,6 +93,10 @@ cd executor && python -m pytest                       # executor
 cd game && "$GODOT_BIN" --headless --path . --import  # após criar scripts com class_name
 cd game && bash addons/gdUnit4/runtest.sh --headless -a res://tests --ignoreHeadlessMode
 scripts/test.sh                                        # tudo
+
+# Build da Alpha (PowerShell, na raiz; precisa dos templates de exportação do 4.7.2)
+#   $env:GODOT_BIN = "C:\...\Godot_v4.7.2-stable_win64_console.exe"; .\scripts\build_windows.ps1
+#   → build/ArcaneSyntax/ e build/ArcaneSyntax-alpha.zip; a fumaça roda no .exe exportado
 
 # Jogo e console de feitiços
 "$GODOT_BIN" --path game
@@ -137,13 +142,17 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 - **Level design (Sprint 14):** porta baixa numa sala alta não bloqueia, porque `levitar` está liberado desde o começo. Toda porta vai do chão ao teto; `test_area_map.gd` pega o erro. Sala nova ou saída nova: rode `test_area_map.gd` (volta, portas e ordem dos conceitos; o total de salas está no teste).
 - Menus em teste: aperte os botões com `pressed.emit()` e use `PauseMenu.handle_cancel()` no lugar do Esc. A `Main` abre no menu: chame `continue_game()` ou `new_game()` para ter `main.world`.
 - **Para o assistente (Sprint 14):** no Bash (cygwin), o `python` é o do Windows e não enxerga `/tmp/arquivo`, a não ser que o caminho vá como argumento do script (`python /tmp/e.py` funciona; `pathlib.Path("/tmp/x")` dentro do script não). Use `cygpath -w` ou o scratchpad.
+- **Build:** arquivo novo em `content/` que não é `.json` nem recurso importado não vai para o `.exe` sozinho: ajuste o `include_filter` do preset e rode o script (a fumaça pega os JSON). O teste da Alpha inteira (`test_alpha_completa.gd`) roda ~1 min; mexeu numa sala, num puzzle ou numa saída, ele precisa continuar verde.
+- **PowerShell 5.1:** `.ps1` com acento precisa de UTF-8 **com BOM** (o `build_windows.ps1` tem); programa nativo que escreve no stderr vira erro com `ErrorActionPreference = Stop`, então o script decide pela saída (`$LASTEXITCODE`). **Para o assistente:** rodar com `-ExecutionPolicy Bypass` foi negado pelo modo automático; chame `& .\scripts\build_windows.ps1` direto.
+- **Para o assistente (Sprint 15):** o Bash da ferramenta voltou a ser o Git Bash (`/c/...`); caminho do Windows para o `python` vai como argumento entre aspas simples.
 
 ## 8. Decisões em aberto
 
 | Decisão | Onde está a proposta |
 | --- | --- |
 | ~~Ações anteriores a um erro acontecem no mundo?~~ | **Decidido pelo Victor (2026-10-25): sim**, as ações parciais acontecem |
-| Build de fumaça completo (exportar e conjurar no `.exe`) | Passos em `docs/sprints/sprint-02-executor-custo-sandbox.md`; depende dos templates de exportação |
+| ~~Build de fumaça completo~~ | **Feito na Sprint 15** (BLD-alpha; templates instalados com o aval do Victor) |
+| Ícone e assinatura do `.exe` (SmartScreen avisa) | `BLD-alpha.md`, perguntas em aberto |
 | ~~Lista de peças desbloqueadas entra no protocolo?~~ | **Decidido (2026-10-25):** sim, o executor recusa peças bloqueadas (opção recomendada; o Victor não se opôs) |
 | ~~Peças novas para puzzles~~ | **Feito na Sprint 9** (`ler_runa`, `inscrever`, `construir_bloco`) |
 | ~~Peças de combate~~ | **Feito na Sprint 10** (`inimigos`, `alvo.vida`, `alvo.escudo`, `faisca`) |
@@ -160,5 +169,5 @@ No PowerShell, o executor de testes do Godot é `.\addons\gdUnit4\runtest.cmd` c
 
 ## 9. Próximo passo
 
-1. Perguntar ao Victor se ele jogou do começo ao fim pelo F5 (seção 4h de `docs/feiticos-exemplo.md`) e revisou as decisões das Sprints 12 a 14.
-2. Começar a **Sprint 15** (`docs/sprints/sprint-15-testes-build.md`): jogar do início ao fim e corrigir bugs (cada um com teste de regressão antes), preparar o roteiro de observação em `docs/playtest/`, testar com 3 a 5 iniciantes e fazer o build da Alpha para Windows. **Primeiro** o build de fumaça: exportar, levar `executor/` e `runtime/python/` ao lado do `.exe` e conjurar um feitiço no jogo exportado (precisa dos templates de exportação, pendência do Victor). `AreaMap.load_dir` já aceita as cenas `.tscn.remap` do jogo exportado.
+1. **Sprint 16** (`docs/plano-alpha-1-1.md`): esteira de arte. O jogo lê `game/assets/<pasta>/<animação>.png` pelo contrato de `docs/arte/identidade-visual.md`, com o provisório quando falta o arquivo; um teste confere o contrato; animações do mago por regra pura; paredes com terrain; paralaxe; provisório melhor gerado por script. Criar `docs/sprints/sprint-16-*.md` no começo.
+2. Depois, Sprints 17 (chefe 2.0) a 21 (fechamento e build 1.1), na ordem do plano. Perguntar ao Victor que arte já chegou em `game/assets/` antes da Sprint 20.
