@@ -1,7 +1,7 @@
 # BAL-valores — Os números do jogo num lugar só
 
 - **Status:** Implementada
-- **Sprint:** 11
+- **Sprint:** 11 (listas do chefe: 17)
 - **Relacionadas:** EXE-custo, EXE-protocolo (campo `regras`), EXE-limites, MUN-vida, COM-dano, COM-elemental, COM-enxame, COM-guardiao, COM-chefe
 
 ## Contexto
@@ -14,7 +14,7 @@ Sensação de movimento (pulo, coyote, esquiva, empurrão, velocidades dos proj�
 
 ## Regras
 
-1. O arquivo é `game/content/balanceamento.json`, em JSON, com as seções `mago`, `executor`, `dano`, `elemental`, `enxame`, `guardiao`, `chefe` e, desde a Sprint 12, `xp` e `niveis` (PRO-xp, PRO-niveis; a mana máxima saiu de `mago` e vem do nível). A Sprint 14 acrescentou `xp.segredo` (MUN-segredos). As listas (`chefe.elementos`, `niveis.xp`, `niveis.mana_max`) são validadas pelo tipo dos itens, e as duas de `niveis` precisam ter o mesmo tamanho. Tempos em segundos (`_s`), distâncias em tiles (`_tiles`), velocidades em px/s.
+1. O arquivo é `game/content/balanceamento.json`, em JSON, com as seções `mago`, `executor`, `dano`, `elemental`, `enxame`, `guardiao`, `chefe` e, desde a Sprint 12, `xp` e `niveis` (PRO-xp, PRO-niveis; a mana máxima saiu de `mago` e vem do nível). A Sprint 14 acrescentou `xp.segredo` (MUN-segredos). As listas (`chefe.elementos`, `niveis.xp`, `niveis.mana_max` e, desde a Sprint 17, as listas por fase do chefe: `troca_vida`, `descanso_s`, `ataques`, `leque_orbes`, `pilar_marcas`) são validadas pelo tipo dos itens; as duas de `niveis` precisam ter o mesmo tamanho, e as do chefe têm uma posição por fase (uma por elemento; `troca_vida`, uma a menos). `chefe.ataques` é uma lista de listas com `leque`, `pilares` ou `investida`. Tempos em segundos (`_s`), distâncias em tiles (`_tiles`), velocidades em px/s.
 2. Quem lê é a classe `Balance` (Godot), que carrega o arquivo uma vez e guarda o conteúdo. O jogo não tem outro lugar com esses números: as classes que antes tinham constantes passam a perguntar a `Balance`.
 3. A seção `executor` tem exatamente as chaves de `REGRAS_PADRAO` (EXE-custo e EXE-limites: ganhos, custos e `limite_tempo_ms`). O `World` e o grimório mandam essa seção como `regras` em **toda** requisição: conjurar, passivo, Testar e estimativa de custo.
 4. O executor continua com `REGRAS_PADRAO` como padrão (console de feitiços e testes do executor), mas os valores do arquivo e os do padrão são iguais, e um teste do executor garante isso: mudar um custo exige mudar os dois, e o teste avisa.
@@ -27,13 +27,14 @@ Sensação de movimento (pulo, coyote, esquiva, empurrão, velocidades dos proj�
 ### BAL-001 — O arquivo do jogo é válido
 
 - **Dado** `res://content/balanceamento.json`
-- **Então** `Balance.validate` não devolve erros, e `Balance.number("chefe", "vida")` é 30
+- **Então** `Balance.validate` não devolve erros, e `Balance.number("chefe", "vida")` é 90 (30 até a Sprint 16)
 
 ### BAL-002 — Erros apontam a chave
 
 - **Dado** um arquivo sem `chefe.vida` e com `dano.projetil` igual a `"três"`
 - **Então** `validate` devolve `falta "chefe.vida"` e `"dano.projetil" não é número`; um arquivo que não é JSON devolve um erro de leitura
 - **E** `Balance.number` de uma chave que falta devolve 0
+- **E** um arquivo com `chefe.ataques` contendo um ataque desconhecido, ou com `chefe.troca_vida` de tamanho diferente do número de fases menos um, devolve um erro com o caminho da chave
 
 ### BAL-003 — Os números mudam o jogo
 
@@ -57,7 +58,7 @@ Sensação de movimento (pulo, coyote, esquiva, empurrão, velocidades dos proj�
   "mago": {"vida": 5, "invencivel_s": 1.0},
   "executor": {"ganho_meditar": 5, "custo_lancar": 3, "custo_faisca": 1, "...": "..."},
   "dano": {"projetil": 3, "faisca": 1, "cajado": 1, "contato": 1, "fraco": 2, "normal": 1, "resiste": 0.5},
-  "chefe": {"vida": 30, "elementos": ["fogo", "gelo"], "troca_vida": 15, "transicao_s": 1.5}
+  "chefe": {"vida": 90, "elementos": ["fogo", "gelo", "planta"], "troca_vida": [60, 30], "transicao_s": 1.5, "...": "..."}
 }
 ```
 

@@ -33,7 +33,9 @@ func _write_text(text: String) -> void:
 func test_BAL_001_arquivo_do_jogo_e_valido() -> void:
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(Balance.DEFAULT_PATH))
 	assert_array(Balance.validate(data)).is_empty()
-	assert_float(Balance.number("chefe", "vida")).is_equal(30.0)
+	assert_float(Balance.number("chefe", "vida")).is_equal(90.0)
+	assert_array(Balance.list("chefe", "elementos")).is_equal(["fogo", "gelo", "planta"])
+	assert_array(Balance.list("chefe", "ataques")[2]).is_equal(["investida", "pilares", "leque"])
 	assert_int(Balance.integer("guardiao", "vida")).is_equal(18)
 	assert_array(Balance.errors()).is_empty()
 
@@ -51,6 +53,19 @@ func test_BAL_002_erros_apontam_a_chave() -> void:
 func test_BAL_002_elementos_do_chefe_sao_validados() -> void:
 	var data := _write_variant({"chefe.elementos": ["fogo", 3]})
 	assert_array(Balance.validate(data)).contains(["balanceamento: \"chefe.elementos\" não é lista de elementos"])
+
+
+func test_BAL_002_ataques_do_chefe_sao_validados() -> void:
+	var data := _write_variant({"chefe.ataques": [["leque"], ["pilares", "voo"], ["investida"]]})
+	assert_array(Balance.validate(data)).contains(["balanceamento: \"chefe.ataques\" não é lista de ataques"])
+
+
+func test_BAL_002_listas_do_chefe_tem_uma_posicao_por_fase() -> void:
+	var data := _write_variant({"chefe.troca_vida": [60], "chefe.leque_orbes": [3, 5]})
+	assert_array(Balance.validate(data)).contains([
+		"balanceamento: \"chefe.troca_vida\" precisa ter 2 posições (uma a menos que as fases)",
+		"balanceamento: \"chefe.leque_orbes\" precisa ter 3 posições (uma por fase)",
+	])
 
 
 func test_BAL_002_arquivo_ilegivel() -> void:

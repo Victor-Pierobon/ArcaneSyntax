@@ -142,16 +142,17 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 
 ### Chefe (spec COM-chefe)
 
-- Autoria: `"inimigo:chefe"` em `targets`; a sala do jogo é `sala_c04` (depois da saída `b` da `sala_c03`), com uma porta `|` que abre quando o chefe cai.
-- `BossPhases` (`src/core/combat/`, regra pura): `phase`, `element()`, `resolve(ataque, forma, vida)` (na fase 1 o dano para no limite da troca; na transição tudo é bloqueado), `after_damage(vida)` → true quando troca, `in_transition()`, `tick(delta, mago_perto)` → true quando sai um orbe (`attack_left` é o relógio; os testes mexem nele).
-- `Boss` (`src/nodes/combat/boss.gd`, herda de `Enemy`): troca `element`, nome e cor no começo da transição, pisca entre a cor velha e a nova, `phase_label` (`Fase 2!`), `body_color()`; sinais `phase_changed` e `bolt_hit`. `BossBolt` (Area2D sem camada, grupo `orbes_chefe`): voa reto e emite `hit_player(de, dano)`.
+- Autoria: `"inimigo:chefe"` em `targets`, mais `chefe:ponto` (pontos no ar, na ordem dos dígitos) e `chefe:investida` (dois pontos no chão); a sala do jogo é a arena `sala_c04` (40×22, Sprint 17, gerada por script), com uma porta `|` do chão ao teto que abre quando o chefe cai.
+- `BossPhases` (`src/core/combat/`, regra pura): três fases (`chefe.elementos`), limites `chefe.troca_vida` (60, 30) que nenhum golpe pula, `resolve`, `after_damage(vida)` → true quando troca (uma fase por vez), `in_transition()`, `tick(delta)` → true quando a transição termina.
+- `BossBrain` (`src/core/combat/`, regra pura, Sprint 17): dono das fases e do ciclo mover → aviso → ataque → descanso; `tick(delta, centro_do_mago)` devolve eventos (`mover`, `aviso`, `leque`, `marca`, `pilar`, `pilar_fim`, `investida`, `cancelar`); `marks` (marcas de pilar com o relógio), `charging()`, `destination()`, `fan(mira, n, graus)`, `floor_finder` (o nó liga `RoomLayout.floor_below`). Tempos e listas por fase em `balanceamento.json`.
+- `Boss` (`src/nodes/combat/boss.gd`, herda de `Enemy`): aplica os eventos do cérebro (cria `BossBolt` em leque e `BossPillar`, faixa da investida), `position = brain.position`, `phases` é o do cérebro, `warning`, `pillars()`, `arena(pontos, investida, layout)`; troca elemento, nome e cor no começo da transição; `any_distance = true` (alvo a qualquer distância: `World.current_target`/`current_enemies` e o `Projectile` que o persegue não têm o limite de 12 tiles). `BossBolt` (grupo `orbes_chefe`) e `BossPillar` (grupo `pilares_chefe`, marca piscando e pilar que machuca enquanto está de pé) emitem `hit_player(de, dano)`.
 - `Room`: `boss_beaten` (o World passa antes de pôr a sala na árvore; a sala nasce sem chefe e com a porta aberta), sinal `boss_defeated(room_id)`; o orbe chega ao World pelo mesmo `player_attacked` do contato. `World.defeated_bosses` guarda as salas na sessão.
 
 ### Balanceamento (spec BAL-valores)
 
 - `game/content/balanceamento.json`: seções `mago`, `executor`, `dano`, `elemental`, `enxame`, `guardiao`, `chefe`. **Nenhum número de dificuldade ou de custo fica em constante.** Sensação (pulo, esquiva, empurrão, velocidade dos projéteis do mago) continua nas classes.
 - `Balance` (`src/core/balance/balance.gd`, estática): carrega na primeira consulta; `number`/`integer`/`list(seção, chave)` (0 ou `[]` se faltar), `rules()` (a seção `executor`), `validate(dados)`, `errors()`, `use_file(caminho)` e `reset()` para os testes (sempre `reset()` no `after_test`).
-- Quem lê: `Damage`, `ElementTable.multiplier`, os cérebros e o escudo do guardião (em variáveis de instância, lidas na criação), os nós dos inimigos (vida), `Enemy` (contato), `MagoState` (vida, invencibilidade), `Progression` (XP e curva de níveis), `BossPhases`, `Boss`, `BossBolt`.
+- Quem lê: `Damage`, `ElementTable.multiplier`, os cérebros e o escudo do guardião (em variáveis de instância, lidas na criação), os nós dos inimigos (vida), `Enemy` (contato), `MagoState` (vida, invencibilidade), `Progression` (XP e curva de níveis), `BossPhases`, `BossBrain`, `BossBolt`, `BossPillar`.
 - `World._execute` e `GrimoireUI` (Testar e estimativa) mandam `Balance.rules()` como `regras` em toda requisição. O executor mantém `REGRAS_PADRAO` como padrão; `executor/tests/test_balanceamento.py` exige que seja igual à seção `executor`.
 
 ### Progressão (specs PRO-xp, PRO-niveis)

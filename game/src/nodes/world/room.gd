@@ -17,6 +17,8 @@ signal secret_found(secret_id: String)
 ## Tileset provisório com bordas (ART-esteira, regra 15); `cenario/tiles.png` toma o lugar dele.
 const PLACEHOLDER_TILES := "res://assets/placeholder/tiles_bordas.png"
 const TILE := RoomLayout.TILE
+## Marcas da arena do chefe em `targets` (COM-chefe, regra 7).
+const BOSS_POINTS := ["chefe:ponto", "chefe:investida"]
 
 ## Um tileset por imagem de tiles, montado por código (ART-esteira, regra 14).
 static var _tilesets: Dictionary = {}
@@ -330,6 +332,9 @@ func _build_targets() -> void:
 		if spec.begins_with("inimigo:"):
 			_add_enemies(digit, spec, cell)
 			continue
+		if spec in BOSS_POINTS:
+			# Pontos da arena: o chefe lê em _add_enemies (COM-chefe, regra 7).
+			continue
 		if spec.begins_with("serpente:"):
 			var serpent := Serpent.make(spec.trim_prefix("serpente:"))
 			serpent.position = RoomLayout.cell_feet(cell)
@@ -409,6 +414,7 @@ func _add_enemies(digit: String, spec: String, cell: Vector2i) -> void:
 				return
 			var boss := Boss.make_boss(target_id)
 			boss.position = RoomLayout.cell_feet(cell)
+			boss.arena(_cells_of("chefe:ponto"), _cells_of("chefe:investida"), data)
 			boss.bolt_hit.connect(player_attacked.emit)
 			boss.defeated.connect(_on_boss_defeated)
 			created.append(boss)
@@ -420,6 +426,17 @@ func _add_enemies(digit: String, spec: String, cell: Vector2i) -> void:
 		enemy.touched_player.connect(func(by: Enemy) -> void: player_attacked.emit(by.global_position, by.contact_damage))
 		_enemies.append(enemy)
 		add_child(enemy)
+
+
+## Pés de cada célula marcada com `spec` em `targets`, na ordem dos dígitos.
+func _cells_of(spec: String) -> Array[Vector2]:
+	var digits := targets.keys().filter(func(digit: Variant) -> bool:
+		return str(targets[digit]) == spec and data.targets.has(digit))
+	digits.sort()
+	var found: Array[Vector2] = []
+	for digit: Variant in digits:
+		found.append(RoomLayout.cell_feet(data.targets[digit]))
+	return found
 
 
 ## Chefe derrotado: a porta abre e o World guarda para não montar o chefe de novo (COM-chefe, regra 7).

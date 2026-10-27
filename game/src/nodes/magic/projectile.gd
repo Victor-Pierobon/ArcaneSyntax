@@ -1,7 +1,8 @@
 class_name Projectile
 extends Area2D
 ## Projétil ou faísca elemental (spec MAG-formas): persegue o alvo escolhido e só acerta ele;
-## sem alvo, voa reto e acerta o primeiro que tocar. Some numa parede ou depois de 12 tiles.
+## sem alvo, voa reto e acerta o primeiro que tocar. Some numa parede ou depois de 12 tiles (menos
+## quando persegue o chefe, que é alvo a qualquer distância).
 
 const GROUP := &"projeteis"
 const SPEED := 220.0
@@ -74,7 +75,9 @@ func _physics_process(delta: float) -> void:
 	if art_sprite:
 		art_sprite.rotation = direction.angle()
 	_travelled += step
-	if _travelled >= MAX_DISTANCE:
+	# Perseguindo quem é alvo a qualquer distância (o chefe), o alcance não vale (COM-chefe, regra 6).
+	var chasing_far := target is Enemy and (target as Enemy).any_distance
+	if _travelled >= MAX_DISTANCE and not chasing_far:
 		queue_free()
 
 

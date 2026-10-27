@@ -166,11 +166,12 @@ func test_MUN_085_a_alpha_inteira() -> void:
 	var boss := driver.room().enemies()[0] as Boss
 	var defeated := [false]
 	boss.defeated.connect(func() -> void: defeated[0] = true)
-	for i in 10:
+	for i in 20:
 		if defeated[0]:
 			break
-		await driver.place(Vector2i(6, 5))
-		await driver.cast(CHEFE, true, 60)
+		# Em cima da plataforma alta: nada acima do mago para parar o projétil.
+		await driver.place(Vector2i(12, 16))
+		await driver.cast(CHEFE, true, 150)
 		while is_instance_valid(boss) and not boss.is_defeated() and boss.phases.in_transition():
 			await driver.frames(1)
 	assert_bool(defeated[0]).override_failure_message("o chefe não caiu").is_true()

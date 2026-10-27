@@ -20,15 +20,24 @@ const KEYS := {
 	"enxame": ["vida", "orbita_raio_tiles", "orbita_periodo_s", "mergulho_tiles", "velocidade", "recarga_mordida_s"],
 	"guardiao": ["vida", "escudo_s", "brecha_s", "pisca_s"],
 	"chefe": [
-		"vida", "elementos", "troca_vida", "transicao_s", "ataque_fase1_s", "ataque_fase2_s",
-		"ataque_alcance_tiles", "orbe_velocidade", "orbe_alcance_tiles", "orbe_dano",
+		"vida", "elementos", "troca_vida", "transicao_s", "inicio_s", "velocidade", "descanso_s", "ataques",
+		"leque_aviso_s", "leque_orbes", "leque_abertura_graus", "orbe_velocidade", "orbe_alcance_tiles",
+		"orbe_dano", "pilar_marcas", "pilar_intervalo_s", "pilar_aviso_s", "pilar_ativo_s", "pilar_altura_tiles",
+		"pilar_dano", "investida_aviso_s", "investida_velocidade",
 	],
 	"xp": ["elemental", "enxame", "guardiao", "chefe", "puzzle", "bonus_estrela", "segredo"],
 	"niveis": ["xp", "mana_max"],
 }
 ## Chave → o que a lista tem.
-const LIST_KEYS := {"chefe.elementos": "elementos", "niveis.xp": "números", "niveis.mana_max": "números"}
+const LIST_KEYS := {
+	"chefe.elementos": "elementos", "chefe.troca_vida": "números", "chefe.descanso_s": "números",
+	"chefe.ataques": "ataques", "chefe.leque_orbes": "números", "chefe.pilar_marcas": "números",
+	"niveis.xp": "números", "niveis.mana_max": "números",
+}
+## Listas do chefe com uma posição por fase; `troca_vida` tem uma a menos (COM-chefe, BAL-valores).
+const BOSS_PHASE_LISTS := ["descanso_s", "ataques", "leque_orbes", "pilar_marcas"]
 const BODY_ELEMENTS := ["fogo", "gelo", "raio", "planta", "pedra"]
+const BOSS_ATTACKS := ["leque", "pilares", "investida"]
 
 static var _path := DEFAULT_PATH
 static var _data: Dictionary = {}
@@ -98,6 +107,14 @@ static func validate(data: Variant) -> Array[String]:
 	if levels is Dictionary and levels.get("xp") is Array and levels.get("mana_max") is Array \
 			and (levels["xp"] as Array).size() != (levels["mana_max"] as Array).size():
 		found.append("balanceamento: \"niveis.xp\" e \"niveis.mana_max\" precisam ter o mesmo tamanho")
+	var boss: Variant = data.get("chefe")
+	if boss is Dictionary and boss.get("elementos") is Array:
+		var phases: int = (boss["elementos"] as Array).size()
+		if boss.get("troca_vida") is Array and (boss["troca_vida"] as Array).size() != phases - 1:
+			found.append("balanceamento: \"chefe.troca_vida\" precisa ter %d posições (uma a menos que as fases)" % (phases - 1))
+		for key: String in BOSS_PHASE_LISTS:
+			if boss.get(key) is Array and (boss[key] as Array).size() != phases:
+				found.append("balanceamento: \"chefe.%s\" precisa ter %d posições (uma por fase)" % [key, phases])
 	return found
 
 
@@ -108,6 +125,9 @@ static func _is_list_of(value: Variant, kind: String) -> bool:
 		if kind == "elementos" and not (item is String and item in BODY_ELEMENTS):
 			return false
 		if kind == "números" and not (item is float or item is int):
+			return false
+		if kind == "ataques" and not (item is Array and not (item as Array).is_empty() \
+				and (item as Array).all(func(attack: Variant) -> bool: return attack in BOSS_ATTACKS)):
 			return false
 	return true
 

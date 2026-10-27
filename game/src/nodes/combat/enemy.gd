@@ -20,6 +20,8 @@ var last_damage := 0
 var last_blocked := false
 ## O mago, para quem reage a ele; null quando não há mundo (testes de sala).
 var player: Node2D
+## Alvo a qualquer distância, fora do alcance de 12 tiles (o chefe na arena; COM-chefe, regra 6).
+var any_distance := false
 
 var _contact := Area2D.new()
 var _bar_back := ColorRect.new()

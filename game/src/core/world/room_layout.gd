@@ -53,6 +53,17 @@ func size_px() -> Vector2:
 	return Vector2(width * TILE, height * TILE)
 
 
+## Topo do primeiro chão (`#` ou `=`) na coluna de `point`, da célula dele para baixo, no meio da
+## coluna (pilares do chefe, COM-chefe, regra 12). Sem chão, o fundo da sala.
+func floor_below(point: Vector2) -> Vector2:
+	var column := floori(point.x / TILE)
+	for y in range(maxi(floori(point.y / TILE), 0), height):
+		var cell := Vector2i(column, y)
+		if cell in solids or cell in platforms:
+			return Vector2(column * TILE + TILE / 2.0, y * TILE)
+	return Vector2(column * TILE + TILE / 2.0, height * TILE)
+
+
 func _read(c: String, cell: Vector2i) -> void:
 	match c:
 		"#":

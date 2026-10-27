@@ -1,23 +1,17 @@
 class_name BossPhases
 extends RefCounted
-## Fases do chefe (spec COM-chefe, regras 2 a 4 e 6): cada fase tem um elemento; na metade da vida
-## troca de fase, com uma transição invulnerável. Também conta o tempo até o próximo orbe.
+## Fases do chefe (spec COM-chefe, regras 2 a 4): cada fase tem um elemento; a vida passa por
+## limites que trocam de fase, com uma transição invulnerável. Nenhum golpe pula um limite.
 ## Os números vêm do balanceamento, seção `chefe` (spec BAL-valores).
 
 var phase := 1
-## Segundos até o próximo orbe; só corre com o mago perto e fora da transição.
-var attack_left: float
 
 var elements: Array = Balance.list("chefe", "elementos")
-var switch_health := Balance.integer("chefe", "troca_vida")
+## Vida em que começa cada fase depois da primeira: [60, 30].
+var switch_health: Array = Balance.list("chefe", "troca_vida")
 var transition_time := Balance.number("chefe", "transicao_s")
 
 var _transition_left := 0.0
-var _was_near := false
-
-
-func _init() -> void:
-	attack_left = attack_interval()
 
 
 func element() -> String:
@@ -28,8 +22,9 @@ func in_transition() -> bool:
 	return _transition_left > 0.0
 
 
-func attack_interval() -> float:
-	return Balance.number("chefe", "ataque_fase%d_s" % phase)
+## Vida abaixo da qual a fase atual não desce, ou -1 na última fase.
+func floor_health() -> int:
+	return int(switch_health[phase - 1]) if phase - 1 < switch_health.size() else -1
 
 
 ## {"blocked", "damage", "effect"} de um golpe com o chefe em `health_now` (regras 3 e 4).
@@ -38,36 +33,25 @@ func resolve(attack: String, form: String, health_now: int) -> Dictionary:
 		return {"blocked": true, "damage": 0, "effect": ElementTable.Effect.RESIST}
 	var target := element()
 	var damage := Damage.amount(attack, form, target)
-	if phase == 1:
-		damage = clampi(damage, 0, maxi(health_now - switch_health, 0))
+	var limit := floor_health()
+	if limit >= 0:
+		damage = clampi(damage, 0, maxi(health_now - limit, 0))
 	return {"blocked": false, "damage": damage, "effect": ElementTable.effect(attack, target)}
 
 
-## Depois do dano: true se trocou de fase agora (começa a transição).
+## Depois do dano: true se trocou de fase agora (começa a transição). Uma fase por vez.
 func after_damage(health_now: int) -> bool:
-	if phase != 1 or health_now > switch_health:
+	var limit := floor_health()
+	if in_transition() or limit < 0 or health_now > limit:
 		return false
-	phase = 2
+	phase += 1
 	_transition_left = transition_time
 	return true
 
 
-## Avança o relógio; true quando sai um orbe neste passo (regra 6).
-func tick(delta: float, player_near: bool) -> bool:
-	if in_transition():
-		_transition_left -= delta
-		if not in_transition():
-			attack_left = attack_interval()
+## Avança a transição; true no passo em que ela termina.
+func tick(delta: float) -> bool:
+	if not in_transition():
 		return false
-	if not player_near:
-		_was_near = false
-		return false
-	if not _was_near:
-		# O primeiro orbe sai um intervalo depois de o mago chegar perto.
-		_was_near = true
-		attack_left = attack_interval()
-	attack_left -= delta
-	if attack_left > 0.0:
-		return false
-	attack_left += attack_interval()
-	return true
+	_transition_left -= delta
+	return not in_transition()

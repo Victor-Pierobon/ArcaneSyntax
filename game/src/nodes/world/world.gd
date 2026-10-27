@@ -529,12 +529,18 @@ func current_target() -> Variant:
 		if target == null or current_room == null or not current_room.is_ancestor_of(target):
 			continue
 		var distance := player.global_position.distance_to(target.global_position)
-		if distance < best_distance:
+		# Quem é alvo a qualquer distância conta como estando no limite do alcance (COM-chefe, regra 6).
+		var ranked := minf(distance, TARGET_RANGE_TILES * RoomLayout.TILE) if _any_distance(target) else distance
+		if ranked < best_distance:
 			best = target
-			best_distance = distance
+			best_distance = ranked
 	if best == null:
 		return null
-	return _target_view(best, best_distance)
+	return _target_view(best, player.global_position.distance_to(best.global_position))
+
+
+static func _any_distance(target: TrainingTarget) -> bool:
+	return target is Enemy and (target as Enemy).any_distance
 
 
 ## Inimigos vivos da sala no alcance, do mais perto para o mais longe (spec COM-dano, regra 6).
@@ -544,7 +550,7 @@ func current_enemies() -> Array:
 		return found
 	for enemy in current_room.enemies():
 		var distance := player.global_position.distance_to(enemy.global_position)
-		if distance <= TARGET_RANGE_TILES * RoomLayout.TILE + 0.001:
+		if distance <= TARGET_RANGE_TILES * RoomLayout.TILE + 0.001 or enemy.any_distance:
 			found.append([distance, enemy])
 	found.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
 	return found.map(func(pair: Array) -> Dictionary: return _target_view(pair[1], pair[0]))

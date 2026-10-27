@@ -14,6 +14,8 @@ var direction := Vector2.RIGHT
 var speed := Balance.number("chefe", "orbe_velocidade")
 var max_distance := Balance.number("chefe", "orbe_alcance_tiles") * RoomLayout.TILE
 var damage := Balance.integer("chefe", "orbe_dano")
+## A arte (`chefe/orbe_voando_<elemento>`, COM-chefe, regra 18); null: o círculo.
+var art_sprite: AnimatedSprite2D
 
 var _travelled := 0.0
 
@@ -37,9 +39,16 @@ func _ready() -> void:
 	shape.shape = circle
 	add_child(shape)
 	body_entered.connect(_on_body_entered)
+	art_sprite = ArtLibrary.sprite("chefe", ["orbe_voando_" + element])
+	if art_sprite:
+		art_sprite.position = Vector2.ZERO
+		art_sprite.rotation = direction.angle()
+		add_child(art_sprite)
 
 
 func _draw() -> void:
+	if art_sprite:
+		return
 	var color: Color = TrainingTarget.ELEMENT_COLORS.get(element, Color.WHITE)
 	draw_circle(Vector2.ZERO, RADIUS + 1.0, Color(color, 0.35))
 	draw_circle(Vector2.ZERO, RADIUS - 1.0, color)

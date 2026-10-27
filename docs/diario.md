@@ -126,3 +126,12 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 - Bugs com regressão: o contrato pedia o escudo do guardião em raio, mas o jogo usa planta (o `escudo_planta` saiu por troca de cor, sem gastar geração); nome e barra de vida caíam em cima da arte (altura pelo desenho). Mutação da leva: 14 de 14 (dois testes reforçados). 508 GdUnit4, 145 pytest e 32 do gerador verdes.
 - A porta gerada veio com moldura e não se repete bem na vertical: sugerido `refazer objetos/porta`.
 - Próximo: Victor revisa e commita; Sprint 17 (chefe 2.0).
+
+## 2026-10-27 (Sprint 17)
+
+- A Sprint 16 foi commitada (`3606ff1`). O Victor aprovou as recomendações do chefe 2.0.
+- Spec `COM-chefe` 2.0: três fases (fogo, gelo, planta), vida 90 com trocas em 60 e 30 que nenhum golpe pula, ciclo fixo mover → aviso → ataque → descanso, um ataque novo por fase (leque de orbes, pilares do chão, investida), todos com aviso. Números novos no `balanceamento.json`.
+- `BossBrain` (regra pura) decide tudo e devolve eventos; o nó `Boss` só desenha e aplica. `BossPillar` novo. A `sala_c04` virou a arena de 40×22, com plataformas em dois níveis.
+- Aceitação com Python real, uma ação por segundo, vida 5 e mana 14: o mago parado morre aos 33 s (o chefe com 12 de 90); o que sai das marcas e esquiva vence aos 32 s com 3 de vida. O feitiço do dicionário vence as três fases em 15 conjurações (51 de mana).
+- Bugs com regressão: o projétil sumia depois de 12 tiles e não alcançava o chefe longe na arena (lendo o código); a marca do pilar ficava atrás do mago parado em cima dela (captura ampliada; agora o contorno do pilar pisca na frente). Mutação: 16 de 16.
+- Próximo: Victor revisa e commita, joga a luta (os 2 a 4 minutos e a margem do "parado perde" são para o playtest); depois Sprint 18 (salas I).
