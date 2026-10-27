@@ -64,7 +64,7 @@ A arte da Alpha 1.1 é feita pelo Victor, aos poucos e fora do Godot. O jogo pro
 25. **Escudo do guardião:** com `guardiao/escudo_<elemento>`, o escudo é esse sprite no centro do corpo, no lugar do círculo, e pisca do mesmo jeito no último segundo.
 26. **Cristal:** apagado mostra `objetos/cristal_apagado`; aceso, `cristal_aceso_<elemento>` do feitiço que o acendeu. Sem a arte daquele estado, o retângulo de hoje.
 27. **Porta e baú:** cada célula da porta (`|` e `%`) mostra `objetos/porta` (a de atalho, tingida de verde); abrir continua apagando a porta. O baú fechado mostra `objetos/bau_fechado`; aberto, o último quadro de `bau_abrindo` (tocado ao abrir) ou, sem ele, o fechado escurecido.
-28. **Tocha:** `tocha` em `targets` é decoração (sem colisão, não é alvo): `objetos/tocha` em laço, ou uma chama provisória desenhada por código.
+28. **Tocha:** `!` no layout (desde a Sprint 19, sem gastar dígito) ou `tocha` em `targets` é decoração (sem colisão, não é alvo): `objetos/tocha` em laço, ou uma chama provisória desenhada por código.
 
 ### Build
 

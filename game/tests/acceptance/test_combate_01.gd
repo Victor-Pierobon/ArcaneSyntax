@@ -1,11 +1,13 @@
 extends GdUnitTestSuite
 ## Aceitação: docs/specs/combate/COM-elemental.md (COM-025).
 ## Sala sala_c01 DO JOGO e Python de verdade. Elementais de fogo e de gelo num fosso; o mago conjura
-## da borda, 3 tiles acima, onde eles não o perseguem.
+## da borda, 3 tiles acima, onde eles não o perseguem. Desde a Sprint 19 a sala tem outro grupo, a mais
+## de 12 tiles da borda: o teste olha só para os dois do fosso.
 
 const GRIMOIRE_PATH := "user://tests/grimorio_com01.json"
-## Pés na beirada da borda (coluna 7, topo na linha 7).
-const LEDGE := Vector2i(7, 6)
+## Pés na beirada da borda (coluna 17, topo na linha 18).
+const LEDGE := Vector2i(17, 17)
+const PIT := ["1", "2"]
 ## Espera o alvo chegar a esta distância: o projétil anda no máximo 12 tiles.
 const SAFE_DISTANCE := 10.0
 
@@ -30,6 +32,16 @@ func after_test() -> void:
 	driver.cleanup()
 
 
+## Os elementais do fosso que ainda não caíram.
+func _pit_alive() -> Array[Enemy]:
+	var alive: Array[Enemy] = []
+	for digit: String in PIT:
+		var enemy := _enemy(digit)
+		if enemy != null and not enemy.is_defeated():
+			alive.append(enemy)
+	return alive
+
+
 func _enemy(digit: String) -> Enemy:
 	for enemy in driver.room().enemies():
 		if enemy.target_id == "sala_c01_alvo_" + digit:
@@ -48,12 +60,12 @@ func _wait_for_target() -> void:
 
 func test_COM_025_feitico_adaptavel_vence_os_dois_com_quatro_conjuracoes() -> void:
 	var casts := 0
-	while not driver.room().enemies().is_empty() and casts < 6:
+	while not _pit_alive().is_empty() and casts < 6:
 		await _wait_for_target()
 		var result := await driver.cast(ADAPTAVEL, true, 60)
 		assert_bool(result.ok).override_failure_message(str(result.error)).is_true()
 		casts += 1
-	assert_array(driver.room().enemies()).is_empty()
+	assert_array(_pit_alive()).is_empty()
 	assert_int(casts).is_equal(4)
 	assert_int(driver.world.state.health.current).is_equal(5)
 

@@ -81,6 +81,8 @@ func _ready() -> void:
 	_build_platforms()
 	_build_exits()
 	_build_targets()
+	for cell in data.torches:
+		_add_torch(cell)
 	_build_puzzle()
 	if boss_beaten and _door:
 		_door.open()
@@ -378,9 +380,7 @@ func _build_targets() -> void:
 			_add_chest(digit, cell)
 			continue
 		if spec == "tocha":
-			var torch := Torch.new()
-			torch.position = RoomLayout.cell_feet(cell)
-			add_child(torch)
+			_add_torch(cell)
 			continue
 		if spec == "fonte":
 			var fountain := Fountain.new()
@@ -458,6 +458,13 @@ func _add_enemies(digit: String, spec: String, cell: Vector2i) -> void:
 		enemy.touched_player.connect(func(by: Enemy) -> void: player_attacked.emit(by.global_position, by.contact_damage))
 		_enemies.append(enemy)
 		add_child(enemy)
+
+
+## Decoração, sem colisão e sem ser alvo (ART-esteira, regra 28).
+func _add_torch(cell: Vector2i) -> void:
+	var torch := Torch.new()
+	torch.position = RoomLayout.cell_feet(cell)
+	add_child(torch)
 
 
 ## Pés de cada célula marcada com `spec` em `targets`, na ordem dos dígitos.

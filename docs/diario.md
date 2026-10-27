@@ -144,3 +144,11 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 - A HUD saiu do chão (atalhos no topo). Bugs com regressão: a HUD em cima dos pés do mago; a plataforma que cai igual à fixa (captura de tela); e um teste intermitente da Sprint 17 (na investida o chefe vai ao chão e o golpe de quem está na plataforma batia nela; os testes esperam a linha livre). Mutação: 15 de 17 (2 equivalentes). 578 GdUnit4, 145 pytest e 32 do gerador verdes.
 - Próximo: Victor revisa e commita, joga as salas novas; depois Sprint 19 (combate e fim).
 
+## 2026-10-27 (Sprint 19)
+
+- O Victor testou a Sprint 18 (tudo funcionando) e commitou (`3e400bd`).
+- Tocha virou `!` no layout (sem gastar dígito); a `sala_p06` ganhou tochas.
+- `sala_c01` a `c03` e `sala_fim` refeitas no gerador: fosso dos elementais com borda e escada até o atalho, grupos mistos (elemental com enxame) longe do lugar de cada luta, poço com plataforma que se move, caminho alto por cima do guardião, estrado da despedida. As 13 salas da Alpha 1.1 estão refeitas.
+- O teste de alcance a pé passou a conferir também a ida (toda saída a pé, menos as do elevador) e achou a escada do atalho da `c01` com a cabeça batendo na quina. Mutação: 5 de 5. 581 GdUnit4, 145 pytest e 32 do gerador verdes.
+- Próximo: Victor revisa e commita, joga do fim da `p06` até a `sala_fim`; Sprint 20 (arte e brilho) depende do que chegou de arte.
+

@@ -220,3 +220,15 @@ func test_ART_048_sem_arte_usa_o_corpo() -> void:
 	var guardian: Guardian = auto_free(Guardian.make_guardian("g1"))
 	add_child(guardian)
 	assert_float(guardian.top_height()).is_equal(guardian.body_size.y)
+
+
+func test_MUN_112_tocha_do_layout_na_sala() -> void:
+	var room: Room = auto_free(Room.new())
+	room.room_id = "sala_tocha"
+	room.layout = "#####\n#!.!#\n#A..#\n#####"
+	add_child(room)
+	var torches := room.get_children().filter(func(n: Node) -> bool: return n is Torch)
+	assert_int(torches.size()).is_equal(2)
+	assert_vector(torches[0].position).is_equal(RoomLayout.cell_feet(Vector2i(1, 1)))
+	assert_array(room.errors).is_empty()
+	assert_int(get_tree().get_nodes_in_group(TrainingTarget.GROUP).size()).is_equal(0)

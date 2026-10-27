@@ -17,6 +17,8 @@ var shortcut_doors: Array[Vector2i] = []
 ## Vãos de ponte (`~`) e placas de pressão (`_`), Sprint 9 (spec PUZ-validacao).
 var bridge_cells: Array[Vector2i] = []
 var plates: Array[Vector2i] = []
+## Tochas (`!`, decoração; MUN-salas, MUN-112).
+var torches: Array[Vector2i] = []
 ## Letra maiúscula → célula, na ordem de leitura.
 var entries: Dictionary = {}
 ## Letra minúscula → Array[Vector2i] com as células da saída.
@@ -98,6 +100,8 @@ func _read(c: String, cell: Vector2i) -> void:
 			_movers.append(cell)
 		"+":
 			_path_ends.append(cell)
+		"!":
+			torches.append(cell)
 		".", " ":
 			pass
 		_:

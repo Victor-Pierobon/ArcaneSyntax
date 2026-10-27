@@ -1,10 +1,12 @@
 extends GdUnitTestSuite
 ## Aceitação: docs/specs/combate/COM-guardiao.md (COM-064).
 ## Sala sala_c03 DO JOGO e Python de verdade. O mago conjura a 10 tiles do guardião; o relógio do escudo
-## é posto no começo de cada fase para escolher qual escudo ele terá (o projétil leva ~0,7 s).
+## é posto no começo de cada fase para escolher qual escudo ele terá (o projétil leva ~0,7 s). Desde a
+## Sprint 19 há um grupo misto depois do guardião, a mais de 12 tiles do mago.
 
 const GRIMOIRE_PATH := "user://tests/grimorio_com03.json"
-const SPOT := Vector2i(8, 5)
+## 10 tiles à esquerda do guardião.
+const FROM_GUARDIAN := Vector2i(-10, 0)
 ## Início de cada escudo + 1 s: fogo, planta, gelo.
 const FIRE_TIME := 1.0
 const PLANT_TIME := 6.0
@@ -32,7 +34,7 @@ func before_test() -> void:
 	driver = auto_free(PuzzleDriver.new())
 	add_child(driver)
 	await driver.start("sala_c03", GRIMOIRE_PATH)
-	await driver.place(SPOT)
+	await driver.place(driver.cell_of("1") + FROM_GUARDIAN)
 
 
 func after_test() -> void:
@@ -40,7 +42,10 @@ func after_test() -> void:
 
 
 func _guardian() -> Guardian:
-	return driver.room().enemies()[0] as Guardian
+	for enemy in driver.room().enemies():
+		if enemy is Guardian:
+			return enemy
+	return null
 
 
 func _cast_at(shield_time: float, code: String) -> SpellResult:

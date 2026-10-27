@@ -60,6 +60,8 @@ A Masmorra é a base da torre. O mago desce em zigue-zague: cada andar ensina um
 
 Na Sprint 14 entraram também os baús da `sala_02` e da `sala_03` e a fonte da `sala_c03`, e todas as portas passaram a ir do chão ao teto (com `levitar`, dava para voar por cima da porta do P1).
 
+Na Alpha 1.1 (Sprints 17 a 19) o desenho de cima continua valendo, com as salas maiores: a `sala_c04` virou a arena do chefe; a `sala_c01` tem o fosso dos elementais e, do outro lado, um grupo misto (elemental de planta e enxame) e a escada até o atalho; a `sala_c02` tem um elemental de gelo na chegada, um poço com plataforma que se move e o salão do enxame; a `sala_c03` tem a fonte, o guardião (com um caminho alto por cima dele) e outro grupo misto; a `sala_fim` tem um estrado com a serpente. São 5 baús (`sala_01`, `02`, `03`, `p03`, `p06`).
+
 ## Para decidir no papel (Victor)
 
 - [x] Os corredores `sala_02` e `sala_03` continuam só de movimento, ou ganham um segredo cada? **Victor (Sprint 14): um segredo cada, mas o jogador deve ser recompensado por resolver de várias formas, não de uma forma específica.** Cada baú tem um caminho com feitiço e um só com pulo e esquiva (MUN-segredos).
