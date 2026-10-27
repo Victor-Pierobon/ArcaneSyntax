@@ -32,7 +32,7 @@ static func make(start: Vector2, end: Vector2, p_width: int) -> MovingPlatform:
 
 func _ready() -> void:
 	sync_to_physics = true
-	collision_layer = 1
+	collision_layer = Room.PLATFORM_LAYER
 	collision_mask = 0
 	var shape := CollisionShape2D.new()
 	var rect := RectangleShape2D.new()

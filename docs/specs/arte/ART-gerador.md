@@ -49,7 +49,7 @@ O Victor não desenha os sprites e tem uma cota de **40 gerações por mês** no
 
 ### Arquivos
 
-15. A chave da API vem da variável de ambiente `PIXELLAB_API_TOKEN`; nunca fica em arquivo do projeto.
+15. A chave da API vem da variável de ambiente `PIXELLAB_API_TOKEN`; nunca fica em arquivo do projeto. No Windows, o valor gravado pelo `setx` (registro do usuário) vale mais que o herdado pelo processo, que pode ser de uma chave antiga.
 16. Estado em `art/ia/estado.json`; imagens brutas (como vieram da API) em `art/ia/brutos/`.
 
 ## Critérios de aceite
@@ -139,6 +139,12 @@ O Victor não desenha os sprites e tem uma cota de **40 gerações por mês** no
 
 - **Dado** uma animação com `inverter: true`
 - **Então** o último quadro instalado é o primeiro que a API devolveu (a imagem pronta)
+
+### ART-117 — A chave nova do `setx` vale na hora
+
+- **Dado** no Windows, o processo com `PIXELLAB_API_TOKEN` antigo e o registro do usuário com outro valor
+- **Então** a ferramenta usa o do registro; sem nada no registro, usa a do processo
+- Regressão (2026-10-27): o `setx` não muda processos já abertos (o Claude Code e os comandos que ele abre), e a ferramenta seguia com a chave antiga.
 
 ## Decisões
 

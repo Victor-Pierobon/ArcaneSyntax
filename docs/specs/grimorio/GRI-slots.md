@@ -25,7 +25,7 @@ Cinco feitiços ficam ligados a teclas e são conjurados na hora (GDD). Esta spr
 8. O resultado vai para o **registro de conjuração** (as últimas 6 linhas na tela): ações, visões (`print`) e custo; ou o erro, com a frase no mundo (GRI-erros).
 9. Slot vazio: o registro avisa e nada é enviado.
 10. Com o jogo pausado (grimório aberto), as teclas de slot não conjuram.
-11. Todas as peças da Alpha começam desbloqueadas até a progressão existir (Sprint 12); o mecanismo já está ligado.
+11. Todas as peças da Alpha começam desbloqueadas, menos o `feixe`, que a serpente da `sala_c03` ensina (Sprint 21, MAG-feixe, regra 8); o mecanismo já estava ligado.
 
 ## Critérios de aceite
 

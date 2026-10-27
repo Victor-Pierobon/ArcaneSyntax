@@ -334,8 +334,10 @@ def sala_c03():
     g.hline(20, 28, 14, "#")
     for x, y in ((10, 20), (22, 13), (37, 20)):
         g.put(x, y, "!")
-    marks = {"A": (2, 20), "2": (5, 20), "1": (24, 20), "4": (34, 20), "3": (31, 11), "B": (36, 20)}
-    targets = {"1": "inimigo:guardiao", "2": "fonte", "3": "inimigo:enxame:2", "4": "inimigo:elemental:planta"}
+    # A serpente que ensina o feixe, antes do chefe (MAG-feixe, regra 8; Sprint 21).
+    marks = {"A": (2, 20), "2": (5, 20), "9": (8, 20), "1": (24, 20), "4": (34, 20), "3": (31, 11), "B": (36, 20)}
+    targets = {"1": "inimigo:guardiao", "2": "fonte", "3": "inimigo:enxame:2", "4": "inimigo:elemental:planta",
+               "9": "serpente:ensino_feixe"}
     return g, marks, targets
 
 

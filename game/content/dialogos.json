@@ -63,5 +63,13 @@
       "c": {"quem": "mago", "texto": "FIM_DEMO_3", "proxima": "fim"},
       "fim": {"quem": "serpente", "texto": "FIM_DEMO_FIM"}
     }
+  },
+  "ensino_feixe": {
+    "inicio": "a",
+    "falas": {
+      "a": {"quem": "serpente", "texto": "ENSINO_FEIXE_1", "proxima": "licao"},
+      "licao": {"quem": "serpente", "texto": "ENSINO_FEIXE_LICAO", "proxima": "b"},
+      "b": {"quem": "serpente", "texto": "ENSINO_FEIXE_2"}
+    }
   }
 }

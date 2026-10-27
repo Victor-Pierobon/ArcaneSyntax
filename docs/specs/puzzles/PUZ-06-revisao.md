@@ -17,8 +17,8 @@ Uma sala só, com os quatro mecanismos em sequência, da esquerda para a direita
 A porta, no fim, abre quando tudo está feito. As estrelas medem a mana gasta nos feitiços que agem (PUZ-validacao, regra 14).
 
 - Sala: `sala_p06`, ligada à `sala_p05`
-- Puzzle: `{"id": "p06_revisao", "condicoes": [{"tipo": "cadeados_abertos"}, {"tipo": "ponte_completa"}, {"tipo": "cristais_acesos"}, {"tipo": "placas_pisadas"}], "estrelas": [20.0, 24.0]}`
-- Os limites das estrelas são **provisórios**: a referência econômica (A) dá 19.5 e a detalhada (B) dá 21.0. Calibrar no playtest.
+- Puzzle: `{"id": "p06_revisao", "condicoes": [{"tipo": "cadeados_abertos"}, {"tipo": "ponte_completa"}, {"tipo": "cristais_acesos"}, {"tipo": "placas_pisadas"}], "estrelas": [22.0, 26.0]}`
+- Os limites das estrelas são **provisórios**: a referência econômica (A) dá 21.5 e a detalhada (B) dá 23.0 (19.5 e 21.0 até a Sprint 20; o `lancar` passou de 3 para 4). Calibrar no playtest.
 
 ## Soluções que devem passar
 
@@ -47,7 +47,7 @@ O teste fixa as runas em 4, 7 e 2 e a semente do cristal. Ele leva o mago a cada
 
 ### PUZ-071 — Estrelas pela economia
 
-- **Então** a solução A ganha 3 estrelas e a B, 2; um erro a mais no cristal (3.2 gastos à toa, total 22.7) tira a A das 3 estrelas
+- **Então** a solução A ganha 3 estrelas e a B, 2; um erro a mais no cristal (4.2 gastos à toa, total 25.7) tira a A das 3 estrelas
 
 ### PUZ-072 — Soluções erradas não abrem
 

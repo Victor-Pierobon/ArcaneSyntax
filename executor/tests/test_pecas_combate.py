@@ -11,6 +11,8 @@ def inimigo(id, elemento="gelo", distancia=3.0, vida=2, escudo=None):
 
 ENXAME = [inimigo(f"bicho_{n}", distancia=8 + n * 0.5) for n in range(1, 7)]
 LOOP = "for inimigo in inimigos:\n    lancar(raio, {forma}, inimigo)"
+# Dois projéteis de 4 e o que as voltas e a inscrição custaram até a terceira não poder ser paga.
+CUSTO_PROJETEIS = 8.3
 
 
 def test_EXE_120_inimigos_le_a_foto():
@@ -65,28 +67,28 @@ def test_EXE_126_a_vida_nao_muda_durante_o_feitico():
     r = run("while inimigos[0].vida > 0:\n    lancar(raio, faisca, inimigos[0])", mago=MANA_10, inimigos=[inimigo("a")])
     assert r["erro"]["tipo"] == "ManaEsgotada"
     assert r["erro"]["linha"] == 2
-    assert len(acoes(r, "lancar")) == 9
+    assert len(acoes(r, "lancar")) == 6
 
 
-def test_EXE_095_faisca_custa_1():
+def test_EXE_095_faisca_custa_1_e_meio():
     r = run("lancar(raio, faisca)")
-    assert r["custo_mana"] == 1.2
-    assert r["mago"]["mana"] == 3.8
+    assert r["custo_mana"] == 1.7
+    assert r["mago"]["mana"] == 3.3
     assert run("lancar(raio, faisca)", regras={"custo_faisca": 2})["custo_mana"] == 2.2
     # As outras formas continuam custando custo_lancar.
-    assert run("lancar(raio, escudo)")["custo_mana"] == 3.2
+    assert run("lancar(raio, escudo)")["custo_mana"] == 4.2
 
 
 def test_EXE_096_loop_de_faiscas_sobre_o_enxame():
     r = run(LOOP.format(forma="faisca"), mago=MANA_10, inimigos=ENXAME)
     assert r["ok"] is True, r["erro"]
     assert len(acoes(r, "lancar")) == 6
-    assert r["custo_mana"] == 6.7
+    assert r["custo_mana"] == 9.7
     r = run(LOOP.format(forma="projetil"), mago=MANA_10, inimigos=ENXAME)
-    assert len(acoes(r, "lancar")) == 3
+    assert len(acoes(r, "lancar")) == 2
     assert r["erro"]["tipo"] == "ManaEsgotada"
     assert r["erro"]["linha"] == 2
-    assert r["custo_mana"] == 9.4
+    assert r["custo_mana"] == CUSTO_PROJETEIS
 
 
 def test_EXE_112_inimigos_na_requisicao():
@@ -111,3 +113,22 @@ def test_EXE_112_inimigos_na_requisicao():
 def test_EXE_123_alvo_nao_fabrica_alvos():
     r = run("print([n for n in dir(alvo) if not n.startswith('_')])", alvo=inimigo("a"))
     assert r["saidas"][0]["texto"] == "['distancia', 'elemento', 'escudo', 'vida']"
+
+
+# --- Feixe (spec MAG-feixe, Sprint 21) ---
+
+
+def test_MAG_080_feixe_no_executor():
+    alvo = inimigo("a1", "fogo", 5, 12)
+    r = run("lancar(gelo, feixe, alvo)", mago=MANA_10, alvo=alvo, inimigos=[alvo])
+    assert r["ok"] is True, r["erro"]
+    assert r["acoes"] == [{"tipo": "lancar", "linha": 1, "elemento": "gelo", "forma": "feixe", "alvo": "a1"}]
+    assert r["custo_mana"] == 8.2
+    # Com regras próprias, o custo vem delas.
+    assert run("lancar(gelo, feixe)", mago=MANA_10, regras={"custo_feixe": 2})["custo_mana"] == 2.2
+
+
+def test_MAG_080_feixe_sem_mana():
+    r = run("lancar(gelo, feixe)", mago={"vida": 5, "mana": 7, "mana_max": 10})
+    assert r["erro"]["tipo"] == "ManaEsgotada"
+    assert r["acoes"] == []

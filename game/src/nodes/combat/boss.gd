@@ -83,7 +83,8 @@ func _think(delta: float) -> void:
 	_clock += delta
 	var feet: Variant = _player_feet()
 	var target: Vector2 = feet + PLAYER_CENTER if feet != null else position
-	for event in brain.tick(delta, target):
+	var velocity := (player as CharacterBody2D).velocity if player is CharacterBody2D else Vector2.ZERO
+	for event in brain.tick(delta, target, velocity):
 		_apply(event)
 	position = brain.position
 	_update_look()
@@ -101,6 +102,8 @@ func _apply(event: Dictionary) -> void:
 				_fire(direction)
 		"marca":
 			_add_pillar(event["id"], event["posicao"])
+		"orbe":
+			_fire(event["direcao"])
 		"pilar":
 			if _pillars.has(event["id"]):
 				_pillars[event["id"]].rise()

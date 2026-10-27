@@ -15,7 +15,7 @@ const BUILTINS := [
 ## Vocabulário do jogo (spec EXE-pecas): peças, elementos, formas e sentidos.
 const GAME_WORDS := [
 	"lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco",
-	"fogo", "gelo", "raio", "projetil", "escudo", "faisca",
+	"fogo", "gelo", "raio", "projetil", "escudo", "faisca", "feixe",
 	"mana", "mana_max", "vida_atual", "alvo", "inimigos", "ler_runa",
 ]
 

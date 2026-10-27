@@ -14,7 +14,7 @@ Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5
 
 ## Regras
 
-1. **Elementos** são strings comuns, disponíveis como nomes prontos: `fogo`, `gelo`, `raio`. **Formas**: `projetil`, `escudo` e, desde a Sprint 10, `faisca`. Por serem strings, `alvo.elemento == "fogo"` e `alvo.elemento == fogo` funcionam, e `lancar(alvo.elemento, ...)` é válido.
+1. **Elementos** são strings comuns, disponíveis como nomes prontos: `fogo`, `gelo`, `raio`. **Formas**: `projetil`, `escudo` e, desde a Sprint 10, `faisca`; desde a Sprint 21, `feixe` (MAG-feixe). Por serem strings, `alvo.elemento == "fogo"` e `alvo.elemento == fogo` funcionam, e `lancar(alvo.elemento, ...)` é válido.
 2. **Sentidos** são variáveis globais lidas do mundo: `mana`, `mana_max`, `vida_atual`, `alvo` e, desde a Sprint 10, `inimigos`. `alvo` é `None` quando não há alvo; senão tem os atributos somente-leitura `elemento`, `distancia`, `vida` e `escudo` (os dois últimos valem `None` quando a foto não os traz, como nos bonecos).
 3. Os sentidos do mago são ressincronizados com o estado real **depois de cada instrução** (desde a Sprint 2, EXE-custo regra 7; antes era a cada peça). Se o jogador escrever `mana = 999`, isso não dá mana nenhuma: no fim da instrução o valor volta ao real.
 4. Peças:
@@ -202,4 +202,4 @@ Custo de mana por peça (EXE-custo). Peças bloqueadas por progressão (Sprint 5
 
 - **Dado** um inimigo com vida 2 e mana 10
 - **Quando** o feitiço é `while inimigos[0].vida > 0:\n    lancar(raio, faisca, inimigos[0])`
-- **Então** registra 9 ações e dá `ManaEsgotada` na linha 2
+- **Então** registra 6 ações (9 até a Sprint 20, com a faísca a 1) e dá `ManaEsgotada` na linha 2

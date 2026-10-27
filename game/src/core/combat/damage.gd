@@ -4,7 +4,7 @@ extends RefCounted
 ## balanceamento, seção `dano` (spec BAL-valores).
 
 ## Formas com dano próprio; forma desconhecida conta como projétil.
-const FORMS := ["projetil", "faisca"]
+const FORMS := ["projetil", "faisca", "feixe"]
 
 
 static func amount(attack: String, form: String, target_element: String) -> int:

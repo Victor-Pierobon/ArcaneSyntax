@@ -42,7 +42,8 @@ O assistente segue uma sprint por vez, como antes (spec → teste → código, s
 | 18 | Salas I: começo e puzzles | `sala_01` a `03` e `p02` a `p06` refeitas: altura, plataformas, perigos, inimigos no caminho, segredos novos; plataforma que se move e plataforma que cai (se entrarem) | 18–26 | 16 (terrain) |
 | 19 | Salas II: combate e fim | `c01` a `c03` refeitas (mais inimigos, ondas mistas, travessia), arena do chefe montada no mapa, `sala_fim`; mapa e Alpha inteira de novo | 14–20 | 17, 18 |
 | 20 | Integração da arte e brilho | Luz (sala escura, tochas, cristais e feitiços que iluminam), partículas por elemento, tremida de câmera, runas do código, interface com a moldura e a fonte do Victor, logo no menu; ligar o que chegou de arte | 12–20 | arte do Victor |
-| 21 | Fechamento da 1.1 | Captura de todas as salas, ajuste de valores, build `ArcaneSyntax-alpha-1.1.zip`, roteiro de teste para as pessoas que o Victor escolher | 8–12 | 20 |
+| 21 | Feixe, chefe mais rápido e magia mais cara (pedido do Victor, 2026-10-27) | A forma `feixe` (carrega e dispara, atravessa os inimigos), aprendida com a serpente antes do chefe; o chefe mais rápido, com mais pressão e avisos mais curtos; `lancar` a 4, faísca a 1,5, meditar de 1 s | 10–16 | 20 |
+| 22 | Fechamento da 1.1 | Captura de todas as salas, ajuste de valores, build `ArcaneSyntax-alpha-1.1.zip`, roteiro de teste para as pessoas que o Victor escolher | 8–12 | 20 |
 | | **Total** | | **~82–122 h** | |
 
 A Sprint 20 é a única que depende do ritmo da arte. Se a arte atrasar, ela entra com o que houver, e o resto entra numa 1.2 sem segurar o build.
@@ -55,4 +56,4 @@ A Sprint 20 é a única que depende do ritmo da arte. Se a arte atrasar, ela ent
 
 ## Fora do 1.1 (vai para o GDD se aparecer)
 
-Sons e música definitivos, andares novos, peças novas de Python, mais conceitos, ícone e assinatura do `.exe`.
+Sons e música definitivos, andares novos, peças novas de Python (exceto o `feixe`, pedido pelo Victor na Sprint 21), mais conceitos, ícone e assinatura do `.exe`.

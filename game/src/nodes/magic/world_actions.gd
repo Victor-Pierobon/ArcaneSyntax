@@ -4,7 +4,10 @@ extends Node
 ## É o `port` do ActionPlayer: um método `act_<tipo>` por ação. Respeita a pausa do jogo.
 
 const CAST_DELAY := 0.15
-const MEDITATE_TIME := 0.5
+## Meditar leva 1 s (era 0,5 até a Sprint 20): recuperar mana custa tempo (Sprint 21).
+const MEDITATE_TIME := 1.0
+## O feixe carrega por este tempo antes de sair (MAG-feixe, regra 3).
+const BEAM_CHARGE := 0.5
 const ABSORB_TIME := 0.08
 const INSCRIBE_TIME := 0.3
 const BLOCK_TIME := 0.15
@@ -31,6 +34,9 @@ var _control_before_flight: Callable
 func act_lancar(action: Dictionary) -> void:
 	var element := str(action.get("elemento", ""))
 	world.player.play_action("conjurar")
+	if action.get("forma") == "feixe":
+		await _fire_beam(element, action.get("alvo"))
+		return
 	if action.get("forma") == "escudo":
 		_raise_shield(element)
 		world.sfx.play("escudo")
@@ -195,6 +201,49 @@ func _launch_projectile(element: String, target_id: Variant, form: String) -> vo
 	var projectile := Projectile.make(element, direction, form, target)
 	projectile.position = hand
 	world.add_child(projectile)
+
+
+## Carrega parado e solta o feixe, que acerta tudo na linha até a parede (MAG-feixe, regras 3 a 6).
+func _fire_beam(element: String, target_id: Variant) -> void:
+	var player := world.player
+	var target: TrainingTarget = world.find_target(str(target_id)) if target_id != null else null
+	if target:
+		var side := signf(target.center().x - player.global_position.x)
+		if side != 0.0:
+			player.motor.facing = int(side)
+	var saved := player.intent_source
+	player.intent_source = func() -> PlayerIntent: return PlayerIntent.make()
+	player.play_action("conjurar", BEAM_CHARGE)
+	var color: Color = TrainingTarget.ELEMENT_COLORS.get(element, Color.WHITE)
+	var charge := Lighting.make(color, 12, 1.4)
+	charge.position = Vector2(HAND_OFFSET.x * player.motor.facing, HAND_OFFSET.y)
+	player.add_child(charge)
+	create_tween().tween_property(charge, "texture_scale", charge.texture_scale * 3.0, BEAM_CHARGE)
+	await _wait(BEAM_CHARGE)
+	charge.queue_free()
+	player.intent_source = saved
+	var room := world.current_room
+	if room == null:
+		return
+	var hand := player.global_position + Vector2(HAND_OFFSET.x * player.motor.facing, HAND_OFFSET.y)
+	var direction := Vector2(player.motor.facing, 0)
+	if target and is_instance_valid(target):
+		direction = target.center() - hand
+	var origin := room.global_position
+	var end := BeamRule.end_point(hand, direction, func(cell: Vector2i) -> bool:
+		return room.blocks_beam(cell - Vector2i(floori(origin.x / RoomLayout.TILE), floori(origin.y / RoomLayout.TILE))))
+	var targets: Array[TrainingTarget] = []
+	var rects: Array[Rect2] = []
+	for node in get_tree().get_nodes_in_group(TrainingTarget.GROUP):
+		var each := node as TrainingTarget
+		if each and room.is_ancestor_of(each):
+			targets.append(each)
+			rects.append(Rect2(each.global_position - Vector2(each.body_size.x / 2, each.body_size.y), each.body_size))
+	for index in BeamRule.hits(hand, end, rects):
+		targets[index].hit(element, "feixe")
+	world.add_child(Beam.make(element, hand, end))
+	world.sfx.play("conjurar", element)
+	await _wait(CAST_DELAY)
 
 
 func _raise_shield(element: String) -> void:

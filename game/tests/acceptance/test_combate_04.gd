@@ -7,10 +7,14 @@ const GRIMOIRE_PATH := "user://tests/grimorio_com04.json"
 const HIGH_SPOT := Vector2i(12, 16)
 ## No chão, no meio da arena.
 const FLOOR_SPOT := Vector2i(18, 20)
-## Orçamento de referência: quinze conjurações de 3,4.
-const MANA_BUDGET := 52.0
-## XP da chegada ao chefe pelo caminho normal: nível 3, mana máxima 14 (COM-094).
-const ARRIVAL_XP := 70
+## Orçamento de referência: quinze conjurações de 4,4 (3,4 até a Sprint 20).
+const MANA_BUDGET := 67.0
+## XP da chegada ao chefe pelo caminho normal: nível 4, mana máxima 16 (COM-094). Desde a Sprint 19 (mais
+## inimigos e baús), a Alpha inteira chega ao chefe com ~155 de XP.
+const ARRIVAL_XP := 130
+const ARRIVAL_MANA := 16.0
+## O passivo que o jogo ensina para quem fica sem mana (MAG-passivo).
+const ABSORVER := "if mana < mana_max:\n    absorver_mana()"
 const FRAMES_PER_ACTION := 60
 const MAX_FIGHT_FRAMES := 120 * 60
 
@@ -25,7 +29,7 @@ else:
     lancar(fogo, projetil, alvo)"""
 
 ## Custo do feitiço de referência (duas linhas com inscrição + lancar).
-const SPELL_COST := 3.4
+const SPELL_COST := 4.4
 
 var driver: PuzzleDriver
 
@@ -158,10 +162,13 @@ func test_COM_088_o_feitico_ve_o_elemento_da_fase() -> void:
 
 
 ## Uma ação por segundo: o feitiço de referência se a mana dá, senão meditar. Devolve
-## {"venceu", "morreu", "vida", "segundos"}.
-func _fight() -> Dictionary:
-	driver.world.state.restore_progress(ARRIVAL_XP, 14.0)
-	assert_float(driver.world.state.mana_max).is_equal(14.0)
+## {"venceu", "morreu", "vida", "segundos"}. `careful`: só medita nas brechas do chefe (COM-095).
+func _fight(careful := false) -> Dictionary:
+	driver.world.state.restore_progress(ARRIVAL_XP, ARRIVAL_MANA)
+	assert_float(driver.world.state.mana_max).is_equal(ARRIVAL_MANA)
+	if careful:
+		driver.world.grimoire.create("Absorver", ABSORVER)
+		driver.world.grimoire.set_passive("Absorver")
 	var boss := _boss()
 	var outcome := {"venceu": false, "morreu": false}
 	boss.defeated.connect(func() -> void: outcome["venceu"] = true)
@@ -170,6 +177,9 @@ func _fight() -> Dictionary:
 	while not outcome["venceu"] and not outcome["morreu"] and Engine.get_physics_frames() - start < MAX_FIGHT_FRAMES:
 		var began := Engine.get_physics_frames()
 		var code := DICIONARIO if driver.world.state.mana >= SPELL_COST else "meditar()"
+		if careful and code == "meditar()":
+			# Meditar deixa o mago parado 1 s: quem se protege espera uma brecha.
+			await driver.wait_until(func() -> bool: return not is_instance_valid(boss) or _quiet(boss), 240)
 		await driver.cast(code, false, 0)
 		var used := Engine.get_physics_frames() - began
 		if used < FRAMES_PER_ACTION:
@@ -177,6 +187,21 @@ func _fight() -> Dictionary:
 	outcome["vida"] = driver.world.state.health.current
 	outcome["segundos"] = (Engine.get_physics_frames() - start) / 60.0
 	return outcome
+
+
+## Uma brecha: sem aviso de leque ou de investida, sem marca de pilar perto e sem orbe perto do mago.
+func _quiet(boss: Boss) -> bool:
+	if boss.is_defeated() or boss.warning != "" or boss.brain.charging():
+		return false
+	var feet := driver.world.player.global_position
+	for pillar in boss.pillars():
+		if absf(pillar.global_position.x - feet.x) < 3 * RoomLayout.TILE:
+			return false
+	var center := feet + Vector2(0, -15)
+	for bolt in get_tree().get_nodes_in_group(BossBolt.GROUP):
+		if (bolt as Node2D).global_position.distance_to(center) < 120.0:
+			return false
+	return true
 
 
 func test_COM_094_parado_perde() -> void:
@@ -190,7 +215,7 @@ func test_COM_095_quem_se_protege_vence() -> void:
 	await driver.place(FLOOR_SPOT)
 	var boss := _boss()
 	driver.world.player.intent_source = _protector(boss)
-	var outcome := await _fight()
+	var outcome := await _fight(true)
 	assert_bool(outcome["venceu"]).override_failure_message(str(outcome)).is_true()
 	assert_bool(outcome["morreu"]).is_false()
 	assert_int(outcome["vida"]).override_failure_message(str(outcome)).is_greater_equal(2)
@@ -233,3 +258,31 @@ static func _dodge_toward(intent: PlayerIntent, dx: float) -> PlayerIntent:
 	intent.move_x = signf(dx) if dx != 0.0 else 1.0
 	intent.dodge_pressed = true
 	return intent
+
+
+# --- MAG-087: o feixe contra o chefe ---
+
+const FEIXE := """vence = {"fogo": gelo, "gelo": raio, "planta": fogo}
+lancar(vence[alvo.elemento], feixe, alvo)"""
+
+
+func test_MAG_087_feixe_derruba_o_chefe_em_menos_conjuracoes() -> void:
+	_plenty_of_life()
+	driver.world.state.unlock("feixe")
+	var boss := _boss()
+	var damages: Array[int] = []
+	var defeated := [false]
+	boss.was_hit.connect(func(_element: String, _effect: ElementTable.Effect) -> void: damages.append(boss.last_damage))
+	boss.defeated.connect(func() -> void: defeated[0] = true)
+	var casts := 0
+	while not defeated[0] and casts < 15:
+		var result := await _cast(FEIXE, boss)
+		assert_bool(result.ok).override_failure_message(str(result.error)).is_true()
+		casts += 1
+	assert_bool(defeated[0]).is_true()
+	# 12 por golpe (6 × 2), cortado no limite de cada fase: 90 → 78 → 66 → 60, e assim por diante.
+	assert_int(damages[0]).is_equal(12)
+	assert_int(damages[2]).is_equal(6)
+	assert_int(damages.max()).is_equal(12)
+	assert_int(casts).is_less(15)
+

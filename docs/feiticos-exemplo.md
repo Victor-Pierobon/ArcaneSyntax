@@ -1,6 +1,6 @@
 # Feitiços de exemplo
 
-Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 14). Os custos de mana vêm de `game/content/balanceamento.json`. Os custos já contam o custo de inscrição da Sprint 9.
+Feitiços prontos para copiar e testar. Todos rodam no executor atual (Sprint 21, com os custos novos: `lancar` 4, faísca 1,5, feixe 8). Os custos de mana vêm de `game/content/balanceamento.json`. Os custos já contam o custo de inscrição da Sprint 9.
 
 ## Onde testar
 
@@ -18,10 +18,11 @@ Cada feitiço diz a **mana inicial** e o **alvo** sugeridos e o resultado espera
 | Cada instrução simples (`x = 1`, `print(...)`, `meditar()`) | 0,1 |
 | A **primeira vez** que cada linha roda (custo de inscrição, Sprint 9) | +0,1 |
 | `while`, `if`, `for`, `def` por si | 0 |
-| `lancar` / `mover` / `levitar` | 3 / 1 / 2 (mais a instrução) |
-| `lancar` com a forma `faisca` (Sprint 10) | 1 (mais a instrução) |
+| `lancar` / `mover` / `levitar` | 4 / 1 / 2 (mais a instrução; o `lancar` era 3 até a Sprint 20) |
+| `lancar` com a forma `faisca` (Sprint 10) | 1,5 (mais a instrução) |
+| `lancar` com a forma `feixe` (Sprint 21, depois de aprender na `sala_c03`) | 8 (mais a instrução) |
 | `inscrever` / `construir_bloco` / `ler_runa` (Sprint 9) | 1 / 0,5 / 0 (mais a instrução) |
-| `meditar()` / `absorver_mana()` | grátis; dão +5 / +1 de mana |
+| `meditar()` / `absorver_mana()` | grátis; dão +5 / +1 de mana (meditar deixa o mago parado 1 s) |
 
 Na prática, uma linha que roda uma vez custa 0,2; dentro de um loop, a primeira volta custa 0,2 e as outras, 0,1. Por isso um loop sai mais barato que as mesmas linhas repetidas.
 
@@ -123,7 +124,7 @@ Mana inicial **5**, alvo **gelo**.
 lancar(fogo, projetil, alvo)
 ```
 
-Esperado: uma ação `lancar` com elemento `fogo` no alvo `alvo_1`; custo 3.2.
+Esperado: uma ação `lancar` com elemento `fogo` no alvo `alvo_1`; custo 4.2.
 
 ### 3.2 O feitiço adaptável (o momento do trailer)
 
@@ -184,7 +185,7 @@ for i in range(3):
 print("rajada pronta")
 ```
 
-Esperado: 3 ações `lancar`; custo 9.6. Com mana 8 o terceiro lançamento falha com `ManaEsgotada`, e os dois primeiros continuam valendo.
+Esperado: 3 ações `lancar`; custo 12.6. Com mana 10 o terceiro lançamento falha com `ManaEsgotada`, e os dois primeiros continuam valendo.
 
 ---
 
@@ -306,7 +307,7 @@ O `meditar()` dentro da função paga as três subidas. Também valem um `for al
 
 ### Puzzle 6: a câmara de revisão (tudo junto, com estrelas)
 
-Da esquerda para a direita: cadeado de runas, ponte de 8 blocos, cristal mutável de 2 cargas e duas colunas (alturas 5 e 6). A porta abre com tudo feito. A solução econômica gasta cerca de 19.5 de mana e ganha 3 estrelas (até 20); até 24, são 2 estrelas.
+Da esquerda para a direita: cadeado de runas, ponte de 8 blocos, cristal mutável de 2 cargas e duas colunas (alturas 5 e 6). A porta abre com tudo feito. A solução econômica gasta cerca de 21.5 de mana e ganha 3 estrelas (até 22); até 26, são 2 estrelas.
 
 ## 4d. Combate com inimigos (Sprint 10)
 
@@ -327,7 +328,7 @@ else:
     lancar(fogo, projetil, alvo)
 ```
 
-Esperado: `Fraco! −6`; duas conjurações derrubam cada um (custo 3.2 cada; medite entre elas). Com `lancar(fogo, projetil, alvo)` no de fogo: `Resistiu −1`, são 12 projéteis. No cajado (**J**), 12 golpes, encostado nele.
+Esperado: `Fraco! −6`; duas conjurações derrubam cada um (custo 4.2 cada; medite entre elas). Com `lancar(fogo, projetil, alvo)` no de fogo: `Resistiu −1`, são 12 projéteis. No cajado (**J**), 12 golpes, encostado nele.
 
 ### Enxame (sala_c02): loop sobre a lista
 
@@ -338,7 +339,7 @@ for inimigo in inimigos:
     lancar(raio, faisca, inimigo)
 ```
 
-Esperado: seis faíscas, os seis caem numa conjuração só, custo **6.7**. Com `projetil` no lugar de `faisca`: caem 3 e dá `ManaEsgotada` (custo 9.4). Seis linhas `lancar(raio, faisca, inimigos[0])`, `[1]`... também funcionam, mas custam 7.2. E `while inimigos[0].vida > 0:` gasta a mana toda: o feitiço vê a vida da hora da conjuração, que nunca muda.
+Esperado: seis faíscas, os seis caem numa conjuração só, custo **9.7**. Com `projetil` no lugar de `faisca`: caem 2 e dá `ManaEsgotada` (custo 8.3). Seis linhas `lancar(raio, faisca, inimigos[0])`, `[1]`... custam 10.2: não cabem na mana do nível 1 (10). E `while inimigos[0].vida > 0:` gasta a mana toda: o feitiço vê a vida da hora da conjuração, que nunca muda.
 
 Para ver a lista: `print(len(inimigos), inimigos[0].elemento, inimigos[0].vida)`.
 
@@ -354,29 +355,35 @@ else:
     lancar(vence[alvo.escudo], projetil, alvo)
 ```
 
-Esperado: todo golpe passa com `Fraco! −6`; três acertos derrubam o guardião (custo 3.4 cada). Um feitiço fixo, como `lancar(gelo, projetil, alvo)`, só passa pelo escudo de fogo. O cajado só acerta na brecha sem escudo.
+Esperado: todo golpe passa com `Fraco! −6`; três acertos derrubam o guardião (custo 4.4 cada). Um feitiço fixo, como `lancar(gelo, projetil, alvo)`, só passa pelo escudo de fogo. O cajado só acerta na brecha sem escudo.
 
 ## 4e. O chefe da Masmorra (Sprint 11)
 
-A `sala_c04` fica depois da saída à direita da `sala_c03`. Para ir direto, mude **Start Room** para `sala_c04`. O chefe (vida 30) fica parado e lança um **orbe** a cada 3 s quando você está a até 12 tiles. O escudo bloqueia o orbe e a esquiva passa por ele.
+A arena (`sala_c04`) fica depois da saída à direita da `sala_c03`. Para ir direto, mude **Start Room** para `sala_c04`. O chefe (vida 90) espera 2 s e começa a voar entre os pontos do alto, atacando sempre com aviso (Sprints 17 e 21):
 
-- **Fase 1:** corpo de **fogo** (fraco a gelo).
-- **Troca:** com vida 15 ele mostra `Fase 2!`, pisca 1,5 s sem levar dano (`Bloqueou`) e vira **gelo** (fraco a raio). O golpe que passaria de 15 para no limite: o terceiro projétil de gelo mostra `Fraco! −3`.
-- **Fase 2:** orbe a cada 2 s.
-- **Derrota:** a porta à direita abre, o registro mostra `Chefe derrotado!` e ele não volta enquanto o jogo estiver aberto. Se você morrer antes, ele volta com a vida cheia.
+- **Fase 1 (fogo, fraco a gelo):** brilha e solta um **leque** de orbes, mirando onde você vai estar.
+- **Fase 2 (gelo, fraco a raio), com vida 60:** marca o chão embaixo de você (o contorno do pilar pisca) e um **pilar** sobe dali; saia da marca. Depois, o leque.
+- **Fase 3 (planta, fraco a fogo), com vida 30:** desce para um lado, treme e atravessa a arena numa **investida** (pule, suba numa plataforma, esquive através dele ou use o escudo); os pilares vêm com um orbe cada.
+- Cada troca: `Fase N!`, 1,5 s sem levar dano, e o ataque em andamento é cancelado.
+- **Derrota:** a porta à direita abre e ele não volta. Se você morrer, ele volta inteiro.
 
-O mesmo feitiço do elemental vence as duas fases:
+O mesmo feitiço do elemental vence as três fases:
 
 ```python
 vence = {"fogo": gelo, "gelo": raio, "planta": fogo}
 lancar(vence[alvo.elemento], projetil, alvo)
 ```
 
-Esperado: seis conjurações (custo 3.4 cada, 20.4 no total). Com mana máxima 10 (nível 1; ela sobe com o nível), medite no meio da luta, com o escudo ligado ou longe dos orbes. A versão com `if/elif` custa 3.2 por conjuração.
+Esperado: quinze conjurações (custo 4.4 cada, 66 no total). Com a mana do nível 4 (16), você vai meditar várias vezes: medite nas brechas, longe das marcas e dos orbes, ou deixe um passivo de `absorver_mana()` ligado. Ficar parado só conjurando e meditando perde.
 
-Com o feitiço fixo `lancar(gelo, projetil, alvo)`, a fase 1 cai em três conjurações, mas na fase 2 cada golpe mostra `Resistiu −1` (15 conjurações a mais).
+Com o **feixe** (aprendido com a serpente da `sala_c03`), o mesmo feitiço com `feixe` no lugar de `projetil` dá 12 por golpe e derruba o chefe em menos conjurações (custo 8.4 cada), mas você fica 0,5 s parado carregando:
 
-Para ver o que o feitiço enxerga: `print(alvo.elemento, alvo.vida)` mostra `fogo 30`; na transição e depois dela, `gelo 15`.
+```python
+vence = {"fogo": gelo, "gelo": raio, "planta": fogo}
+lancar(vence[alvo.elemento], feixe, alvo)
+```
+
+Com o feitiço fixo `lancar(gelo, projetil, alvo)`, a fase 1 cai em cinco conjurações, mas na fase 2 cada golpe mostra `Resistiu −1`.
 
 Os números do chefe (e de todo o combate e dos custos de mana) estão em `game/content/balanceamento.json`. Mudou algo ali, feche e abra o jogo. Se mudar um custo da seção `executor`, mude também `REGRAS_PADRAO` em `executor/arcane_executor/pieces.py`: o pytest avisa se os dois discordarem.
 
@@ -390,7 +397,7 @@ Os números do chefe (e de todo o combate e dos custos de mana) estão em `game/
 
 Ao subir de nível aparece `Nível 2! Mana máxima 12` e a mana enche. Teste rápido: na `sala_c01`, derrote os dois elementais (+20) e resolva um puzzle (+20), e você chega ao nível 2. Os inimigos voltam quando você sai e entra, e dão XP de novo. Confira que um feitiço vê a mana nova: `print(mana_max)` mostra 12 no nível 2.
 
-**Referência:** abra o grimório (Tab) e clique na aba **Referência**. São 13 páginas (lancar, elementos, formas, mover, levitar, meditar, absorver_mana, inscrever, construir_bloco, sentidos, alvo e inimigos, ler_runa, print). A aba Feitiços continua com o feitiço em edição como você deixou.
+**Referência:** abra o grimório (Tab) e clique na aba **Referência**. São as páginas das peças (lancar, elementos, formas, mover, levitar, meditar, absorver_mana, inscrever, construir_bloco, sentidos, alvo e inimigos, ler_runa, print) e dos conceitos; a do **feixe** só aparece depois de aprender com a serpente da `sala_c03`. A aba Feitiços continua com o feitiço em edição como você deixou.
 
 Os números de XP e da curva de níveis estão nas seções `xp` e `niveis` de `game/content/balanceamento.json`.
 

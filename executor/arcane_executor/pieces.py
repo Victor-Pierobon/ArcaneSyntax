@@ -10,7 +10,7 @@ import time
 ARQUIVO_FEITICO = "<feitico>"
 
 ELEMENTOS = ("fogo", "gelo", "raio")
-FORMAS = ("projetil", "escudo", "faisca")
+FORMAS = ("projetil", "escudo", "faisca", "feixe")
 ACOES = ("lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco")
 # Peças sujeitas a desbloqueio (spec EXE-desbloqueio); os sentidos ficam sempre disponíveis.
 PECAS_DESBLOQUEAVEIS = ACOES + ELEMENTOS + FORMAS
@@ -20,14 +20,15 @@ REGRAS_PADRAO = {
     "ganho_absorver": 1,
     "custo_instrucao": 0.1,
     "custo_inscricao": 0.1,
-    "custo_lancar": 3,
+    "custo_lancar": 4,
     "custo_mover": 1,
     "custo_levitar": 2,
     "custo_meditar": 0,
     "custo_absorver": 0,
     "custo_inscrever": 1,
     "custo_bloco": 0.5,
-    "custo_faisca": 1,
+    "custo_faisca": 1.5,
+    "custo_feixe": 8,
     "limite_tempo_ms": 1000,
 }
 
@@ -153,6 +154,7 @@ class Contexto:
             "inscrever": para_gotas(regras["custo_inscrever"]),
             "bloco": para_gotas(regras["custo_bloco"]),
             "faisca": para_gotas(regras["custo_faisca"]),
+            "feixe": para_gotas(regras["custo_feixe"]),
         }
         # Linhas que já pagaram a inscrição nesta execução (EXE-custo, regra 13).
         self.inscritas = set()
@@ -278,7 +280,8 @@ class Contexto:
         for peca in (elemento, forma):
             if peca in self.bloqueadas:
                 raise PecaBloqueada(f"você ainda não conhece {peca}")
-        self._cobrar_peca("faisca" if forma == "faisca" else "lancar", "lancar")
+        # A faísca e o feixe têm custo próprio; o projétil e o escudo custam o do lancar (EXE-custo, MAG-feixe).
+        self._cobrar_peca(forma if forma in ("faisca", "feixe") else "lancar", "lancar")
         self.registrar("lancar", elemento=elemento, forma=forma, alvo=alvo._id if alvo else None)
 
     def mover(self, passos):

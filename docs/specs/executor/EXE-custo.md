@@ -20,14 +20,15 @@ O GDD quer que código eficiente custe menos, que um loop infinito acabe com a m
 
    | Peça | Regra | Padrão |
    | --- | --- | --- |
-   | `lancar` | `custo_lancar` | 3 |
+   | `lancar` | `custo_lancar` | 4 (3 até a Sprint 20) |
    | `mover` | `custo_mover` | 1 |
    | `levitar` | `custo_levitar` | 2 |
    | `meditar` | `custo_meditar` | 0 |
    | `absorver_mana` | `custo_absorver` | 0 |
    | `inscrever` (Sprint 9) | `custo_inscrever` | 1 |
    | `construir_bloco` (Sprint 9) | `custo_bloco` | 0,5 |
-   | `lancar` com a forma `faisca` (Sprint 10) | `custo_faisca`, no lugar de `custo_lancar` | 1 |
+   | `lancar` com a forma `faisca` (Sprint 10) | `custo_faisca`, no lugar de `custo_lancar` | 1,5 (1 até a Sprint 20) |
+   | `lancar` com a forma `feixe` (Sprint 21, MAG-feixe) | `custo_feixe`, no lugar de `custo_lancar` | 8 |
    | `ler_runa` (sentido, Sprint 9) | — | 0 |
 
 6. **Teto depois do pagamento.** Ganhos de mana podem passar de `mana_max` durante a instrução; depois de pagar a instrução, a mana é limitada a `mana_max`.
@@ -63,7 +64,7 @@ O GDD quer que código eficiente custe menos, que um loop infinito acabe com a m
 
 - **Dado** mana 20
 - **Quando** o feitiço é `lancar(fogo, projetil)\nmover(1)\nlevitar(2)`
-- **Então** `custo_mana` é 6.6 (3 + 1 + 2 + 3 × 0,2); com `regras` `{"custo_lancar": 1}` o custo é 4.6
+- **Então** `custo_mana` é 7.6 (4 + 1 + 2 + 3 × 0,2); com `regras` `{"custo_lancar": 1}` o custo é 4.6
 
 ### EXE-044 — Meditar com mana 0 funciona
 
@@ -130,15 +131,15 @@ O GDD quer que código eficiente custe menos, que um loop infinito acabe com a m
 - **Quando** o feitiço é `x = 1\ny = 2`
 - **Então** `custo_mana` é 0.2 (o comportamento da Sprint 2)
 
-### EXE-095 — Faísca custa 1
+### EXE-095 — Faísca custa 1,5
 
 - **Dado** mana 5
 - **Quando** o feitiço é `lancar(raio, faisca)`
-- **Então** `custo_mana` é 1.2 e a mana final é 3.8; com `regras` `{"custo_faisca": 2}`, o custo é 2.2
+- **Então** `custo_mana` é 1.7 e a mana final é 3.3; com `regras` `{"custo_faisca": 2}`, o custo é 2.2
 
 ### EXE-096 — Loop de faíscas sobre o enxame
 
 - **Dado** mana 10 e seis inimigos em `mundo.inimigos`
 - **Quando** o feitiço é `for inimigo in inimigos:\n    lancar(raio, faisca, inimigo)`
-- **Então** registra seis ações e `custo_mana` é 6.7 (COM-044)
-- **E** com `projetil` no lugar de `faisca`, registra três ações, dá `ManaEsgotada` na linha 2 e `custo_mana` é 9.4
+- **Então** registra seis ações e `custo_mana` é 9.7 (COM-044)
+- **E** com `projetil` no lugar de `faisca`, registra duas ações, dá `ManaEsgotada` na linha 2 e `custo_mana` é 8.3

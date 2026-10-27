@@ -25,20 +25,20 @@ Arte, animação e música definitivas (a arte entra pelo contrato quando chegar
 
 ### Movimento e ciclo de ataques
 
-7. **Pontos da arena:** em `targets`, `chefe:ponto` marca os pontos onde o chefe para no ar e `chefe:investida` marca os dois pontos no chão de onde a investida sai (um de cada lado). O chefe **voa**: vai em linha reta de um ponto ao outro a **100 px/s**, atravessando paredes e plataformas, sem gravidade. Ele pode ser atingido enquanto se move.
+7. **Pontos da arena:** em `targets`, `chefe:ponto` marca os pontos onde o chefe para no ar e `chefe:investida` marca os dois pontos no chão de onde a investida sai (um de cada lado). O chefe **voa**: vai em linha reta de um ponto ao outro a **140 px/s** (Sprint 21; 100 na Sprint 20, 60 na 17), atravessando paredes e plataformas, sem gravidade. Ele pode ser atingido enquanto se move.
 8. **Início:** a luta começa quando a sala é montada: o chefe espera **2 s** parado no lugar do `1` e só então começa o ciclo.
 9. **Ciclo** (`BossBrain`, regra pura): repete, sem sorteio, **mover → aviso → ataque → descanso**. Os ataques de cada fase seguem uma lista fixa, em ordem e em volta:
    - fase 1: leque;
    - fase 2: pilares, leque;
    - fase 3: investida, pilares, leque.
-   A lista da fase nova começa do primeiro item, que é o ataque que a fase apresenta. Para o leque e os pilares, o chefe vai ao **próximo ponto** da lista de `chefe:ponto` (na ordem dos dígitos, em volta). Para a investida, vai ao ponto `chefe:investida` **mais longe do mago**. O descanso depois do ataque é de **1,0 s**, **0,8 s** e **0,6 s** nas fases 1, 2 e 3. (Calibrados na Sprint 20: com 60 px/s e 1,5/1,2/1,0 s, o mago parado vencia ou perdia por pouco, com o chefe em 12 de 90; agora morre aos ~20 s com o chefe em ~48, e quem se protege vence com 3 de vida.)
+   A lista da fase nova começa do primeiro item, que é o ataque que a fase apresenta. Para o leque e os pilares, o chefe vai ao **próximo ponto** da lista de `chefe:ponto` (na ordem dos dígitos, em volta). Para a investida, vai ao ponto `chefe:investida` **mais longe do mago**. O descanso depois do ataque é de **0,7 s**, **0,5 s** e **0,4 s** nas fases 1, 2 e 3 (Sprint 21, a pedido do Victor: "ele é lento", "pouca pressão", "fácil de esquivar"; 1,0/0,8/0,6 na Sprint 20). Medido com os custos da Sprint 21 (COM-094/095): o mago parado morre aos ~22 s com o chefe em ~18 de 90; quem se protege vence aos ~26 s com 3 de vida. (Calibrados na Sprint 20: com 60 px/s e 1,5/1,2/1,0 s, o mago parado vencia ou perdia por pouco, com o chefe em 12 de 90; agora morre aos ~20 s com o chefe em ~48, e quem se protege vence com 3 de vida.)
 10. **Todo ataque tem aviso** antes de machucar: quem presta atenção sempre tem tempo de sair. Nenhum ataque sai durante a transição ou o descanso.
 
 ### Ataques
 
-11. **Leque de orbes.** Aviso de **0,6 s**: o chefe brilha na cor da fase (animação `orbe`). No fim do aviso, ele mira o centro do mago e lança **3 / 5 / 7** orbes (fases 1 / 2 / 3), um deles **exatamente na mira** e os outros a cada **15°** para os dois lados. Cada orbe tem a cor da fase, voa reto a **90 px/s**, some numa parede ou no mago, e tira **1** de vida como ataque: o escudo do mago bloqueia, a esquiva evita, e vale a invencibilidade de 1 s (MUN-vida). Empurra o mago como o contato. Quem está parado leva o orbe do meio; andar, pular ou esquivar escapa.
-12. **Pilares do chão** (fases 2 e 3). O chefe marca o chão **sob o mago** (o primeiro chão, `#` ou `=`, abaixo do centro dele, na coluna dele): **3** marcas na fase 2 e **4** na fase 3, uma a cada **0,6 s**, cada uma na coluna onde o mago está naquele momento. Cada marca pisca por **0,8 s** (animação `aviso`), com o contorno translúcido do pilar que vai subir, desenhada **na frente do mago** (quem está em cima dela tem que ver), e então um pilar de **1×4 tiles** sobe dali e fica **0,5 s**. O pilar tira **1** de vida como ataque a quem estiver nele (escudo bloqueia, invencibilidade de 1 s) e empurra para cima e para fora. Quem para em cima da marca é atingido; quem anda sai. A esquiva sozinha (0,16 s) não basta: o pilar dura mais.
-13. **Investida** (fase 3). No ponto de investida, o chefe treme e brilha por **0,8 s** e uma faixa no chão marca o caminho até o outro ponto de investida. Então ele atravessa a arena no chão até o outro ponto a **240 px/s**. Encostar nele machuca como o contato (1, ataque: escudo bloqueia, esquiva evita). Escapa quem pula por cima, sobe numa plataforma, esquiva através dele ou usa o escudo.
+11. **Leque de orbes.** Aviso de **0,45 s**: o chefe brilha na cor da fase (animação `orbe`). No fim do aviso, ele mira **adiante**: no centro do mago mais a velocidade dele vezes **0,3 s** (`leque_adiante_s`; parado, é o centro do mago), e lança **3 / 5 / 7** orbes (fases 1 / 2 / 3), um deles **exatamente na mira** e os outros a cada **15°** para os dois lados. Cada orbe tem a cor da fase, voa reto a **100 px/s** (90 até a Sprint 20), some numa parede ou no mago, e tira **1** de vida como ataque: o escudo do mago bloqueia, a esquiva evita, e vale a invencibilidade de 1 s (MUN-vida). Empurra o mago como o contato. Quem está parado leva o orbe do meio; andar, pular ou esquivar escapa.
+12. **Pilares do chão** (fases 2 e 3). O chefe marca o chão **sob o mago** (o primeiro chão, `#` ou `=`, abaixo do centro dele, na coluna dele): **4** marcas na fase 2 e **5** na fase 3 (3 e 4 até a Sprint 20), uma a cada **0,6 s**, cada uma na coluna onde o mago está naquele momento, e **junto de cada marca, na fase 3, o chefe solta um orbe mirado no mago** (`pilar_orbes`). Cada marca pisca por **0,7 s** (animação `aviso`), com o contorno translúcido do pilar que vai subir, desenhada **na frente do mago** (quem está em cima dela tem que ver), e então um pilar de **1×4 tiles** sobe dali e fica **0,5 s**. O pilar tira **1** de vida como ataque a quem estiver nele (escudo bloqueia, invencibilidade de 1 s) e empurra para cima e para fora. Quem para em cima da marca é atingido; quem anda sai. A esquiva sozinha (0,16 s) não basta: o pilar dura mais.
+13. **Investida** (fase 3). No ponto de investida, o chefe treme e brilha por **0,6 s** e uma faixa no chão marca o caminho até o outro ponto de investida. Então ele atravessa a arena no chão até o outro ponto a **300 px/s**. Encostar nele machuca como o contato (1, ataque: escudo bloqueia, esquiva evita). Escapa quem pula por cima, sobe numa plataforma, esquiva através dele ou usa o escudo.
 
 ### Arena
 
@@ -79,9 +79,9 @@ Arte, animação e música definitivas (a arte entra pelo contrato quando chegar
 ### COM-083 — Ciclo de ataques
 
 - **Dado** um `BossBrain` novo, com 4 pontos e 2 de investida
-- **Então** fica parado 2 s; depois vai ao ponto 1, avisa por 0,6 s, lança o leque, descansa 1,0 s, vai ao ponto 2 e repete
+- **Então** fica parado 2 s; depois vai ao ponto 1, avisa por 0,45 s, lança o leque, descansa 0,7 s, vai ao ponto 2 e repete
 - **E** na fase 2 a ordem é pilares, leque, pilares…; na fase 3, investida, pilares, leque, investida…
-- **E** o tempo de ida é a distância dividida por 100 px/s; os descansos são 1,0 / 0,8 / 0,6 s
+- **E** o tempo de ida é a distância dividida por 140 px/s; os descansos são 0,7 / 0,5 / 0,4 s
 
 ### COM-089 — Direções do leque
 
@@ -93,14 +93,24 @@ Arte, animação e música definitivas (a arte entra pelo contrato quando chegar
 
 - **Dado** a fase 2 e o mago na coluna 10
 - **Quando** começa o ataque de pilares e o mago anda para a coluna 14 antes da segunda marca
-- **Então** a primeira marca fica na coluna 10 e a segunda na 14; as marcas saem com 0,6 s entre elas, cada pilar sobe 0,8 s depois da sua marca e fica 0,5 s
-- **E** na fase 3 saem 4 marcas
+- **Então** a primeira marca fica na coluna 10 e a segunda na 14; as marcas saem com 0,6 s entre elas, cada pilar sobe 0,7 s depois da sua marca e fica 0,5 s
+- **E** na fase 2 saem 4 marcas e na fase 3, 5
 - **E** a marca fica no primeiro chão abaixo do mago (`#` ou `=`), também quando ele está no ar
 
 ### COM-091 — Investida pelo lado de lá
 
 - **Dado** a fase 3 com o mago perto do ponto de investida da esquerda
-- **Então** o chefe vai ao ponto da direita, avisa por 0,8 s e atravessa até o da esquerda a 240 px/s
+- **Então** o chefe vai ao ponto da direita, avisa por 0,6 s e atravessa até o da esquerda a 300 px/s
+
+### COM-097 — Orbes junto dos pilares (Sprint 21)
+
+- **Dado** a fase 3 e o ataque de pilares
+- **Então** junto de cada marca sai um evento de orbe mirado no centro do mago; nas fases em que `pilar_orbes` é 0 (com pilares forçados na fase 1 no teste), não sai orbe
+
+### COM-098 — O leque mira adiante (Sprint 21)
+
+- **Dado** o mago andando a 120 px/s para a direita, embaixo do chefe
+- **Então** o orbe do meio vai para o centro do mago mais 120 × 0,3 = 36 px à direita; com o mago parado, para o centro dele
 
 ### COM-092 — Chefe na sala (cena)
 
@@ -149,19 +159,19 @@ Arte, animação e música definitivas (a arte entra pelo contrato quando chegar
 
 - **Dado** a arena, o mago com vida de sobra (o que se testa aqui é o feitiço)
 - **Quando** conjura o feitiço de referência (com dicionário, ou com `if/elif/else`), esperando o fim de cada transição
-- **Então** **15** conjurações derrotam o chefe (6 de dano cada, nenhuma cortada pelo limite), gastando no máximo **52** de mana
+- **Então** **15** conjurações derrotam o chefe (6 de dano cada, nenhuma cortada pelo limite), gastando no máximo **67** de mana (52 até a Sprint 20, com o `lancar` a 3)
 - **E** o feitiço fixo `lancar(gelo, projetil, alvo)` leva o chefe à fase 2 em cinco conjurações e depois causa só 1 por golpe
 
 ### COM-094 — Parado perde (aceitação, Python real)
 
-- **Dado** a arena, o mago com a vida de jogo (**5**) e a mana máxima do nível esperado na chegada (**14**), parado no chão no meio da arena
+- **Dado** a arena, o mago com a vida de jogo (**5**) e a mana máxima do nível esperado na chegada (**16**, nível 4; era 14 até a Sprint 20), parado no chão no meio da arena
 - **Quando** ele só conjura o feitiço de referência e medita quando a mana não basta, **uma ação por segundo**, sem nunca andar, pular, esquivar nem usar o escudo
 - **Então** o mago morre antes de o chefe ser derrotado (em no máximo 120 s de jogo)
 
 ### COM-095 — Quem se protege vence (aceitação, Python real)
 
 - **Dado** o mesmo mago, no mesmo ritmo de uma ação por segundo
-- **Quando** ele sai de cada marca de pilar assim que ela aparece, esquiva atravessando o orbe que chega perto e o chefe que vem na investida, e no resto do tempo fica parado conjurando o feitiço de referência ou meditando
+- **Quando** ele sai de cada marca de pilar assim que ela aparece, esquiva atravessando o orbe que chega perto e o chefe que vem na investida, medita só nas brechas (sem aviso, sem marca perto, sem orbe a menos de 120 px) e deixa um passivo de `absorver_mana()` ligado (Sprint 21: com a magia mais cara, é o que o jogo ensina); no resto do tempo conjura o feitiço de referência
 - **Então** o chefe é derrotado e o mago termina com **2** de vida ou mais
 
 ## Exemplos
@@ -172,7 +182,7 @@ vence = {"fogo": gelo, "gelo": raio, "planta": fogo}
 lancar(vence[alvo.elemento], projetil, alvo)
 ```
 
-Custo: 3,4 de mana por conjuração; 15 conjurações dão **51**. Com mana máxima perto de 14, o jogador medita várias vezes no meio da luta (ou usa um passivo de `absorver_mana`), e é aí que os ataques cobram atenção.
+Custo: 4,4 de mana por conjuração (3,4 até a Sprint 20); 15 conjurações dão **66**. Com mana máxima perto de 14, o jogador medita várias vezes no meio da luta (ou usa um passivo de `absorver_mana`), e é aí que os ataques cobram atenção.
 
 Vida por conjuração: 90 → 84 → 78 → 72 → 66 → **60** (fase 2) → 54 → … → **30** (fase 3) → … → 0.
 

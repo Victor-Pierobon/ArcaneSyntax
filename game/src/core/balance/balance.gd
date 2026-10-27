@@ -9,10 +9,10 @@ const KEYS := {
 	"mago": ["vida", "invencivel_s"],
 	"executor": [
 		"ganho_meditar", "ganho_absorver", "custo_instrucao", "custo_inscricao", "custo_lancar", "custo_mover",
-		"custo_levitar", "custo_meditar", "custo_absorver", "custo_inscrever", "custo_bloco", "custo_faisca",
+		"custo_levitar", "custo_meditar", "custo_absorver", "custo_inscrever", "custo_bloco", "custo_faisca", "custo_feixe",
 		"limite_tempo_ms",
 	],
-	"dano": ["projetil", "faisca", "cajado", "contato", "fraco", "normal", "resiste"],
+	"dano": ["projetil", "faisca", "feixe", "cajado", "contato", "fraco", "normal", "resiste"],
 	"elemental": [
 		"vida", "patrulha_tiles", "velocidade_patrulha", "velocidade_perseguicao", "perseguir_x_tiles",
 		"perseguir_y_tiles",
@@ -21,8 +21,8 @@ const KEYS := {
 	"guardiao": ["vida", "escudo_s", "brecha_s", "pisca_s"],
 	"chefe": [
 		"vida", "elementos", "troca_vida", "transicao_s", "inicio_s", "velocidade", "descanso_s", "ataques",
-		"leque_aviso_s", "leque_orbes", "leque_abertura_graus", "orbe_velocidade", "orbe_alcance_tiles",
-		"orbe_dano", "pilar_marcas", "pilar_intervalo_s", "pilar_aviso_s", "pilar_ativo_s", "pilar_altura_tiles",
+		"leque_aviso_s", "leque_adiante_s", "leque_orbes", "leque_abertura_graus", "orbe_velocidade", "orbe_alcance_tiles",
+		"orbe_dano", "pilar_marcas", "pilar_orbes", "pilar_intervalo_s", "pilar_aviso_s", "pilar_ativo_s", "pilar_altura_tiles",
 		"pilar_dano", "investida_aviso_s", "investida_velocidade",
 	],
 	"xp": ["elemental", "enxame", "guardiao", "chefe", "puzzle", "bonus_estrela", "segredo"],
@@ -32,10 +32,11 @@ const KEYS := {
 const LIST_KEYS := {
 	"chefe.elementos": "elementos", "chefe.troca_vida": "números", "chefe.descanso_s": "números",
 	"chefe.ataques": "ataques", "chefe.leque_orbes": "números", "chefe.pilar_marcas": "números",
+	"chefe.pilar_orbes": "números",
 	"niveis.xp": "números", "niveis.mana_max": "números",
 }
 ## Listas do chefe com uma posição por fase; `troca_vida` tem uma a menos (COM-chefe, BAL-valores).
-const BOSS_PHASE_LISTS := ["descanso_s", "ataques", "leque_orbes", "pilar_marcas"]
+const BOSS_PHASE_LISTS := ["descanso_s", "ataques", "leque_orbes", "pilar_marcas", "pilar_orbes"]
 const BODY_ELEMENTS := ["fogo", "gelo", "raio", "planta", "pedra"]
 const BOSS_ATTACKS := ["leque", "pilares", "investida"]
 

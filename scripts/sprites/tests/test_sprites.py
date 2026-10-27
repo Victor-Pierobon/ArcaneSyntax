@@ -484,3 +484,15 @@ def test_ART_116_animacao_invertida_termina_na_imagem_pronta(tmp_path, monkeypat
     tira = Image.open(tmp_path / "assets/chefe/pilar.png").convert("RGBA")
     assert tira.size == (64, 64)
     assert sprites.quadros_da_tira(tira, (16, 64))[0].getchannel("A").getbbox() is None
+
+
+# ART-117 — Regressão (2026-10-27): o `setx` não muda processos já abertos, e a chave antiga seguia valendo.
+def test_ART_117_chave_do_registro_vale_mais_que_a_do_processo(monkeypatch):
+    import gerar
+
+    monkeypatch.setattr(gerar.sys, "platform", "win32")
+    monkeypatch.setenv("PIXELLAB_API_TOKEN", "antiga")
+    monkeypatch.setattr(gerar, "chave_do_registro", lambda: "nova")
+    assert gerar.token() == "nova"
+    monkeypatch.setattr(gerar, "chave_do_registro", lambda: "")
+    assert gerar.token() == "antiga"

@@ -96,6 +96,15 @@ func test_MAG_007_meditar_segura_o_mago_parado() -> void:
 	assert_float(player.global_position.x).is_greater(start_x + 10.0)
 
 
+## Sprint 21: meditar leva 1 s (era 0,5): recuperar mana custa tempo.
+func test_MAG_007_meditar_dura_1_segundo() -> void:
+	await _start("sala_aberta")
+	var start := Time.get_ticks_msec()
+	await _play([{"tipo": "meditar", "linha": 1}])
+	var seconds := (Time.get_ticks_msec() - start) / 1000.0
+	assert_float(seconds).is_between(0.95, 1.3)
+
+
 func test_MAG_008_acoes_parciais_acontecem() -> void:
 	await _start("sala_aberta")
 	var fake: FakeSpellExecutor = auto_free(FakeSpellExecutor.new())

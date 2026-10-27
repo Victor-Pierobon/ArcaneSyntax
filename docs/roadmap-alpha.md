@@ -81,7 +81,8 @@ Plano completo, decisões e verificação em [`plano-alpha-1-1.md`](plano-alpha-
 | 18 | [Salas I: começo e puzzles](sprints/sprint-18-salas-1.md) | 18–26 | Concluída |
 | 19 | [Salas II: combate e fim](sprints/sprint-19-salas-2.md) | 14–20 | Concluída |
 | 20 | [Integração da arte e brilho](sprints/sprint-20-arte-brilho.md) | 12–20 | Concluída (sem arte nova) |
-| 21 | Fechamento da 1.1 e testes com outras pessoas | 8–12 | **Próxima** |
+| 21 | [Feixe, chefe mais rápido e magia mais cara](sprints/sprint-21-feixe-chefe.md) (pedido do Victor) | 10–16 | Concluída |
+| 22 | Fechamento da 1.1 e testes com outras pessoas | 8–12 | **Próxima** |
 | | **Total** | **~82–122** | |
 
 O total sobe um pouco em relação ao plano (226–344 h) pela esteira de testes e pelas specs. Parte disso volta na Fase 9, com menos bugs para caçar no fim.

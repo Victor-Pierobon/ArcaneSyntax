@@ -48,7 +48,7 @@ func test_resultado_converte_linhas_para_int() -> void:
 
 func test_resultado_le_o_custo_de_mana() -> void:
 	var result := SpellResult.from_dict(fixtures["01_lancar_com_alvo"]["resposta"])
-	assert_float(result.cost).is_equal_approx(3.2, 0.0001)
+	assert_float(result.cost).is_equal_approx(4.2, 0.0001)
 
 
 func test_resultado_de_erro_de_requisicao_tem_mago_vazio() -> void:
@@ -106,4 +106,4 @@ func test_EXE_113_resultado_le_a_faisca() -> void:
 	var result := SpellResult.from_dict(fixtures["11_combate"]["resposta"])
 	assert_str(result.actions[1]["forma"]).is_equal("faisca")
 	assert_str(result.actions[2]["alvo"]).is_equal("sala_c02_alvo_4_1")
-	assert_float(result.cost).is_equal(5.7)
+	assert_float(result.cost).is_equal(7.7)

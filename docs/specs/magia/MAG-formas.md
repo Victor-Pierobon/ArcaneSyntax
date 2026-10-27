@@ -10,7 +10,7 @@
 
 1. Sai da mão do mago (8 px à frente, 16 px acima dos pés) a **220 px/s**, com a cor do elemento.
 2. Com alvo (`alvo` do feitiço ou um item de `inimigos`, pelo id), voa em direção ao centro do alvo e **o persegue** enquanto ele existir (Sprint 10: os inimigos se mexem). Sem alvo, voa reto para onde o mago olha; se o alvo some no meio do caminho, continua reto na última direção.
-3. Ao tocar um alvo, aplica o elemento e o dano (MAG-elementos, COM-dano) e some. **Com alvo, só acerta esse alvo** e atravessa os outros: num loop sobre o enxame, cada golpe vai para quem o feitiço escolheu. Sem alvo, ou depois que o alvo sumiu, acerta o primeiro que tocar. Ao tocar uma parede ou percorrer **12 tiles**, some (o projétil que persegue o chefe não tem esse limite: COM-chefe, regra 6).
+3. Ao tocar um alvo, aplica o elemento e o dano (MAG-elementos, COM-dano) e some. **Com alvo, só acerta esse alvo** e atravessa os outros: num loop sobre o enxame, cada golpe vai para quem o feitiço escolheu. Sem alvo, ou depois que o alvo sumiu, acerta o primeiro que tocar. Ao tocar uma parede (pedra ou porta fechada; desde a Sprint 21 atravessa plataformas) ou percorrer **12 tiles**, some (o projétil que persegue o chefe não tem esse limite: COM-chefe, regra 6).
 
 **Escudo**
 

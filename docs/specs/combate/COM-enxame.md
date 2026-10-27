@@ -50,16 +50,16 @@ Enxames que se dividem ou chamam reforço.
 
 - **Dado** a sala do enxame (6 bichos) e o mago com mana 10, a 9 tiles
 - **Quando** conjura `for inimigo in inimigos:\n    lancar(raio, faisca, inimigo)`
-- **Então** os 6 bichos são derrotados numa conjuração só, que custa 6,7 de mana
-- **E** o mesmo loop com `projetil` derrota 3 e para com `ManaEsgotada` (as ações anteriores acontecem)
+- **Então** os 6 bichos são derrotados numa conjuração só, que custa 9,7 de mana (6,7 até a Sprint 20)
+- **E** o mesmo loop com `projetil` derrota 2 e para com `ManaEsgotada` (as ações anteriores acontecem)
 
 ## Exemplos
 
 | Feitiço (mana 10) | Custo | Resultado |
 | --- | --- | --- |
-| `for inimigo in inimigos: lancar(raio, faisca, inimigo)` (2 linhas) | 1,2 + 5 × 1,1 = 6,7 | 6 derrotados |
-| o mesmo com `projetil` | 3,2 + 3,1 + 3,1 = 9,4, e o 4º não cabe | 3 derrotados, `ManaEsgotada` |
-| 6 linhas `lancar(raio, faisca, inimigos[i])` | 6 × 1,2 = 7,2 | 6 derrotados, mas mais caro que o loop |
+| `for inimigo in inimigos: lancar(raio, faisca, inimigo)` (2 linhas) | 1,7 + 5 × 1,6 = 9,7 | 6 derrotados |
+| o mesmo com `projetil` | 4,2 + 4,1 = 8,3, e o 3º não cabe | 2 derrotados, `ManaEsgotada` |
+| 6 linhas `lancar(raio, faisca, inimigos[i])` | 6 × 1,7 = 10,2 | não cabe na mana do nível 1 (10); no nível 2 (12), 6 derrotados, mas mais caro que o loop |
 
 ## Perguntas em aberto
 

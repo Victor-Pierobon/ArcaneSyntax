@@ -3,8 +3,17 @@ extends GdUnitTestSuite
 
 const STEP := 1.0 / 60.0
 ## Velocidade e descansos do balanceamento do jogo (calibrados na Sprint 20: o mago parado vencia por pouco).
-const SPEED := 100.0
-const RESTS := [1.0, 0.8, 0.6]
+const SPEED := 140.0
+const RESTS := [0.7, 0.5, 0.4]
+## Avisos e tempos do balanceamento do jogo (mais curtos na Sprint 21).
+const FAN_WARN := 0.45
+const CHARGE_WARN := 0.6
+const PILLAR_WARN := 0.7
+const PILLAR_GAP := 0.6
+const PILLAR_UP := 0.5
+const CHARGE_SPEED := 300.0
+const LEAD := 0.3
+const BALANCE_PATH := "user://tests/balanceamento_cerebro.json"
 ## Um quadro de folga nas contas de tempo.
 const SLACK := 0.03
 const START := Vector2(320, 200)
@@ -28,6 +37,14 @@ func _run(brain: BossBrain, seconds: float, player: Variant = PLAYER) -> Array:
 		for event: Dictionary in brain.tick(STEP, at):
 			log.append([elapsed, event])
 	return log
+
+
+## Os eventos `kind` antes do primeiro leque: o primeiro ataque de pilares (o chefe da Sprint 21 faz mais
+## de um no tempo dos testes).
+func _first_pillars(log: Array, kind: String) -> Array:
+	var fans := _of(log, "leque")
+	var cut: float = fans[0][0] if not fans.is_empty() else INF
+	return _of(log, kind).filter(func(entry: Array) -> bool: return entry[0] < cut)
 
 
 func _of(log: Array, kind: String) -> Array:
@@ -65,10 +82,10 @@ func test_COM_083_fase_1_move_avisa_lanca_e_descansa() -> void:
 	assert_dict(warn[0][1]).is_equal({"tipo": "aviso", "ataque": "leque"})
 	assert_float(warn[0][0]).is_equal_approx(2.0 + first_leg, SLACK)
 	var fans: Array = _of(log, "leque")
-	assert_float(fans[0][0]).is_equal_approx(2.0 + first_leg + 0.6, SLACK)
+	assert_float(fans[0][0]).is_equal_approx(2.0 + first_leg + FAN_WARN, SLACK)
 	# Descansa 1,5 s e vai ao próximo ponto.
 	var moves: Array = _of(log, "mover")
-	assert_float(moves[1][0]).is_equal_approx(2.0 + first_leg + 0.6 + RESTS[0], SLACK)
+	assert_float(moves[1][0]).is_equal_approx(2.0 + first_leg + FAN_WARN + RESTS[0], SLACK)
 	assert_vector(moves[1][1]["destino"]).is_equal(POINTS[1])
 	assert_str(moves[1][1]["ataque"]).is_equal("leque")
 
@@ -158,29 +175,29 @@ func test_COM_090_marcas_seguem_o_mago_e_os_pilares_sobem_depois() -> void:
 	# O mago anda 2 px por quadro para a direita: cada marca fica onde ele está naquele momento.
 	var player := func(elapsed: float) -> Vector2: return Vector2(100 + elapsed * 120.0, 321)
 	var log := _run(brain, 12.0, player)
-	var marks: Array = _of(log, "marca")
-	assert_int(marks.size()).is_equal(3)
-	assert_float(marks[1][0] - marks[0][0]).is_equal_approx(0.6, SLACK)
-	assert_float(marks[2][0] - marks[1][0]).is_equal_approx(0.6, SLACK)
+	var marks: Array = _first_pillars(log, "marca")
+	assert_int(marks.size()).is_equal(4)
+	assert_float(marks[1][0] - marks[0][0]).is_equal_approx(PILLAR_GAP, SLACK)
+	assert_float(marks[2][0] - marks[1][0]).is_equal_approx(PILLAR_GAP, SLACK)
 	for entry: Array in marks:
 		var x_then: float = 100 + (entry[0] - STEP) * 120.0
 		assert_float(entry[1]["posicao"].x).is_equal_approx(x_then, 2.5)
 		assert_float(entry[1]["posicao"].y).is_equal(336.0)
-	var rises: Array = _of(log, "pilar")
-	var ends: Array = _of(log, "pilar_fim")
+	var rises: Array = _first_pillars(log, "pilar")
+	var ends: Array = _first_pillars(log, "pilar_fim")
 	for i in 3:
 		var id: int = marks[i][1]["id"]
 		assert_int(rises[i][1]["id"]).is_equal(id)
-		assert_float(rises[i][0] - marks[i][0]).is_equal_approx(0.8, SLACK)
-		assert_float(ends[i][0] - rises[i][0]).is_equal_approx(0.5, SLACK)
-	# Os ids são diferentes, e o descanso começa quando o último pilar desce.
+		assert_float(rises[i][0] - marks[i][0]).is_equal_approx(PILLAR_WARN, SLACK)
+		assert_float(ends[i][0] - rises[i][0]).is_equal_approx(PILLAR_UP, SLACK)
+	# Os ids são diferentes, e o descanso começa quando o último pilar desce: o leque só vem depois.
 	assert_int(marks[0][1]["id"]).is_not_equal(marks[1][1]["id"])
-	assert_array(brain.marks).is_empty()
+	assert_float(_of(log, "leque")[0][0]).is_greater(ends[3][0])
 
 
-func test_COM_090_quatro_marcas_na_fase_3() -> void:
+func test_COM_090_cinco_marcas_na_fase_3() -> void:
 	var brain := _brain_in_phase(3)
-	assert_int(_of(_run(brain, 20.0), "marca").size()).is_equal(4)
+	assert_int(_first_pillars(_run(brain, 20.0), "marca").size()).is_equal(5)
 
 
 func test_COM_090_os_pilares_avisam_pelas_marcas() -> void:
@@ -217,10 +234,10 @@ func test_COM_091_investida_sai_do_lado_de_la() -> void:
 	var warn: Array = _of(log, "aviso")
 	assert_dict(warn[0][1]).is_equal({"tipo": "aviso", "ataque": "investida"})
 	var charge: Array = _of(log, "investida")
-	assert_float(charge[0][0] - warn[0][0]).is_equal_approx(0.8, SLACK)
+	assert_float(charge[0][0] - warn[0][0]).is_equal_approx(CHARGE_WARN, SLACK)
 	assert_vector(charge[0][1]["destino"]).is_equal(CHARGE[0])
-	# Atravessa a 240 px/s e só então descansa.
-	var crossing := CHARGE[0].distance_to(CHARGE[1]) / 240.0
+	# Atravessa na velocidade da investida e só então descansa.
+	var crossing := CHARGE[0].distance_to(CHARGE[1]) / CHARGE_SPEED
 	var next_move: Array = moves[1]
 	assert_float(next_move[0] - charge[0][0]).is_equal_approx(crossing + RESTS[2], SLACK * 2)
 
@@ -279,3 +296,67 @@ func test_COM_082_golpe_passa_pelas_fases() -> void:
 	brain.after_damage(60)
 	assert_bool(brain.resolve("raio", "projetil", 60)["blocked"]).is_true()
 	assert_int(brain.phases.phase).is_equal(2)
+
+
+# --- COM-097: orbes junto dos pilares ---
+
+
+func test_COM_097_cada_marca_vem_com_um_orbe_na_fase_3() -> void:
+	for phase: int in [3]:
+		var brain := _brain_in_phase(phase)
+		var log := _run(brain, 20.0)
+		var marks := _of(log, "marca")
+		var orbs := _of(log, "orbe")
+		assert_int(orbs.size()).override_failure_message("fase %d" % phase).is_greater_equal(marks.size())
+		# Saem no mesmo passo da marca, mirados no centro do mago.
+		var first_mark: float = marks[0][0]
+		var with_mark := orbs.filter(func(entry: Array) -> bool: return is_equal_approx(entry[0], first_mark))
+		assert_int(with_mark.size()).override_failure_message("fase %d" % phase).is_equal(1)
+		var direction: Vector2 = with_mark[0][1]["direcao"]
+		assert_float(direction.length()).is_equal_approx(1.0, 0.001)
+
+
+func test_COM_097_sem_orbe_onde_a_fase_nao_pede() -> void:
+	# Pilares forçados na fase 1, onde `pilar_orbes` é 0: marcas sim, orbes não.
+	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Balance.DEFAULT_PATH))
+	data["chefe"]["ataques"] = [["pilares"], ["pilares"], ["pilares"]]
+	data["chefe"]["pilar_marcas"] = [2, 4, 5]
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://tests"))
+	var file := FileAccess.open(BALANCE_PATH, FileAccess.WRITE)
+	file.store_string(JSON.stringify(data))
+	file.close()
+	Balance.use_file(BALANCE_PATH)
+	var log := _run(_brain(), 8.0)
+	assert_int(_of(log, "marca").size()).is_greater_equal(2)
+	assert_array(_of(log, "orbe")).is_empty()
+
+
+func after_test() -> void:
+	Balance.reset()
+	if FileAccess.file_exists(BALANCE_PATH):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(BALANCE_PATH))
+
+
+# --- COM-098: o leque mira adiante ---
+
+
+func test_COM_098_leque_mira_onde_o_mago_vai_estar() -> void:
+	var brain := _brain()
+	var first_leg := START.distance_to(POINTS[0]) / SPEED
+	var velocity := Vector2(120, 0)
+	var log := []
+	var elapsed := 0.0
+	for i in roundi((2.0 + first_leg + FAN_WARN + 0.2) / STEP):
+		elapsed += STEP
+		for event: Dictionary in brain.tick(STEP, PLAYER, velocity):
+			log.append([elapsed, event])
+	var fans := _of(log, "leque")
+	assert_int(fans.size()).is_equal(1)
+	var middle: Vector2 = fans[0][1]["direcoes"][1]
+	var expected := (PLAYER + velocity * LEAD - POINTS[0]).normalized()
+	assert_vector(middle).is_equal_approx(expected, Vector2(0.001, 0.001))
+	# Parado, mira o centro.
+	var still := _brain()
+	var still_fans := _of(_run(still, 2.0 + first_leg + FAN_WARN + 0.2), "leque")
+	assert_vector(still_fans[0][1]["direcoes"][1]).is_equal_approx((PLAYER - POINTS[0]).normalized(), Vector2(0.001, 0.001))
+

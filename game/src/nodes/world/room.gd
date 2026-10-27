@@ -21,6 +21,9 @@ signal secret_found(secret_id: String)
 ## Tileset provisório com bordas (ART-esteira, regra 15); `cenario/tiles.png` toma o lugar dele.
 const PLACEHOLDER_TILES := "res://assets/placeholder/tiles_bordas.png"
 const TILE := RoomLayout.TILE
+## Camada de física das plataformas (`=`, `-`, `>`): o mago pousa nelas, os tiros atravessam (só pedra e
+## porta param projéteis e orbes; Sprint 21).
+const PLATFORM_LAYER := 2
 ## Marcas da arena do chefe em `targets` (COM-chefe, regra 7).
 const BOSS_POINTS := ["chefe:ponto", "chefe:investida"]
 
@@ -169,6 +172,17 @@ func fountains() -> Array[Fountain]:
 
 
 ## A porta de atalho (`%`) está aberta; true se a sala não tem uma.
+## O feixe para em pedra e em porta fechada; plataformas não param (MAG-feixe, regra 4).
+func blocks_beam(cell: Vector2i) -> bool:
+	if cell.x < 0 or cell.y < 0 or cell.x >= data.width or cell.y >= data.height:
+		return true
+	if cell in data.solids:
+		return true
+	if cell in data.doors and not doors_open():
+		return true
+	return cell in data.shortcut_doors and not shortcut_open()
+
+
 func moving_platforms() -> Array[MovingPlatform]:
 	return _moving
 
@@ -320,6 +334,9 @@ static func tileset_for(texture: Texture2D) -> TileSet:
 	tile_set.add_physics_layer()
 	tile_set.set_physics_layer_collision_layer(0, 1)
 	tile_set.set_physics_layer_collision_mask(0, 0)
+	tile_set.add_physics_layer()
+	tile_set.set_physics_layer_collision_layer(1, PLATFORM_LAYER)
+	tile_set.set_physics_layer_collision_mask(1, 0)
 	var source := TileSetAtlasSource.new()
 	source.texture = texture
 	source.texture_region_size = Vector2i(TILE, TILE)
@@ -335,10 +352,10 @@ static func tileset_for(texture: Texture2D) -> TileSet:
 				tile.set_collision_polygon_points(0, 0, PackedVector2Array([
 					Vector2(-half, -half), Vector2(half, -half), Vector2(half, half), Vector2(-half, half)]))
 			elif coords == TileShape.PLATFORM:
-				tile.add_collision_polygon(0)
-				tile.set_collision_polygon_points(0, 0, PackedVector2Array([
+				tile.add_collision_polygon(1)
+				tile.set_collision_polygon_points(1, 0, PackedVector2Array([
 					Vector2(-half, -half), Vector2(half, -half), Vector2(half, -half + 4), Vector2(-half, -half + 4)]))
-				tile.set_collision_polygon_one_way(0, 0, true)
+				tile.set_collision_polygon_one_way(1, 0, true)
 	_tilesets[texture] = tile_set
 	return tile_set
 

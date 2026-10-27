@@ -5,7 +5,7 @@ extends RefCounted
 enum Group { GAME, BUILTIN, KEYWORD }
 
 const GAME_FUNCTIONS := ["lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco"]
-const GAME_CONSTANTS := ["fogo", "gelo", "raio", "projetil", "escudo", "faisca"]
+const GAME_CONSTANTS := ["fogo", "gelo", "raio", "projetil", "escudo", "faisca", "feixe"]
 ## Sentidos: sempre disponíveis (spec EXE-desbloqueio, regra 2).
 const SENSES := ["mana", "mana_max", "vida_atual", "alvo", "inimigos"]
 ## Sentidos que são funções (Sprint 9, EXE-pecas regra 6).

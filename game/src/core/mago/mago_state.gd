@@ -11,8 +11,10 @@ const MANA_STEP := 0.1
 ## Peças sujeitas a desbloqueio (spec EXE-desbloqueio).
 const ALL_PIECES: Array[String] = [
 	"lancar", "mover", "levitar", "meditar", "absorver_mana", "inscrever", "construir_bloco",
-	"fogo", "gelo", "raio", "projetil", "escudo", "faisca",
+	"fogo", "gelo", "raio", "projetil", "escudo", "faisca", "feixe",
 ]
+## Peças que começam bloqueadas e a serpente ensina (MAG-feixe, regra 8).
+const LOCKED_AT_START: Array[String] = ["feixe"]
 
 ## Vida e invencibilidade vêm do balanceamento, seção `mago`; a mana máxima, do nível (spec BAL-valores).
 var health := Health.new(Balance.integer("mago", "vida"))
@@ -20,12 +22,19 @@ var mana: float = 0.0
 var xp := 0
 var level := 1
 var mana_max: float = Progression.mana_max_for(1)
-## Até os upgrades da torre existirem, tudo começa desbloqueado (GRI-slots, regra 11).
-var unlocked_pieces := PackedStringArray(ALL_PIECES)
+## Tudo começa desbloqueado (GRI-slots, regra 11), menos o que a serpente ensina (MAG-feixe, regra 8).
+var unlocked_pieces := PackedStringArray(ALL_PIECES.filter(func(piece: String) -> bool:
+	return not piece in LOCKED_AT_START))
 
 
 func _init() -> void:
 	health.invulnerable_time = Balance.number("mago", "invencivel_s")
+
+
+## Libera uma peça (uma vez só).
+func unlock(piece: String) -> void:
+	if not piece in unlocked_pieces:
+		unlocked_pieces.append(piece)
 
 
 func set_mana(value: float) -> void:

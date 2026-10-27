@@ -131,12 +131,17 @@ func select_page(page_id: String) -> void:
 	reference_text.text = _reference.text(page_id)
 
 
-## Lista as páginas das peças desbloqueadas e mostra a primeira (GRI-referencia, regras 3 e 5).
-func _refresh_reference() -> void:
+## As páginas das peças que o mago conhece (GRI-referencia, regra 3).
+func reference_pages() -> Array[String]:
 	var pieces := PackedStringArray(MagoState.ALL_PIECES)
 	if _context.is_valid():
 		pieces = PackedStringArray(_context.call().get("pieces", pieces))
-	_page_ids = _reference.visible_pages(pieces)
+	return _reference.visible_pages(pieces)
+
+
+## Lista as páginas das peças desbloqueadas e mostra a primeira (GRI-referencia, regras 3 e 5).
+func _refresh_reference() -> void:
+	_page_ids = reference_pages()
 	reference_list.clear()
 	for page_id in _page_ids:
 		reference_list.add_item(_reference.title(page_id))

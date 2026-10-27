@@ -216,6 +216,12 @@ O jogo nunca roda o código do jogador no próprio processo. Ele manda o código
 - Primeira leva de arte (regras 21 a 28): `ArtLibrary.effect(pai, pasta, nome, posição)` toca uma vez e some (impacto do projétil); `PlayerVisual.aura` (`magia/meditar`) aparece só meditando; inimigo derrotado com `morrer` fica até a animação acabar (`ArtLibrary.duration`); `SwarmBug` troca para `mergulhar`; `Guardian.shield_sprite` substitui o círculo (`draws_shield_circle()`); `Crystal.lit_element`; `tocha` em `targets` é um `Torch` (decoração, fora dos alvos).
 - Projeto: `snap_2d_transforms_to_pixel` e `snap_2d_vertices_to_pixel` ligados (sem isso, o texto pequeno do mundo embaralhava com a câmera suave).
 
+### Feixe (spec MAG-feixe, Sprint 21)
+
+- Executor: forma `feixe`, `custo_feixe`. Godot: `BeamRule` (`src/core/magic/beam_rule.gd`, regra pura: `end_point(origem, direção, bloqueia)`, `hits(início, fim, retângulos)`); `Beam` (`src/nodes/magic/beam.gd`, grupo `feixes`, some em 0,3 s); `WorldActions._fire_beam` (carga de 0,5 s com o controle travado, depois acerta todo `TrainingTarget` da sala na linha com a forma `feixe`); `Room.blocks_beam(célula)` (pedra, porta fechada, atalho fechado).
+- Desbloqueio: `MagoState.LOCKED_AT_START`, `unlock`; `World.LESSON_UNLOCKS` (`ensino_feixe` → `feixe`), aplicado ao ver a lição e ao carregar o save (pela lição vista).
+- Física: as plataformas (`=` do tileset, `MovingPlatform`, `FallingPlatform`) ficam em `Room.PLATFORM_LAYER` (2); o `Player` olha as camadas 1 e 2; projéteis, faíscas, orbes e pilares olham só a 1 (pedra, porta) e atravessam plataformas.
+
 ### Brilho (spec ART-brilho, Sprint 20)
 
 - `Lighting` (`src/nodes/fx/lighting.gd`): `AMBIENT` (o `World` põe um `CanvasModulate` com ela), `make(cor, raio, energia)` (um `PointLight2D` com a textura radial compartilhada), `radius_of`, `keep_readable(item)` (`self_modulate = READABLE`, para os textos do mundo não escurecerem; todo `Label` novo dentro da sala precisa chamar). Nós com luz: `Torch`, `Crystal.glow` (o nome `light` já é o de acender), `Projectile`, `Shield`, `Serpent`, `Fountain`, `Enemy` (`light_radius`; o `Boss` usa 64 e troca a cor na fase), `BossBolt`, `BossPillar` (só de pé), `Player`.

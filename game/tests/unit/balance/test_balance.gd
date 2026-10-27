@@ -103,6 +103,6 @@ func test_BAL_003_regras_tem_as_chaves_do_executor() -> void:
 	var rules := Balance.rules()
 	for key in ["ganho_meditar", "ganho_absorver", "custo_instrucao", "custo_inscricao", "custo_lancar",
 			"custo_mover", "custo_levitar", "custo_meditar", "custo_absorver", "custo_inscrever", "custo_bloco",
-			"custo_faisca", "limite_tempo_ms"]:
+			"custo_faisca", "custo_feixe", "limite_tempo_ms"]:
 		assert_bool(rules.has(key)).override_failure_message(key).is_true()
-	assert_int(rules.size()).is_equal(13)
+	assert_int(rules.size()).is_equal(14)

@@ -160,3 +160,12 @@ Duas linhas por sessão: o que foi feito e o que vem a seguir.
 - Mutação: 15 de 15 (um teste reforçado). 612 GdUnit4, 145 pytest e 32 do gerador verdes.
 - Próximo: Victor revisa e commita, joga (a luta do chefe mudou de ritmo); Sprint 21 (fechamento da 1.1).
 
+## 2026-10-27 (Sprint 21)
+
+- O Victor commitou a Sprint 20 e pediu: o feixe ("tipo kamehameha ou o Zoltraak de Frieren"), o chefe menos lento e mais difícil, e magia mais cara ("dá para castar várias em sequência sem pensar").
+- Feixe: carrega 0,5 s parado e dispara um raio reto que atravessa todos na linha até a parede; dano 6 (o dobro do projétil), custo 8; aprendido com uma serpente na `sala_c03` (a primeira peça que começa bloqueada).
+- Custos: `lancar` 3 → 4, faísca 1 → 1,5; meditar leva 1 s. O Puzzle 1 continua funcionando (meditar uma vez e lançar); as estrelas do Puzzle 6 subiram 2.
+- Chefe: voa a 140 px/s, descansa menos, avisos mais curtos, o leque mira adiante, investida mais rápida, mais marcas, orbes junto dos pilares na fase 3. A calibração medida mostrou que a magia cara pesava mais que o chefe, e que as plataformas paravam os tiros de quem fugia para baixo delas: agora tiros atravessam plataformas.
+- Mutação: 12 de 12. 626 GdUnit4, 149 pytest (também no 3.14) e 32 do gerador verdes.
+- Próximo: Victor revisa e commita, joga a luta e o feixe; Sprint 22 (fechamento da 1.1).
+

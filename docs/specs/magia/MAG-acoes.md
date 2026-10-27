@@ -20,7 +20,7 @@ O executor devolve a fila de ações do feitiço, cada uma com a linha que a ger
    | `levitar(altura)` | o mago sobe `altura` tiles sem gravidade (MUN-015), paira 0,3 s e solta. **Sprint 9:** se a próxima ação da fila for `mover`, ele continua sem gravidade durante esse `mover` (voa na horizontal) e só depois solta | depois de pairar |
    | `inscrever(valor)` (Sprint 9) | uma runa com o número sai da mão do mago até o cadeado mais perto (PUZ-validacao, regra 10) | depois de 0,3 s |
    | `construir_bloco` (Sprint 9) | o próximo bloco da ponte aparece (PUZ-validacao, regra 11) | depois de 0,15 s |
-   | `meditar` | o mago fica parado, com aura | depois de 0,5 s |
+   | `meditar` | o mago fica parado, com aura | depois de 1 s (0,5 s até a Sprint 20) |
    | `absorver_mana` | brilho rápido | depois de 0,08 s |
 
 2. Enquanto o feitiço move o mago (`mover`, `levitar`, `meditar`), o teclado não controla o movimento; ao terminar, o controle volta.

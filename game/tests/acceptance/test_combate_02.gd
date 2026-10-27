@@ -46,7 +46,7 @@ func test_COM_044_todos_os_bichos_estao_nos_sentidos() -> void:
 func test_COM_044_loop_de_faiscas_vence_o_enxame_numa_conjuracao() -> void:
 	var result := await driver.cast(LOOP_FAISCA, true, 60)
 	assert_bool(result.ok).override_failure_message(str(result.error)).is_true()
-	assert_float(result.cost).is_equal(6.7)
+	assert_float(result.cost).is_equal(9.7)
 	assert_array(_bugs()).is_empty()
 	assert_int(driver.world.state.health.current).is_equal(5)
 
@@ -54,13 +54,16 @@ func test_COM_044_loop_de_faiscas_vence_o_enxame_numa_conjuracao() -> void:
 func test_COM_044_loop_de_projeteis_esgota_a_mana() -> void:
 	var result := await driver.cast(LOOP_PROJETIL, true, 60)
 	assert_str(result.error.type).is_equal("ManaEsgotada")
-	assert_int(result.actions.size()).is_equal(3)
+	# Com o lancar a 4 (Sprint 21), cabem dois projéteis na mana 10.
+	assert_int(result.actions.size()).is_equal(2)
 	# As ações anteriores ao erro acontecem (MAG-acoes, regra 5).
-	assert_array(_bugs()).has_size(3)
+	assert_array(_bugs()).has_size(4)
 
 
 func test_COM_044_linhas_soltas_funcionam_mas_custam_mais() -> void:
+	# Seis linhas soltas custam 10,2: mais que a mana do nível 1 (10). No nível 2 (12) cabem.
+	driver.world.state.restore_progress(30, 12.0)
 	var result := await driver.cast(LINHAS_SOLTAS, true, 60)
 	assert_bool(result.ok).override_failure_message(str(result.error)).is_true()
-	assert_float(result.cost).is_equal(7.2)
+	assert_float(result.cost).is_equal(10.2)
 	assert_array(_bugs()).is_empty()

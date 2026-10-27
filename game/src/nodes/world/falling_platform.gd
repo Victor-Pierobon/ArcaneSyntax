@@ -33,7 +33,7 @@ static func make(top_left: Vector2, p_width: int) -> FallingPlatform:
 
 
 func _ready() -> void:
-	collision_layer = 1
+	collision_layer = Room.PLATFORM_LAYER
 	collision_mask = 0
 	var rect := RectangleShape2D.new()
 	rect.size = Vector2(width * RoomLayout.TILE, THICKNESS)

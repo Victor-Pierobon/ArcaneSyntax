@@ -404,3 +404,31 @@ func test_COM_092_projetil_segue_quando_o_chefe_some() -> void:
 	assert_bool(is_instance_valid(projectile)).is_true()
 	assert_object(projectile.target).is_null()
 	assert_vector(projectile.position).is_not_equal(before)
+
+
+## Regressão (Sprint 21): as plataformas paravam os projéteis e os orbes. Na arena, quem fugia das marcas
+## para baixo de uma plataforma não acertava mais o chefe. Agora só pedra e porta fechada param tiros; a
+## plataforma continua segurando o mago.
+func test_COM_092_tiros_atravessam_plataformas() -> void:
+	await _start()
+	# A plataforma da sala_chefe: colunas 8 a 11, topo em y = 96.
+	var below := Vector2(9 * TILE + 8, 140)
+	var projectile := Projectile.make("fogo", Vector2.UP)
+	projectile.global_position = below
+	world.current_room.add_child(projectile)
+	var bolt := BossBolt.make("fogo", Vector2.UP)
+	bolt.global_position = below + Vector2(16, 0)
+	world.current_room.add_child(bolt)
+	# O projétil (220 px/s) passa da plataforma antes do orbe (100 px/s); cada um é conferido no seu tempo.
+	await _frames(20)
+	assert_bool(is_instance_valid(projectile)).override_failure_message("projétil").is_true()
+	assert_float(projectile.global_position.y).is_less(90.0)
+	projectile.queue_free()
+	await _frames(25)
+	assert_bool(is_instance_valid(bolt)).override_failure_message("orbe").is_true()
+	assert_float(bolt.global_position.y).is_less(90.0)
+	bolt.queue_free()
+	# O mago continua pousando na plataforma.
+	await _put_player(Vector2(9 * TILE + 8, 80))
+	await _frames(20)
+	assert_float(player.global_position.y).is_equal_approx(96.0, 1.0)

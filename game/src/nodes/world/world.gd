@@ -21,6 +21,8 @@ const HIT_STOP := 0.06
 const RUNE_OFFSET := Vector2(0, -40)
 ## A fala que faz a lição contar como vista (spec NAR-serpente, regra 2).
 const LESSON_LINE := "licao"
+## Lições que ensinam uma peça nova (MAG-feixe, regra 8).
+const LESSON_UNLOCKS := {"ensino_feixe": "feixe"}
 ## A cena da serpente na `sala_fim` e a fala que encerra a demonstração (UI-menus, regra 7).
 const END_SCENE := "fim_demo"
 const END_LINE := "fim"
@@ -199,6 +201,7 @@ func apply_progress(data: Dictionary) -> void:
 				solved_puzzles[puzzle_id] = {"estrelas": int(stars) if _is_number(stars) else 0}
 	defeated_bosses = _string_set(data.get("chefes"))
 	seen_lessons = _string_set(data.get("licoes"))
+	_apply_unlocks(false)
 	found_secrets = _string_set(data.get("segredos"))
 	opened_shortcuts = _string_set(data.get("atalhos"))
 	var used: Variant = data.get("dicas")
@@ -307,6 +310,16 @@ func talk() -> void:
 
 ## Fim da conversa: conta a lição e a dica pelas falas que apareceram (NAR-serpente, regra 2; NAR-dicas,
 ## regra 4) e salva.
+## As peças das lições vistas ficam liberadas; `announce` avisa no registro a que é nova.
+func _apply_unlocks(announce: bool) -> void:
+	for lesson: String in LESSON_UNLOCKS:
+		var piece: String = LESSON_UNLOCKS[lesson]
+		if seen_lessons.has(lesson) and not piece in state.unlocked_pieces:
+			state.unlock(piece)
+			if announce:
+				cast_log.add_lines(PackedStringArray([tr("FEIXE_APRENDIDO")]))
+
+
 func _on_dialogue_finished() -> void:
 	grimoire_ui.blocked = false
 	if is_instance_valid(_talk_serpent):
@@ -316,6 +329,7 @@ func _on_dialogue_finished() -> void:
 		return
 	if _talk_run.has_seen(LESSON_LINE):
 		seen_lessons[_talk_lesson] = true
+		_apply_unlocks(true)
 	if not _talk_hint_puzzle.is_empty() and _talk_run.has_seen(HintBook.HINT_LINE):
 		hints_used[_talk_hint_puzzle] = mini(int(hints_used.get(_talk_hint_puzzle, 0)) + 1, HintBook.LEVELS)
 	var demo_over := _talk_lesson == END_SCENE and _talk_run.has_seen(END_LINE)

@@ -46,7 +46,10 @@ func test_GRI_040_conjurar_envia_o_estado_real() -> void:
 	assert_str(request.code).is_equal("lancar(fogo, projetil, alvo)")
 	assert_float(float(request.mago["mana"])).is_equal(7.0)
 	assert_dict(request.target).is_equal({"id": "sala_alvos_alvo_1", "elemento": "fogo", "distancia": 3.0})
-	assert_array(Array(request.pieces)).is_equal(Array(MagoState.ALL_PIECES))
+	# Tudo menos o que a serpente ensina (MAG-feixe, regra 8).
+	var expected := Array(MagoState.ALL_PIECES).filter(func(piece: String) -> bool:
+		return not piece in MagoState.LOCKED_AT_START)
+	assert_array(Array(request.pieces)).is_equal(expected)
 
 
 func test_GRI_041_mana_pela_variacao() -> void:

@@ -64,7 +64,7 @@ func test_PUZ_070_A_economica() -> void:
 	await _play_room("inscrever(ler_runa(1) + ler_runa(2) + ler_runa(3))",
 			"for i in range(8):\n    construir_bloco()", [CRISTAL_IF, CRISTAL_IF], [SUBIR])
 	_assert_solved(true, "A")
-	assert_float(driver.world.room_mana_spent).is_equal_approx(19.5, 0.001)
+	assert_float(driver.world.room_mana_spent).is_equal_approx(21.5, 0.001)
 	assert_int(driver.world.puzzle_stars(PUZZLE)).is_equal(3)
 
 
@@ -75,7 +75,7 @@ func test_PUZ_070_B_detalhada() -> void:
 	await _play_room("a = ler_runa(1)\nb = ler_runa(2)\nc = ler_runa(3)\ninscrever(a + b + c)",
 			"\n".join(eight), [CRISTAL_DICT, CRISTAL_DICT], ["levitar(5)\nmover(2)\nlevitar(6)\nmover(2)"])
 	_assert_solved(true, "B")
-	assert_float(driver.world.room_mana_spent).is_equal_approx(21.0, 0.001)
+	assert_float(driver.world.room_mana_spent).is_equal_approx(23.0, 0.001)
 	assert_int(driver.world.puzzle_stars(PUZZLE)).is_equal(2)
 
 
@@ -97,7 +97,7 @@ func test_PUZ_071_um_erro_a_mais_tira_a_terceira_estrela() -> void:
 			"for i in range(8):\n    construir_bloco()",
 			["lancar(alvo.elemento, projetil, alvo)", CRISTAL_IF, CRISTAL_IF], [SUBIR])
 	_assert_solved(true, "A com um erro")
-	assert_float(driver.world.room_mana_spent).is_equal_approx(22.7, 0.001)
+	assert_float(driver.world.room_mana_spent).is_equal_approx(25.7, 0.001)
 	assert_int(driver.world.puzzle_stars(PUZZLE)).is_equal(2)
 
 

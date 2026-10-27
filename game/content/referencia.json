@@ -2,6 +2,7 @@
   {"id": "lancar", "requer": ["lancar"]},
   {"id": "elementos", "requer": ["lancar"]},
   {"id": "formas", "requer": ["lancar"]},
+  {"id": "feixe", "requer": ["feixe"]},
   {"id": "mover", "requer": ["mover"]},
   {"id": "levitar", "requer": ["levitar"]},
   {"id": "meditar", "requer": ["meditar"]},

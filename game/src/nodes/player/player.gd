@@ -16,6 +16,8 @@ var light: PointLight2D
 
 
 func _ready() -> void:
+	# Pousa na pedra e nas plataformas (que ficam numa camada só delas, Sprint 21).
+	collision_mask = 1 | Room.PLATFORM_LAYER
 	light = Lighting.make(Lighting.MAGE, 56, 0.6)
 	light.position = Vector2(0, -15)
 	add_child(light)

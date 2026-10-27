@@ -55,8 +55,8 @@ func test_EXE_007_chamadas_simultaneas_sao_atendidas_em_ordem() -> void:
 
 func test_EXE_007_custo_de_mana_chega_ao_godot() -> void:
 	var result: SpellResult = await executor.execute(SpellRequest.make("lancar(fogo, projetil, alvo)", MAGO, ALVO))
-	assert_float(result.cost).is_equal_approx(3.2, 0.0001)
-	assert_float(float(result.mago["mana"])).is_equal_approx(1.8, 0.0001)
+	assert_float(result.cost).is_equal_approx(4.2, 0.0001)
+	assert_float(float(result.mago["mana"])).is_equal_approx(0.8, 0.0001)
 
 
 func test_EXE_058_watchdog_mata_feitico_preso_em_codigo_c() -> void:

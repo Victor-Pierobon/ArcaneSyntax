@@ -35,7 +35,7 @@ def test_EXE_042_saltos_pagam_antes():
 
 def test_EXE_043_custo_base_das_pecas():
     codigo = "lancar(fogo, projetil)\nmover(1)\nlevitar(2)"
-    assert run(codigo, mago=mago(20))["custo_mana"] == 6.6
+    assert run(codigo, mago=mago(20))["custo_mana"] == 7.6
     assert run(codigo, mago=mago(20), regras={"custo_lancar": 1})["custo_mana"] == 4.6
 
 

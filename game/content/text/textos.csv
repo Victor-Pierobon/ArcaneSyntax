@@ -83,11 +83,11 @@ SERPENTE_OLA_4,"Sem pressa. Estarei aqui, enrolada nesta margem, quando quiser c
 GRIMORIO_ABA_FEITICOS,Feitiços
 GRIMORIO_ABA_REFERENCIA,Referência
 REF_LANCAR_TITULO,lancar
-REF_LANCAR_TEXTO,"[b]lancar(elemento, forma, alvo)[/b]\n\nA peça mais antiga do livro: solta um feitiço. Escolha o elemento, a forma e, se quiser, o alvo.\n\n[code]lancar(fogo, projetil, alvo)[/code]\n\nCom alvo, o projétil persegue quem você escolheu. Sem alvo, voa reto e acerta o primeiro que tocar.\nCusta 3 de mana (a faísca custa 1)."
+REF_LANCAR_TEXTO,"[b]lancar(elemento, forma, alvo)[/b]\n\nA peça mais antiga do livro: solta um feitiço. Escolha o elemento, a forma e, se quiser, o alvo.\n\n[code]lancar(fogo, projetil, alvo)[/code]\n\nCom alvo, o projétil persegue quem você escolheu. Sem alvo, voa reto e acerta o primeiro que tocar.\nCusta 4 de mana (a faísca custa 1,5)."
 REF_ELEMENTOS_TITULO,Elementos
 REF_ELEMENTOS_TEXTO,"[b]fogo, gelo, raio[/b]\n\nCada elemento é forte contra outro:\n• fogo vence planta\n• gelo vence fogo\n• raio vence gelo\n\nAcertar a fraqueza dá o dobro de dano ([b]Fraco![/b]). Um elemento contra ele mesmo dá a metade ([b]Resistiu[/b]).\n\nDica: os elementos são texto, então [code]alvo.elemento == fogo[/code] funciona."
 REF_FORMAS_TITULO,Formas
-REF_FORMAS_TEXTO,"[b]projetil, faisca, escudo[/b]\n\n• [b]projetil[/b]: dano 3, custo 3. Bom contra inimigos grandes.\n• [b]faisca[/b]: dano 1, custo 1. Barata, ótima num loop sobre muitos inimigos.\n• [b]escudo[/b]: envolve você por 2 segundos e bloqueia um ataque.\n\n[code]lancar(raio, faisca, alvo)\nlancar(gelo, escudo)[/code]"
+REF_FORMAS_TEXTO,"[b]projetil, faisca, escudo[/b]\n\n• [b]projetil[/b]: dano 3, custo 4. Bom contra inimigos grandes.\n• [b]faisca[/b]: dano 1, custo 1,5. Barata, ótima num loop sobre muitos inimigos.\n• [b]escudo[/b]: envolve você por 2 segundos e bloqueia um ataque.\n\n[code]lancar(raio, faisca, alvo)\nlancar(gelo, escudo)[/code]"
 REF_MOVER_TITULO,mover
 REF_MOVER_TEXTO,"[b]mover(passos)[/b]\n\nAnda alguns tiles. Número positivo vai para a direita; negativo, para a esquerda.\n\n[code]mover(3)\nmover(-2)[/code]\n\nEnquanto o feitiço move você, o teclado espera. Custa 1 de mana."
 REF_LEVITAR_TITULO,levitar
@@ -200,3 +200,9 @@ FIM_DEMO_1,Você passou pelo guardião da Masmorra. Eu sabia que você conseguir
 FIM_DEMO_2,"Repare: tudo o que você escreveu aqui é Python de verdade. Sequência, variáveis, condicionais, loops e funções."
 FIM_DEMO_3,E o que tem lá em cima?
 FIM_DEMO_FIM,"Listas, dicionários, classes... Mas essa parte da torre ainda está sendo escrita. Obrigada por jogar a demonstração!"
+ENSINO_FEIXE_1,"Sss... o chefe da masmorra espera depois daquela porta. Antes, aprenda a forma mais forte que eu conheço."
+ENSINO_FEIXE_LICAO,"O feixe:\n    lancar(fogo, feixe, alvo)\nVocê para meio segundo, carregando, e solta um raio reto que atravessa todos no caminho. Custa 8 de mana."
+ENSINO_FEIXE_2,"Carregando, você fica parado: escolha a hora. E o elemento continua importando, sss."
+FEIXE_APRENDIDO,Você aprendeu o feixe!
+REF_FEIXE_TITULO,feixe
+REF_FEIXE_TEXTO,"[b]feixe[/b]\n\nA forma mais forte: você carrega por meio segundo, parado, e solta um raio reto até a parede. Acerta [b]todos[/b] os alvos na linha.\n\n[code]lancar(raio, feixe, alvo)[/code]\n\nDano 6 (o dobro do projétil), custo 8. Carregando, você pode levar um golpe."

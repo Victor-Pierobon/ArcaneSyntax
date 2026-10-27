@@ -33,7 +33,7 @@
     "custo_mana": 1.2,
     "erro": {
       "tipo": "ManaEsgotada",
-      "mensagem": "a mana acabou na linha 2: lancar() custava 3 e restavam 0.8",
+      "mensagem": "a mana acabou na linha 2: lancar() custava 4 e restavam 0.8",
       "linha": 2,
       "coluna": null
     }

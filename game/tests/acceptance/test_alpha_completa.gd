@@ -161,6 +161,9 @@ func test_MUN_085_a_alpha_inteira() -> void:
 	await driver.place(driver.cell_of("2"))
 	main.world.talk()
 	assert_float(main.world.state.mana).is_equal(main.world.state.mana_max)
+	# A serpente do feixe, antes do chefe (MAG-feixe).
+	await _listen("9")
+	assert_bool("feixe" in main.world.state.unlocked_pieces).is_true()
 	assert_str(await _leave("b")).is_equal("sala_c04")
 	# O chefe, com o mesmo feitiço do dicionário.
 	var boss := driver.room().enemies()[0] as Boss
@@ -182,7 +185,7 @@ func test_MUN_085_a_alpha_inteira() -> void:
 	assert_bool(main.end_screen.is_showing()).is_true()
 	var text := main.end_screen.summary_text()
 	assert_str(text).contains(tr("FIM_PUZZLES") % [6, 6])
-	assert_str(text).contains(tr("FIM_LICOES") % [6, 6])
+	assert_str(text).contains(tr("FIM_LICOES") % [7, 7])
 	assert_str(text).contains(tr("FIM_SEGREDOS") % [2, 5])
 	assert_array(visited).contains(["sala_01", "sala_02", "sala_03", "sala_p02", "sala_p03", "sala_p04", "sala_p05",
 			"sala_p06", "sala_c01", "sala_c02", "sala_c03", "sala_c04", "sala_fim"])

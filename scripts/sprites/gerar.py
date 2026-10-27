@@ -60,17 +60,21 @@ def salvar(img, caminho):
     img.save(caminho)
 
 
-def token():
-    valor = os.environ.get("PIXELLAB_API_TOKEN", "").strip()
-    if not valor and sys.platform == "win32":
-        # `setx` só aparece em processos novos; lê direto do registro do usuário
-        try:
-            import winreg
+def chave_do_registro():
+    try:
+        import winreg
 
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as chave:
-                valor = str(winreg.QueryValueEx(chave, "PIXELLAB_API_TOKEN")[0]).strip()
-        except OSError:
-            valor = ""
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as chave:
+            return str(winreg.QueryValueEx(chave, "PIXELLAB_API_TOKEN")[0]).strip()
+    except OSError:
+        return ""
+
+
+def token():
+    # Regra 15: o `setx` só aparece em processos novos; o registro tem a chave mais recente
+    valor = chave_do_registro() if sys.platform == "win32" else ""
+    if not valor:
+        valor = os.environ.get("PIXELLAB_API_TOKEN", "").strip()
     if not valor:
         sys.exit(
             "Falta a chave do PixelLab. No PowerShell:\n"

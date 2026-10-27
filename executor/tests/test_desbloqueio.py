@@ -83,3 +83,12 @@ def test_EXE_086_faisca_bloqueada():
     assert r["erro"]["tipo"] == "PecaBloqueada"
     assert r["erro"]["linha"] == 1
     assert r["acoes"] == []
+
+
+def test_MAG_080_feixe_bloqueado():
+    r = run_com("lancar(gelo, feixe)", sem("feixe"))
+    assert r["erro"]["tipo"] == "PecaBloqueada"
+    assert "feixe" in r["erro"]["mensagem"]
+    assert r["acoes"] == []
+    # Como as outras peças, bloqueado o nome nem pode ser citado.
+    assert run_com("print(feixe)", sem("feixe"))["erro"]["tipo"] == "PecaBloqueada"

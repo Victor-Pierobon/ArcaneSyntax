@@ -5,7 +5,8 @@ extends RefCounted
 ## as fases (BossPhases) e as marcas dos pilares. O nó só desenha e aplica os eventos de `tick`:
 ## {"tipo": "mover", "ataque", "destino"}, {"tipo": "aviso", "ataque"}, {"tipo": "leque", "direcoes"},
 ## {"tipo": "marca", "id", "posicao"}, {"tipo": "pilar", "id"}, {"tipo": "pilar_fim", "id"},
-## {"tipo": "investida", "destino"} e {"tipo": "cancelar"} (a troca de fase cancelou o ataque).
+## {"tipo": "investida", "destino"}, {"tipo": "orbe", "direcao"} (um orbe junto da marca de pilar, Sprint 21)
+## e {"tipo": "cancelar"} (a troca de fase cancelou o ataque).
 
 enum State { START, MOVE, WARN, ATTACK, REST, TRANSITION }
 
@@ -32,6 +33,8 @@ var _next_attack := 0
 var _marks_left := 0
 var _mark_id := 0
 var _events: Array[Dictionary] = []
+## Velocidade do mago no passo, para o leque mirar adiante (COM-chefe, regra 11).
+var _player_velocity := Vector2.ZERO
 
 
 func _init(start: Vector2, p_points: Array[Vector2], p_charge_points: Array[Vector2]) -> void:
@@ -64,8 +67,9 @@ func destination() -> Vector2:
 	return _destination
 
 
-## Avança `delta` segundos com o centro do mago em `player`; devolve os eventos do passo.
-func tick(delta: float, player: Vector2) -> Array[Dictionary]:
+## Avança `delta` segundos com o centro do mago em `player` (e a velocidade dele); devolve os eventos do passo.
+func tick(delta: float, player: Vector2, player_velocity := Vector2.ZERO) -> Array[Dictionary]:
+	_player_velocity = player_velocity
 	match state:
 		State.START, State.REST:
 			_timer -= delta
@@ -170,8 +174,9 @@ func _strike(player: Vector2) -> void:
 		_events.append({"tipo": "investida", "destino": _destination})
 		return
 	var count := int(_phase_number("leque_orbes"))
+	var aim := player + _player_velocity * Balance.number("chefe", "leque_adiante_s")
 	_events.append({"tipo": "leque",
-			"direcoes": fan(player - position, count, Balance.number("chefe", "leque_abertura_graus"))})
+			"direcoes": fan(aim - position, count, Balance.number("chefe", "leque_abertura_graus"))})
 	_rest()
 
 
@@ -201,6 +206,8 @@ func _tick_pillars(delta: float, player: Vector2) -> void:
 		var mark := {"id": _mark_id, "posicao": floor_finder.call(player), "tempo": 0.0, "subiu": false}
 		marks.append(mark)
 		_events.append({"tipo": "marca", "id": _mark_id, "posicao": mark["posicao"]})
+		if _phase_number("pilar_orbes") > 0.0 and player != position:
+			_events.append({"tipo": "orbe", "direcao": (player - position).normalized()})
 	if _marks_left == 0 and marks.is_empty():
 		_rest()
 

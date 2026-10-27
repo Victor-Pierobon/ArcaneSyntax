@@ -65,10 +65,10 @@
     "saidas": [],
     "mago": {
       "vida": 5,
-      "mana": 4.3,
+      "mana": 2.3,
       "mana_max": 10
     },
-    "custo_mana": 5.7,
+    "custo_mana": 7.7,
     "erro": null
   }
 }
